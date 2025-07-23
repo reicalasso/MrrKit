@@ -1,6 +1,7 @@
 'use client'
 
-import React, { useMemo } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import * as React from 'react'
 import * as Babel from '@babel/standalone'
 
 interface CodeRendererProps {
@@ -9,183 +10,180 @@ interface CodeRendererProps {
 }
 
 export function CodeRenderer({ code, onError }: CodeRendererProps) {
-  const RenderedComponent = useMemo(() => {
-    if (!code.trim()) return null
+  const [Component, setComponent] = useState<React.ComponentType | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  const iframeRef = useRef<HTMLIFrameElement>(null)
+
+  useEffect(() => {
+    if (!code.trim()) {
+      setComponent(null)
+      setError(null)
+      return
+    }
 
     try {
-      // Export statement'ını temizle ve component adını extract et
-      let cleanCode = code.trim()
-      let componentName = 'GeneratedComponent'
-      
-      // Export default ifadesini temizle ve component adını yakala
-      const exportMatch = cleanCode.match(/export\s+default\s+function\s+(\w+)/)
-      if (exportMatch) {
-        componentName = exportMatch[1]
-        cleanCode = cleanCode.replace(/export\s+default\s+/, '')
-      } else {
-        // Eğer export default yoksa, function declaration'ı ara
-        const funcMatch = cleanCode.match(/function\s+(\w+)/)
-        if (funcMatch) {
-          componentName = funcMatch[1]
-        }
+      // Clean the code - remove import statements and export statements
+      let cleanCode = code
+        .replace(/import\s+.*?from\s+['"][^'"]*['"];?\s*/g, '')
+        .replace(/export\s+default\s+/g, '')
+        .replace(/export\s+/g, '')
+
+      // If code doesn't contain a function, wrap it in a simple component
+      if (!cleanCode.includes('function') && !cleanCode.includes('=>')) {
+        cleanCode = `
+          function GeneratedComponent() {
+            return (
+              <div className="p-4">
+                ${cleanCode}
+              </div>
+            )
+          }
+        `
       }
 
-      // Arrow function export'unu handle et
-      const arrowExportMatch = cleanCode.match(/export\s+default\s+(\w+)/)
-      if (arrowExportMatch) {
-        componentName = arrowExportMatch[1]
-        cleanCode = cleanCode.replace(/export\s+default\s+\w+/, '')
-      }
-
-      // Babel ile transform et
+      // Transform JSX to regular JavaScript
       const transformedCode = Babel.transform(cleanCode, {
-        filename: 'generated-component.jsx',
-        presets: [
-          ['react', { runtime: 'classic' }],
-          ['env', { modules: false, targets: { node: 'current' } }]
-        ],
-        plugins: []
+        presets: ['react'],
+        filename: 'generated.jsx'
       }).code
 
-      // Mock UI bileşenleri
-      const mockComponents = {
-        Button: (props: React.ButtonHTMLAttributes<HTMLButtonElement>) => React.createElement('button', { 
-          className: `inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 ${props.className || ''}`,
-          style: { cursor: props.disabled ? 'not-allowed' : 'pointer' },
-          ...props 
-        }),
-        
-        Input: (props: React.InputHTMLAttributes<HTMLInputElement>) => React.createElement('input', { 
-          className: `flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${props.className || ''}`,
-          ...props 
-        }),
-        
-        Card: (props: React.HTMLAttributes<HTMLDivElement>) => React.createElement('div', { 
-          className: `rounded-lg border border-gray-200 bg-white text-gray-950 shadow-sm ${props.className || ''}`,
-          ...props 
-        }),
-        
-        CardContent: (props: React.HTMLAttributes<HTMLDivElement>) => React.createElement('div', { 
-          className: `p-6 pt-0 ${props.className || ''}`,
-          ...props 
-        }),
-        
-        CardHeader: (props: React.HTMLAttributes<HTMLDivElement>) => React.createElement('div', { 
-          className: `flex flex-col space-y-1.5 p-6 ${props.className || ''}`,
-          ...props 
-        }),
-        
-        CardTitle: (props: React.HTMLAttributes<HTMLHeadingElement>) => React.createElement('h3', { 
-          className: `text-2xl font-semibold leading-none tracking-tight ${props.className || ''}`,
-          ...props 
-        })
-      }
-
-      // Güvenli kod çalıştırma - export olmadan
-      const createComponent = new Function(
+      // Create the component function
+      const componentFunction = new Function(
         'React',
-        'useState', 
+        'useState',
         'useEffect',
+        'useRef',
         'useCallback',
-        'useMemo',
-        'Button',
-        'Input', 
-        'Card',
-        'CardContent',
-        'CardHeader',
-        'CardTitle',
         `
-        try {
-          ${transformedCode}
-          
-          // Component'i farklı isimlerle dene
-          const possibleComponents = [
-            typeof ${componentName} !== 'undefined' ? ${componentName} : null,
-            typeof GeneratedComponent !== 'undefined' ? GeneratedComponent : null,
-            typeof TodoApp !== 'undefined' ? TodoApp : null,
-            typeof Calculator !== 'undefined' ? Calculator : null,
-            typeof ProfileCard !== 'undefined' ? ProfileCard : null,
-            typeof Counter !== 'undefined' ? Counter : null
-          ].filter(Boolean);
-          
-          if (possibleComponents.length > 0) {
-            return possibleComponents[0];
-          }
-          
-          // Eğer hiçbiri bulunamazsa, global scope'da tanımlı function'ları ara
-          const globalKeys = Object.keys(this || {});
-          for (let key of globalKeys) {
-            if (typeof this[key] === 'function' && key !== 'Function' && key !== 'eval') {
-              return this[key];
-            }
-          }
-          
-          return function DefaultComponent() {
-            return React.createElement('div', { 
-              className: 'text-amber-600 p-4 border border-amber-300 rounded bg-amber-50' 
-            }, 'Bileşen tanımlandı ama bulunamadı: ${componentName}');
-          };
-        } catch (error) {
-          console.error('Component execution error:', error);
-          return function ErrorComponent() {
-            return React.createElement('div', { 
-              className: 'text-red-500 p-4 border border-red-300 rounded bg-red-50' 
-            }, 'Kod çalıştırılamadı: ' + error.message);
-          };
+        const { createElement, Fragment } = React;
+        ${transformedCode}
+        
+        // Find the component function
+        const componentMatch = \`${cleanCode}\`.match(/function\\s+(\\w+)/);
+        const componentName = componentMatch ? componentMatch[1] : null;
+        
+        if (componentName && typeof eval(componentName) === 'function') {
+          return eval(componentName);
         }
+        
+        // If no named function found, look for arrow function or default export
+        if (typeof GeneratedComponent === 'function') {
+          return GeneratedComponent;
+        }
+        
+        // Fallback: return a simple component
+        return function() {
+          return createElement('div', { className: 'p-4 text-center' }, 'Component rendered successfully');
+        };
         `
-      )
+      )(React, React.useState, React.useEffect, React.useRef, React.useCallback)
 
-      return createComponent.call({}, 
-        React,
-        React.useState,
-        React.useEffect,
-        React.useCallback,
-        React.useMemo,
-        mockComponents.Button,
-        mockComponents.Input,
-        mockComponents.Card,
-        mockComponents.CardContent,
-        mockComponents.CardHeader,
-        mockComponents.CardTitle
-      )
-
-    } catch (error) {
-      console.error('Kod render hatası:', error)
-      const errorMessage = error instanceof Error ? error.message : 'Bilinmeyen hata'
+      setComponent(() => componentFunction)
+      setError(null)
+      onError?.(null as any)
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred'
+      setError(errorMessage)
+      setComponent(null)
       onError?.(errorMessage)
       
-      return () => React.createElement('div', { 
-        className: 'text-red-500 p-3 sm:p-4 border border-red-300 rounded-lg bg-red-50 max-w-full mx-2 sm:mx-0' 
-      }, [
-        React.createElement('h4', { key: 'title', className: 'font-bold mb-2 text-sm sm:text-base' }, 'Render Hatası'),
-        React.createElement('p', { key: 'message', className: 'text-xs sm:text-sm mb-2' }, errorMessage),
-        React.createElement('details', { key: 'details', className: 'mt-2' }, [
-          React.createElement('summary', { key: 'summary', className: 'cursor-pointer text-xs font-medium' }, 'Hata Detayları'),
-          React.createElement('pre', { 
-            key: 'stack', 
-            className: 'text-xs mt-1 whitespace-pre-wrap bg-red-100 p-2 rounded max-h-32 overflow-auto break-all' 
-          }, error instanceof Error ? error.stack : 'Stack trace mevcut değil')
-        ])
-      ])
+      // Fallback: render in iframe
+      renderInIframe()
     }
   }, [code, onError])
 
-  if (!RenderedComponent) {
+  const renderInIframe = () => {
+    if (!iframeRef.current) return
+
+    const iframe = iframeRef.current
+    const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document
+
+    if (!iframeDoc) return
+
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+          <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+          <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+          <script src="https://cdn.tailwindcss.com"></script>
+          <style>
+            body { margin: 0; padding: 16px; font-family: system-ui, sans-serif; }
+          </style>
+        </head>
+        <body>
+          <div id="root"></div>
+          <script type="text/babel">
+            const { useState, useEffect, useRef, useCallback } = React;
+            
+            ${code.replace(/import\s+.*?from\s+['"][^'"]*['"];?\s*/g, '')}
+            
+            // Try to find and render the component
+            const componentMatch = \`${code}\`.match(/function\\s+(\\w+)/);
+            const componentName = componentMatch ? componentMatch[1] : 'App';
+            
+            try {
+              const ComponentToRender = eval(componentName) || (() => React.createElement('div', null, 'Component rendered'));
+              ReactDOM.render(React.createElement(ComponentToRender), document.getElementById('root'));
+            } catch (e) {
+              ReactDOM.render(
+                React.createElement('div', { 
+                  style: { padding: '20px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', color: '#dc2626' } 
+                }, 'Render Error: ' + e.message), 
+                document.getElementById('root')
+              );
+            }
+          </script>
+        </body>
+      </html>
+    `
+
+    iframeDoc.open()
+    iframeDoc.write(htmlContent)
+    iframeDoc.close()
+  }
+
+  if (error) {
     return (
-      <div className="flex items-center justify-center h-48 sm:h-64 text-gray-500 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300 mx-2 sm:mx-0">
-        <div className="text-center px-4">
-          <div className="text-3xl sm:text-4xl mb-2">📝</div>
-          <p className="text-base sm:text-lg font-medium">Kod bekleniyor</p>
-          <p className="text-xs sm:text-sm">Bir prompt girin ve kod üretin</p>
-        </div>
+      <div className="h-full w-full">
+        <iframe
+          ref={iframeRef}
+          className="w-full h-full border-0"
+          title="Code Preview"
+          sandbox="allow-scripts"
+        />
       </div>
     )
   }
 
+  if (Component) {
+    try {
+      return (
+        <div className="h-full w-full overflow-auto bg-white">
+          <div className="min-h-full">
+            <Component />
+          </div>
+        </div>
+      )
+    } catch (renderError) {
+      return (
+        <div className="h-full w-full p-4 bg-red-50 border border-red-200 rounded-lg">
+          <div className="text-red-700">
+            <strong>Render Error:</strong> {renderError instanceof Error ? renderError.message : 'Unknown error'}
+          </div>
+        </div>
+      )
+    }
+  }
+
   return (
-    <div className="bg-white p-3 sm:p-4 rounded-lg border min-h-[150px] sm:min-h-[200px] mx-2 sm:mx-0">
-      <RenderedComponent />
+    <div className="h-full w-full flex items-center justify-center bg-gray-50">
+      <div className="text-center text-gray-500">
+        <div className="text-4xl mb-4">🎨</div>
+        <p className="text-lg font-medium mb-2">Önizleme Hazır</p>
+        <p className="text-sm">Kod yazın veya AI ile üretin</p>
+      </div>
     </div>
   )
 }

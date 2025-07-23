@@ -1,37 +1,24 @@
-import * as React from "react"
+'use client'
 
-const MOBILE_BREAKPOINT = 768
+import { useState, useEffect } from 'react'
 
 export function useIsMobile() {
-  const [isMobile, setIsMobile] = React.useState(false)
-  const [isClient, setIsClient] = React.useState(false)
+  const [isMobile, setIsMobile] = useState(false)
 
-  React.useEffect(() => {
-    setIsClient(true)
-
-    if (typeof window === "undefined") return
-
+  useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
+      setIsMobile(window.innerWidth < 768)
     }
 
-    // Initial check
+    // Check initial state
     checkMobile()
 
-    const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`)
-    const onChange = () => checkMobile()
+    // Add event listener
+    window.addEventListener('resize', checkMobile)
 
-    // Modern approach
-    if (mql.addEventListener) {
-      mql.addEventListener("change", onChange)
-      return () => mql.removeEventListener("change", onChange)
-    } else {
-      // Fallback for older browsers
-      mql.addListener(onChange)
-      return () => mql.removeListener(onChange)
-    }
+    // Cleanup
+    return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
-  // Return false during SSR to prevent hydration mismatch
-  return isClient ? isMobile : false
+  return isMobile
 }

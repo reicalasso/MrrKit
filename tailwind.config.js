@@ -66,7 +66,13 @@ module.exports = {
   				'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
   				border: 'hsl(var(--sidebar-border))',
   				ring: 'hsl(var(--sidebar-ring))'
-  			}
+  			},
+  			cream: {
+  				50: 'hsl(35, 100%, 98%)',
+  				100: 'hsl(35, 60%, 95%)',
+  				200: 'hsl(35, 40%, 90%)',
+  				300: 'hsl(35, 30%, 85%)',
+  			},
   		},
   		keyframes: {
   			'accordion-down': {
@@ -84,11 +90,22 @@ module.exports = {
   				to: {
   					height: '0'
   				}
-  			}
+  			},
+  			purr: {
+  				'0%, 100%': { transform: 'scale(1)' },
+  				'50%': { transform: 'scale(1.05)' },
+  			},
+  			'gentle-float': {
+  				'0%, 100%': { transform: 'translateY(0px) rotate(0deg)' },
+  				'25%': { transform: 'translateY(-10px) rotate(1deg)' },
+  				'75%': { transform: 'translateY(-5px) rotate(-1deg)' },
+  			},
   		},
   		animation: {
   			'accordion-down': 'accordion-down 0.2s ease-out',
-  			'accordion-up': 'accordion-up 0.2s ease-out'
+  			'accordion-up': 'accordion-up 0.2s ease-out',
+  			'purr': 'purr 2s ease-in-out infinite',
+  			'gentle-float': 'gentle-float 6s ease-in-out infinite',
   		},
   		borderRadius: {
   			lg: 'var(--radius)',

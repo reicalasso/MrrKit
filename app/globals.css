@@ -24,6 +24,12 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 222.2 84% 4.9%;
     --radius: 0.5rem;
+    
+    /* Custom cream colors */
+    --cream-50: 35 100% 98%;
+    --cream-100: 35 60% 95%;
+    --cream-200: 35 40% 90%;
+    --cream-300: 35 30% 85%;
   }
 
   .dark {
@@ -56,6 +62,19 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Custom cream colors */
+@layer utilities {
+  .text-cream-50 { color: hsl(var(--cream-50)); }
+  .text-cream-100 { color: hsl(var(--cream-100)); }
+  .text-cream-200 { color: hsl(var(--cream-200)); }
+  .text-cream-300 { color: hsl(var(--cream-300)); }
+  .bg-cream-50 { background-color: hsl(var(--cream-50)); }
+  .bg-cream-100 { background-color: hsl(var(--cream-100)); }
+  .bg-cream-200 { background-color: hsl(var(--cream-200)); }
+  .bg-cream-300 { background-color: hsl(var(--cream-300)); }
+  .border-cream-200 { border-color: hsl(var(--cream-200)); }
 }
 
 /* Custom animations */
@@ -260,4 +279,35 @@
   to {
     transform: translateX(0);
   }
+}
+
+/* Cat-inspired animations */
+@keyframes purr {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+@keyframes gentle-float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  25% { transform: translateY(-10px) rotate(1deg); }
+  75% { transform: translateY(-5px) rotate(-1deg); }
+}
+
+.animate-purr {
+  animation: purr 2s ease-in-out infinite;
+}
+
+.animate-gentle-float {
+  animation: gentle-float 6s ease-in-out infinite;
+}
+
+/* Enhanced backdrop blur for cat theme */
+.backdrop-blur-sm {
+  backdrop-filter: blur(4px) saturate(1.2);
+  -webkit-backdrop-filter: blur(4px) saturate(1.2);
+}
+
+.backdrop-blur-md {
+  backdrop-filter: blur(12px) saturate(1.1);
+  -webkit-backdrop-filter: blur(12px) saturate(1.1);
 }
