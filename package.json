@@ -12,6 +12,7 @@
     "@babel/preset-env": "^7.23.0",
     "@babel/preset-react": "^7.23.0",
     "@babel/standalone": "^7.23.0",
+    "@monaco-editor/react": "^4.6.0",
     "@radix-ui/react-accordion": "^1.2.11",
     "@radix-ui/react-alert-dialog": "^1.1.14",
     "@radix-ui/react-aspect-ratio": "^1.1.7",
@@ -62,7 +63,7 @@
   "devDependencies": {
     "@types/babel__core": "^7.20.5",
     "@types/babel__generator": "^7.27.0",
-    "@types/babel__standalone": "^7.1.9",
+    "@types/babel__standalone": "^7.1.7",
     "@types/babel__template": "^7.4.4",
     "@types/babel__traverse": "^7.20.7",
     "@types/node": "^20.19.9",

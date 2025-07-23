@@ -1,13 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Checkbox } from '@/components/ui/checkbox'
 import { 
   Split, 
   Play, 
@@ -22,27 +21,232 @@ import {
   Plus,
   Save,
   RefreshCw,
-  Sparkles
+  Sparkles,
+  Menu,
+  X,
+  Smartphone,
+  Monitor,
+  Terminal as TerminalIcon,
+  Upload,
+  GitBranch,
+  Search
 } from 'lucide-react'
 import { CodeRenderer } from '@/lib/code-renderer'
+import { useIsMobile } from '@/hooks/use-mobile'
+import { FileExplorer, type FileNode } from '@/components/code-editor/file-explorer'
+import { CodeMirrorEditor } from '@/components/code-editor/code-mirror-editor'
+import { Terminal } from '@/components/code-editor/terminal'
+import { Input } from '@/components/ui/input'
 
 export default function WorkspacePage() {
   const [prompt, setPrompt] = useState('')
-  const [generatedCode, setGeneratedCode] = useState('')
   const [isGenerating, setIsGenerating] = useState(false)
   const [viewMode, setViewMode] = useState<'split' | 'code' | 'preview'>('split')
   const [projectName, setProjectName] = useState('Yeni Proje')
-  const [files, setFiles] = useState([
-    { id: 'main', name: 'App.jsx', content: '', active: true },
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [showTerminal, setShowTerminal] = useState(false)
+  const [terminalHeight, setTerminalHeight] = useState(200)
+  const [searchTerm, setSearchTerm] = useState('')
+  const isMobile = useIsMobile()
+
+  // Dosya sistemi
+  const [files, setFiles] = useState<FileNode[]>([
+    {
+      id: 'src',
+      name: 'src',
+      type: 'folder',
+      children: [
+        {
+          id: 'app',
+          name: 'App.jsx',
+          type: 'file',
+          content: `import React, { useState } from 'react';
+
+function App() {
+  const [count, setCount] = useState(0);
+
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+      <h1 className="text-4xl font-bold text-gray-800 mb-8">
+        MrrKit Workspace
+      </h1>
+      <div className="bg-white p-8 rounded-lg shadow-lg">
+        <p className="text-xl mb-4">Counter: {count}</p>
+        <div className="flex gap-4">
+          <button 
+            onClick={() => setCount(count + 1)}
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            Increment
+          </button>
+          <button 
+            onClick={() => setCount(count - 1)}
+            className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+          >
+            Decrement
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default App;`
+        }
+      ]
+    },
+    {
+      id: 'components',
+      name: 'components',
+      type: 'folder',
+      children: []
+    },
+    {
+      id: 'package',
+      name: 'package.json',
+      type: 'file',
+      content: `{
+  "name": "mrrkit-project",
+  "version": "1.0.0",
+  "dependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  }
+}`
+    }
   ])
-  const [activeFile, setActiveFile] = useState('main')
+
+  const [activeFile, setActiveFile] = useState<FileNode | null>(null)
 
   // Ana sayfadan gelen prompt'u yükle
   useEffect(() => {
     const initialPrompt = localStorage.getItem('initialPrompt')
     if (initialPrompt) {
       setPrompt(initialPrompt)
-      localStorage.removeItem('initialPrompt') // Kullanıldıktan sonra temizle
+      localStorage.removeItem('initialPrompt')
+    }
+  }, [])
+
+  // Mobile'da sidebar'ı varsayılan olarak kapalı tut
+  useEffect(() => {
+    if (isMobile) {
+      setSidebarOpen(false)
+    } else {
+      setSidebarOpen(true)
+    }
+  }, [isMobile])
+
+  // Mobile'da split view yerine preview göster
+  useEffect(() => {
+    if (isMobile && viewMode === 'split') {
+      setViewMode('preview')
+    }
+  }, [isMobile, viewMode])
+
+  // File operations
+  const findFileById = useCallback((id: string, nodes: FileNode[] = files): FileNode | null => {
+    for (const node of nodes) {
+      if (node.id === id) return node
+      if (node.children) {
+        const found = findFileById(id, node.children)
+        if (found) return found
+      }
+    }
+    return null
+  }, [files])
+
+  const updateFileContent = useCallback((fileId: string, content: string) => {
+    const updateNode = (nodes: FileNode[]): FileNode[] => {
+      return nodes.map(node => {
+        if (node.id === fileId) {
+          return { ...node, content }
+        }
+        if (node.children) {
+          return { ...node, children: updateNode(node.children) }
+        }
+        return node
+      })
+    }
+    
+    setFiles(updateNode(files))
+    if (activeFile?.id === fileId) {
+      setActiveFile({ ...activeFile, content })
+    }
+  }, [files, activeFile])
+
+  const createFile = useCallback((name: string, type: 'file' | 'folder', parentId?: string) => {
+    const newFile: FileNode = {
+      id: Date.now().toString(),
+      name,
+      type,
+      content: type === 'file' ? '' : undefined,
+      children: type === 'folder' ? [] : undefined,
+      parent: parentId
+    }
+
+    if (!parentId) {
+      setFiles([...files, newFile])
+    } else {
+      const addToNode = (nodes: FileNode[]): FileNode[] => {
+        return nodes.map(node => {
+          if (node.id === parentId && node.children) {
+            return { ...node, children: [...node.children, newFile] }
+          }
+          if (node.children) {
+            return { ...node, children: addToNode(node.children) }
+          }
+          return node
+        })
+      }
+      setFiles(addToNode(files))
+    }
+  }, [files])
+
+  const deleteFile = useCallback((fileId: string) => {
+    const removeFromNodes = (nodes: FileNode[]): FileNode[] => {
+      return nodes.filter(node => {
+        if (node.id === fileId) return false
+        if (node.children) {
+          node.children = removeFromNodes(node.children)
+        }
+        return true
+      })
+    }
+    
+    setFiles(removeFromNodes(files))
+    if (activeFile?.id === fileId) {
+      setActiveFile(null)
+    }
+  }, [files, activeFile])
+
+  const renameFile = useCallback((fileId: string, newName: string) => {
+    const updateNode = (nodes: FileNode[]): FileNode[] => {
+      return nodes.map(node => {
+        if (node.id === fileId) {
+          return { ...node, name: newName }
+        }
+        if (node.children) {
+          return { ...node, children: updateNode(node.children) }
+        }
+        return node
+      })
+    }
+    
+    setFiles(updateNode(files))
+    if (activeFile?.id === fileId) {
+      setActiveFile({ ...activeFile, name: newName })
+    }
+  }, [files, activeFile])
+
+  const downloadFile = useCallback((file: FileNode) => {
+    if (file.type === 'file' && file.content) {
+      const blob = new Blob([file.content], { type: 'text/plain' })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = file.name
+      a.click()
+      URL.revokeObjectURL(url)
     }
   }, [])
 
@@ -60,14 +264,23 @@ export default function WorkspacePage() {
       const data = await response.json()
       if (data.success) {
         const code = data.components?.[0]?.code || data.code || ''
-        setGeneratedCode(code)
         
-        // Update active file
-        setFiles(prev => prev.map(file => 
-          file.id === activeFile 
-            ? { ...file, content: code }
-            : file
-        ))
+        // Yeni dosya oluştur veya mevcut dosyayı güncelle
+        if (activeFile) {
+          updateFileContent(activeFile.id, code)
+        } else {
+          // Yeni dosya oluştur
+          const newFileName = `generated-${Date.now()}.jsx`
+          createFile(newFileName, 'file')
+          // Yeni dosyayı aktif yap ve içeriği ekle
+          setTimeout(() => {
+            const newFile = findFileById(files[files.length - 1]?.id)
+            if (newFile) {
+              setActiveFile(newFile)
+              updateFileContent(newFile.id, code)
+            }
+          }, 100)
+        }
       }
     } catch (error) {
       console.error('Generation error:', error)
@@ -77,36 +290,36 @@ export default function WorkspacePage() {
   }
 
   const AIEditor = () => (
-    <div className="h-full flex flex-col bg-gradient-to-br from-purple-900/20 to-pink-900/20 backdrop-blur-sm">
-      <div className="p-4 border-b border-white/10">
+    <div className="h-full flex flex-col bg-gradient-to-br from-purple-50 to-pink-50 border-r border-gray-200">
+      <div className="p-4 border-b border-gray-200 bg-white/50 backdrop-blur-sm">
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-8 h-8 bg-gradient-to-br from-purple-400 to-pink-400 rounded-lg flex items-center justify-center">
+          <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center shadow-sm">
             <Sparkles className="h-4 w-4 text-white" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-white">AI Kod Editörü</h2>
-            <p className="text-xs text-purple-200">Prompt yazın, kod alın</p>
+            <h2 className="text-base font-bold text-gray-900">AI Editör</h2>
+            <p className="text-xs text-gray-600">Prompt yazın, kod alın</p>
           </div>
         </div>
         
         <div className="space-y-4">
           <div>
-            <label className="text-sm font-medium text-gray-300 mb-2 block">
+            <label className="text-sm font-medium text-gray-700 mb-2 block">
               💭 Ne yapmak istiyorsunuz?
             </label>
             <Textarea
               placeholder="Örnek: Modern bir e-ticaret ürün kartı oluştur..."
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
-              className="min-h-[120px] bg-white/10 border-white/20 text-white placeholder:text-gray-400 resize-none"
+              className="min-h-[100px] text-sm border-gray-200 resize-none focus:border-purple-300 focus:ring-1 focus:ring-purple-200"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
-              <label className="text-xs text-gray-400">🎨 Stil</label>
+              <label className="text-xs text-gray-600 font-medium">🎨 Stil</label>
               <Select>
-                <SelectTrigger className="bg-white/5 border-white/10 text-white text-xs">
+                <SelectTrigger className="h-8 text-xs border-gray-200">
                   <SelectValue placeholder="Modern" />
                 </SelectTrigger>
                 <SelectContent>
@@ -117,9 +330,9 @@ export default function WorkspacePage() {
               </Select>
             </div>
             <div className="space-y-2">
-              <label className="text-xs text-gray-400">📱 Platform</label>
+              <label className="text-xs text-gray-600 font-medium">📱 Platform</label>
               <Select>
-                <SelectTrigger className="bg-white/5 border-white/10 text-white text-xs">
+                <SelectTrigger className="h-8 text-xs border-gray-200">
                   <SelectValue placeholder="Web" />
                 </SelectTrigger>
                 <SelectContent>
@@ -131,29 +344,10 @@ export default function WorkspacePage() {
             </div>
           </div>
 
-          <div className="space-y-2">
-            <label className="text-xs text-gray-400">⚡ Özellikler</label>
-            <div className="space-y-2">
-              {[
-                'Responsive tasarım',
-                'Dark mode desteği',
-                'Animasyonlar',
-                'Form validasyonu'
-              ].map((feature) => (
-                <div key={feature} className="flex items-center space-x-2">
-                  <Checkbox id={feature} className="border-white/30" />
-                  <label htmlFor={feature} className="text-xs text-gray-300">
-                    {feature}
-                  </label>
-                </div>
-              ))}
-            </div>
-          </div>
-
           <Button 
             onClick={handleGenerate}
             disabled={!prompt.trim() || isGenerating}
-            className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+            className="w-full h-10 text-sm bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 border-0 shadow-sm"
           >
             {isGenerating ? (
               <>
@@ -171,96 +365,87 @@ export default function WorkspacePage() {
       </div>
 
       {/* Quick Actions */}
-      <div className="p-4 space-y-3">
-        <h3 className="text-sm font-medium text-gray-300">🚀 Hızlı Aksiyonlar</h3>
+      <div className="p-4 space-y-3 bg-white/30">
+        <h3 className="text-sm font-medium text-gray-700">🚀 Hızlı Aksiyonlar</h3>
         <div className="grid grid-cols-2 gap-2">
-          <Button variant="outline" size="sm" className="bg-white/5 border-white/20 text-white hover:bg-white/10">
+          <Button variant="outline" size="sm" className="h-8 text-xs border-gray-200 hover:bg-white/50">
             <Plus className="mr-1 h-3 w-3" />
             Dosya
           </Button>
-          <Button variant="outline" size="sm" className="bg-white/5 border-white/20 text-white hover:bg-white/10">
+          <Button variant="outline" size="sm" className="h-8 text-xs border-gray-200 hover:bg-white/50">
             <Save className="mr-1 h-3 w-3" />
             Kaydet
           </Button>
-          <Button variant="outline" size="sm" className="bg-white/5 border-white/20 text-white hover:bg-white/10">
+          <Button variant="outline" size="sm" className="h-8 text-xs border-gray-200 hover:bg-white/50">
             <Download className="mr-1 h-3 w-3" />
             Export
           </Button>
-          <Button variant="outline" size="sm" className="bg-white/5 border-white/20 text-white hover:bg-white/10">
+          <Button variant="outline" size="sm" className="h-8 text-xs border-gray-200 hover:bg-white/50">
             <Share className="mr-1 h-3 w-3" />
             Paylaş
           </Button>
         </div>
       </div>
-
-      {/* AI Suggestions */}
-      <div className="p-4 space-y-3 border-t border-white/10">
-        <h3 className="text-sm font-medium text-gray-300">💡 AI Önerileri</h3>
-        <div className="space-y-2">
-          {[
-            'Loading state ekle',
-            'Error handling iyileştir',
-            'Responsive yap',
-            'Accessibility ekle'
-          ].map((suggestion, index) => (
-            <button
-              key={index}
-              className="w-full text-left p-2 text-xs bg-white/5 hover:bg-white/10 border border-white/10 rounded text-gray-300 transition-colors"
-            >
-              {suggestion}
-            </button>
-          ))}
-        </div>
-      </div>
     </div>
   )
 
-  const FileExplorer = () => (
-    <div className="h-full bg-gray-900 border-r border-gray-700">
-      <div className="p-3 border-b border-gray-700">
-        <div className="flex items-center justify-between">
-          <h3 className="text-sm font-medium text-white">📁 Dosyalar</h3>
-          <Button size="sm" variant="ghost" className="h-6 w-6 p-0">
-            <Plus className="h-3 w-3" />
-          </Button>
-        </div>
-      </div>
-      <div className="p-2">
-        {files.map((file) => (
-          <button
-            key={file.id}
-            onClick={() => setActiveFile(file.id)}
-            className={`w-full text-left p-2 text-sm rounded mb-1 transition-colors ${
-              file.id === activeFile 
-                ? 'bg-blue-600 text-white' 
-                : 'text-gray-300 hover:bg-gray-800'
-            }`}
-          >
-            <FileText className="inline mr-2 h-3 w-3" />
-            {file.name}
-          </button>
-        ))}
-      </div>
-    </div>
-  )
+  // const FileExplorer = () => (
+  //   <div className="h-full bg-gray-50 border-r border-gray-200">
+  //     <div className="p-3 border-b border-gray-200 bg-white">
+  //       <div className="flex items-center justify-between">
+  //         <h3 className="text-sm font-medium text-gray-900">📁 Dosyalar</h3>
+  //         <Button size="sm" variant="ghost" className="h-6 w-6 p-0 hover:bg-gray-100">
+  //           <Plus className="h-3 w-3" />
+  //         </Button>
+  //       </div>
+  //     </div>
+  //     <div className="p-2">
+  //       {files.map((file) => (
+  //         <button
+  //           key={file.id}
+  //           onClick={() => setActiveFile(file.id)}
+  //           className={`w-full text-left p-2 text-sm rounded mb-1 transition-colors ${
+  //             file.id === activeFile 
+  //               ? 'bg-blue-100 text-blue-900 border border-blue-200' 
+  //               : 'text-gray-700 hover:bg-gray-100'
+  //           }`}
+  //         >
+  //           <FileText className="inline mr-2 h-3 w-3" />
+  //           {file.name}
+  //         </button>
+  //       ))}
+  //     </div>
+  //   </div>
+  // )
 
   const CodeEditor = () => {
-    const activeFileContent = files.find(f => f.id === activeFile)?.content || generatedCode
+    const activeFileContent = files.find(f => f.id === activeFile?.id)?.content || ''
     
     return (
       <div className="h-full flex flex-col">
-        <div className="flex items-center justify-between p-3 border-b border-gray-700 bg-gray-900">
+        <div className="flex items-center justify-between p-3 border-b border-gray-200 bg-white">
           <div className="flex items-center gap-2">
-            <Code className="h-4 w-4 text-gray-400" />
-            <span className="text-sm text-white">
-              {files.find(f => f.id === activeFile)?.name || 'App.jsx'}
+            <Code className="h-4 w-4 text-gray-500" />
+            <span className="text-sm font-medium text-gray-900">
+              {activeFile?.name || 'App.jsx'}
             </span>
           </div>
           <div className="flex gap-1">
+            {!isMobile && (
+              <Button
+                size="sm"
+                variant={viewMode === 'split' ? 'default' : 'ghost'}
+                onClick={() => setViewMode('split')}
+                className="h-8 px-2"
+              >
+                <Split className="h-3 w-3" />
+              </Button>
+            )}
             <Button
               size="sm"
               variant={viewMode === 'code' ? 'default' : 'ghost'}
               onClick={() => setViewMode('code')}
+              className="h-8 px-2"
             >
               <Code className="h-3 w-3" />
             </Button>
@@ -268,38 +453,38 @@ export default function WorkspacePage() {
               size="sm"
               variant={viewMode === 'preview' ? 'default' : 'ghost'}
               onClick={() => setViewMode('preview')}
+              className="h-8 px-2"
             >
               <Eye className="h-3 w-3" />
-            </Button>
-            <Button
-              size="sm"
-              variant={viewMode === 'split' ? 'default' : 'ghost'}
-              onClick={() => setViewMode('split')}
-            >
-              <Split className="h-3 w-3" />
             </Button>
           </div>
         </div>
         
         <div className="flex-1 flex">
-          {(viewMode === 'code' || viewMode === 'split') && (
-            <div className={`${viewMode === 'split' ? 'w-1/2' : 'w-full'} border-r border-gray-700`}>
-              <pre className="h-full p-4 bg-gray-900 text-green-400 text-sm overflow-auto font-mono">
-                <code>{activeFileContent || '// Kod üretmek için AI editörünü kullanın...'}</code>
-              </pre>
+          {(viewMode === 'code' || (viewMode === 'split' && !isMobile)) && (
+            <div className={`${viewMode === 'split' && !isMobile ? 'w-1/2' : 'w-full'} border-r border-gray-200`}>
+              <CodeMirrorEditor
+                value={activeFileContent}
+                onChange={(value) => updateFileContent(activeFile!.id, value)}
+                language={activeFile?.name.endsWith('.tsx') || activeFile?.name.endsWith('.ts') ? 'typescript' : 'javascript'}
+                onSave={() => {
+                  // Auto-save is handled by onChange
+                  console.log('File saved:', activeFile?.name)
+                }}
+              />
             </div>
           )}
           
-          {(viewMode === 'preview' || viewMode === 'split') && (
-            <div className={`${viewMode === 'split' ? 'w-1/2' : 'w-full'} bg-white`}>
+          {(viewMode === 'preview' || (viewMode === 'split' && !isMobile)) && (
+            <div className={`${viewMode === 'split' && !isMobile ? 'w-1/2' : 'w-full'} bg-white`}>
               {activeFileContent ? (
                 <CodeRenderer code={activeFileContent} />
               ) : (
                 <div className="h-full flex items-center justify-center text-gray-500">
-                  <div className="text-center">
+                  <div className="text-center p-6">
                     <Eye className="h-16 w-16 mx-auto mb-4 opacity-30" />
-                    <p>Önizleme bekleniyor</p>
-                    <p className="text-sm">AI editörü ile kod üretin</p>
+                    <p className="text-lg font-medium mb-2">Önizleme bekleniyor</p>
+                    <p className="text-sm text-gray-400">AI editörü ile kod üretin</p>
                   </div>
                 </div>
               )}
@@ -311,52 +496,255 @@ export default function WorkspacePage() {
   }
 
   return (
-    <div className="h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 flex flex-col">
+    <div className="h-screen bg-gray-50 flex flex-col">
       {/* Header */}
-      <header className="h-14 bg-gray-900/80 backdrop-blur-sm border-b border-gray-700 flex items-center justify-between px-4">
+      <header className="h-14 bg-white border-b border-gray-200 flex items-center justify-between px-4 relative z-50">
         <div className="flex items-center gap-4">
+          <button
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="p-2 rounded-lg hover:bg-gray-100 lg:hidden"
+          >
+            {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-purple-400 to-pink-400 rounded-lg flex items-center justify-center">
+            <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center shadow-sm">
               <span className="text-sm font-bold text-white">M</span>
             </div>
-            <h1 className="text-lg font-bold text-white">MrrKit Workspace</h1>
+            <div>
+              <h1 className="text-base sm:text-lg font-bold text-gray-900">MrrKit Workspace</h1>
+              {!isMobile && (
+                <input
+                  type="text"
+                  value={projectName}
+                  onChange={(e) => setProjectName(e.target.value)}
+                  className="text-xs text-gray-600 bg-transparent border-none outline-none p-0"
+                />
+              )}
+            </div>
           </div>
-          <input
-            type="text"
-            value={projectName}
-            onChange={(e) => setProjectName(e.target.value)}
-            className="bg-transparent text-white text-sm border-none outline-none"
-          />
         </div>
         
         <div className="flex items-center gap-2">
-          <Badge variant="secondary" className="bg-green-500/20 text-green-400">
+          {/* Search */}
+          <div className="relative hidden sm:block">
+            <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Input
+              placeholder="Search files..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-8 h-8 w-48"
+            />
+          </div>
+          
+          <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
+            <GitBranch className="h-4 w-4" />
+          </Button>
+          <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
+            <Upload className="h-4 w-4" />
+          </Button>
+          <Badge variant="secondary" className="bg-green-100 text-green-700 border-green-200 text-xs">
             Çevrimiçi
           </Badge>
-          <Button size="sm" variant="ghost">
+          <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
             <Settings className="h-4 w-4" />
           </Button>
         </div>
       </header>
 
       {/* Main Content */}
-      <div className="flex-1 flex">
+      <div className="flex-1 flex relative">
         {/* AI Editor Sidebar */}
-        <div className="w-80 border-r border-gray-700">
-          <AIEditor />
+        <div className={`${
+          isMobile 
+            ? `fixed inset-y-0 left-0 z-40 w-80 transform transition-transform duration-300 ${
+                sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+              }`
+            : 'w-80'
+        } bg-white shadow-lg lg:shadow-none border-r border-gray-200`}>
+          
+          {/* AI Prompt Section */}
+          <div className="h-80 border-b border-gray-200 p-4 bg-gradient-to-br from-purple-50 to-pink-50">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center shadow-sm">
+                <Sparkles className="h-4 w-4 text-white" />
+              </div>
+              <div>
+                <h2 className="text-base font-bold text-gray-900">AI Code Generator</h2>
+                <p className="text-xs text-gray-600">Prompt yazın, kod alın</p>
+              </div>
+            </div>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                  💭 Ne yapmak istiyorsunuz?
+                </label>
+                <Textarea
+                  placeholder="Örnek: Modern bir todo app komponenti oluştur..."
+                  value={prompt}
+                  onChange={(e) => setPrompt(e.target.value)}
+                  className="min-h-[80px] text-sm border-gray-200 resize-none focus:border-purple-300 focus:ring-1 focus:ring-purple-200"
+                />
+              </div>
+
+              <Button 
+                onClick={handleGenerate}
+                disabled={!prompt.trim() || isGenerating}
+                className="w-full h-10 text-sm bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 border-0 shadow-sm"
+              >
+                {isGenerating ? (
+                  <>
+                    <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                    Üretiliyor...
+                  </>
+                ) : (
+                  <>
+                    <Wand2 className="mr-2 h-4 w-4" />
+                    Kod Üret
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+
+          {/* File Explorer */}
+          <div className="flex-1">
+            <FileExplorer
+              files={files}
+              activeFileId={activeFile?.id}
+              onFileSelect={setActiveFile}
+              onFileCreate={createFile}
+              onFileRename={renameFile}
+              onFileDelete={deleteFile}
+              onFileDownload={downloadFile}
+            />
+          </div>
         </div>
 
-        {/* Code Area */}
-        <div className="flex-1 flex">
-          {/* File Explorer */}
-          <div className="w-64">
-            <FileExplorer />
+        {/* Overlay for mobile */}
+        {isMobile && sidebarOpen && (
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-50 z-30"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
+
+        {/* Main Editor Area */}
+        <div className="flex-1 flex flex-col min-w-0">
+          {/* Editor Tabs */}
+          <div className="h-12 bg-white border-b border-gray-200 flex items-center justify-between px-4">
+            <div className="flex items-center gap-2">
+              {activeFile && (
+                <div className="flex items-center gap-2 bg-blue-50 px-3 py-1 rounded-md border border-blue-200">
+                  <FileText className="h-4 w-4 text-blue-600" />
+                  <span className="text-sm font-medium text-blue-900">{activeFile.name}</span>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="h-4 w-4 p-0 hover:bg-blue-100"
+                    onClick={() => setActiveFile(null)}
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
+                </div>
+              )}
+            </div>
+            
+            <div className="flex items-center gap-1">
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setShowTerminal(!showTerminal)}
+                className="h-8 px-2"
+              >
+                <TerminalIcon className="h-3 w-3 mr-1" />
+                Terminal
+              </Button>
+              
+              {!isMobile && (
+                <Button
+                  size="sm"
+                  variant={viewMode === 'split' ? 'default' : 'ghost'}
+                  onClick={() => setViewMode('split')}
+                  className="h-8 px-2"
+                >
+                  <Split className="h-3 w-3" />
+                </Button>
+              )}
+              <Button
+                size="sm"
+                variant={viewMode === 'code' ? 'default' : 'ghost'}
+                onClick={() => setViewMode('code')}
+                className="h-8 px-2"
+              >
+                <Code className="h-3 w-3" />
+              </Button>
+              <Button
+                size="sm"
+                variant={viewMode === 'preview' ? 'default' : 'ghost'}
+                onClick={() => setViewMode('preview')}
+                className="h-8 px-2"
+              >
+                <Eye className="h-3 w-3" />
+              </Button>
+            </div>
           </div>
           
-          {/* Editor + Preview */}
-          <div className="flex-1">
-            <CodeEditor />
+          {/* Editor Content */}
+          <div className={`flex-1 flex ${showTerminal ? `h-[calc(100%-${terminalHeight}px)]` : 'h-full'}`}>
+            {(viewMode === 'code' || (viewMode === 'split' && !isMobile)) && (
+              <div className={`${viewMode === 'split' && !isMobile ? 'w-1/2' : 'w-full'} border-r border-gray-200`}>
+                {activeFile ? (
+                  <CodeMirrorEditor
+                    value={activeFile.content || ''}
+                    onChange={(value) => updateFileContent(activeFile.id, value)}
+                    language={activeFile.name.endsWith('.tsx') || activeFile.name.endsWith('.ts') ? 'typescript' : 'javascript'}
+                    onSave={() => {
+                      // Auto-save is handled by onChange
+                      console.log('File saved:', activeFile.name)
+                    }}
+                  />
+                ) : (
+                  <div className="h-full flex items-center justify-center text-gray-500 bg-gray-50">
+                    <div className="text-center p-6">
+                      <FileText className="h-16 w-16 mx-auto mb-4 opacity-30" />
+                      <p className="text-lg font-medium mb-2">Dosya seçilmedi</p>
+                      <p className="text-sm text-gray-400">Soldaki menüden bir dosya seçin</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+            
+            {(viewMode === 'preview' || (viewMode === 'split' && !isMobile)) && (
+              <div className={`${viewMode === 'split' && !isMobile ? 'w-1/2' : 'w-full'} bg-white`}>
+                {activeFile?.content ? (
+                  <CodeRenderer code={activeFile.content} />
+                ) : (
+                  <div className="h-full flex items-center justify-center text-gray-500">
+                    <div className="text-center p-6">
+                      <Eye className="h-16 w-16 mx-auto mb-4 opacity-30" />
+                      <p className="text-lg font-medium mb-2">Önizleme bekleniyor</p>
+                      <p className="text-sm text-gray-400">Kod yazın veya AI ile üretin</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
+
+          {/* Terminal */}
+          {showTerminal && (
+            <div 
+              className="border-t border-gray-200"
+              style={{ height: terminalHeight }}
+            >
+              <Terminal
+                onClose={() => setShowTerminal(false)}
+                onMinimize={() => setShowTerminal(false)}
+              />
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -5,8 +5,9 @@ import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Wand2, Loader2, Lightbulb } from 'lucide-react'
+import { Wand2, Loader2, Lightbulb, ChevronDown, ChevronUp } from 'lucide-react'
 import { useToast } from '@/lib/hooks/use-toast'
+import { useIsMobile } from '@/hooks/use-mobile'
 
 interface PromptInputProps {
   onCodeGenerated: (code: string) => void
@@ -35,10 +36,10 @@ const ADVANCED_EXAMPLE_PROMPTS = [
 ]
 
 const COMPLEXITY_LEVELS = [
-  { id: 'component', label: '🧩 Tek Bileşen', desc: 'Basit, tek amaçlı bileşen' },
-  { id: 'feature', label: '⚡ Özellik Grubu', desc: 'Birkaç bileşen içeren özellik' },
-  { id: 'page', label: '📄 Tam Sayfa', desc: 'Layout ile tam sayfa yapısı' },
-  { id: 'app', label: '🚀 Tam Uygulama', desc: 'Multi-page, routing, state management' }
+  { id: 'component', label: '🧩 Bileşen', desc: 'Tek bileşen', shortDesc: 'Basit' },
+  { id: 'feature', label: '⚡ Özellik', desc: 'Birkaç bileşen', shortDesc: 'Orta' },
+  { id: 'page', label: '📄 Sayfa', desc: 'Tam sayfa yapısı', shortDesc: 'Büyük' },
+  { id: 'app', label: '🚀 Uygulama', desc: 'Multi-page app', shortDesc: 'Devasa' }
 ]
 
 export function PromptInput({ onCodeGenerated }: PromptInputProps) {
@@ -47,7 +48,9 @@ export function PromptInput({ onCodeGenerated }: PromptInputProps) {
   const [apiStatus, setApiStatus] = useState<'openai' | 'mock' | 'unknown'>('unknown')
   const [complexity, setComplexity] = useState('component')
   const [showAdvanced, setShowAdvanced] = useState(false)
+  const [showExamples, setShowExamples] = useState(false)
   const { toast } = useToast()
+  const isMobile = useIsMobile()
 
   const handleGenerate = async () => {
     if (!prompt.trim()) {
@@ -102,91 +105,101 @@ export function PromptInput({ onCodeGenerated }: PromptInputProps) {
 
   const useExamplePrompt = (example: string) => {
     setPrompt(example)
+    setShowExamples(false)
   }
 
   return (
-    <Card className="h-fit bg-white/10 backdrop-blur-md border-white/20 shadow-2xl">
-      <CardHeader className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 border-b border-white/10">
-        <div className="flex items-center justify-between">
+    <Card className="w-full max-w-none bg-white/95 backdrop-blur-sm border-gray-200 shadow-lg">
+      <CardHeader className="pb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-purple-400 to-pink-400 rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg">
               <span className="text-lg font-bold text-white">M</span>
             </div>
             <div>
-              <CardTitle className="text-white text-xl">Devasa Uygulama Yaratın</CardTitle>
-              <p className="text-purple-200 text-sm">Tek prompt'tan tam uygulamalara</p>
+              <CardTitle className="text-lg sm:text-xl text-gray-900">AI Kod Üretici</CardTitle>
+              <p className="text-sm text-gray-600">Açıklayın, biz kodlayalım</p>
             </div>
           </div>
           {apiStatus !== 'unknown' && (
             <Badge 
               variant={apiStatus === 'openai' ? 'default' : 'secondary'} 
-              className={`text-xs ${
+              className={`text-xs self-start sm:self-center ${
                 apiStatus === 'openai' 
-                  ? 'bg-green-500/20 text-green-300 border-green-400/30' 
-                  : 'bg-amber-500/20 text-amber-300 border-amber-400/30'
+                  ? 'bg-green-100 text-green-700 border-green-200' 
+                  : 'bg-amber-100 text-amber-700 border-amber-200'
               }`}
             >
               {apiStatus === 'openai' ? '🤖 AI' : '📝 Demo'}
             </Badge>
           )}
         </div>
-        <CardDescription className="text-gray-300 text-base leading-relaxed">
-          <strong>Artık sadece bileşen değil!</strong> Tam uygulamalar, dashboard'lar, e-ticaret siteleri yaratın.
-          <span className="text-purple-300 font-medium"> Ne kadar detaylı yazarsanız o kadar güçlü sonuç alırsınız.</span>
+        <CardDescription className="text-sm text-gray-600 leading-relaxed">
+          Ne yapmak istediğinizi detaylı açıklayın. <span className="font-medium text-purple-600">Daha detaylı = daha iyi sonuç.</span>
         </CardDescription>
       </CardHeader>
       
-      <CardContent className="space-y-6 p-6">
+      <CardContent className="space-y-4 sm:space-y-6">
         {/* Complexity Selector */}
         <div className="space-y-3">
-          <label className="text-white font-medium">🎯 Ne tür bir proje istiyorsunuz?</label>
-          <div className="grid grid-cols-2 gap-2">
+          <label className="text-sm font-medium text-gray-700">🎯 Proje Boyutu</label>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
             {COMPLEXITY_LEVELS.map(level => (
               <button
                 key={level.id}
                 onClick={() => setComplexity(level.id)}
-                className={`p-3 rounded-lg border text-left transition-all ${
+                className={`p-3 rounded-lg border text-left transition-all text-sm ${
                   complexity === level.id 
-                    ? 'bg-purple-500/30 border-purple-400 text-white' 
-                    : 'bg-white/5 border-white/20 text-gray-300 hover:bg-white/10'
+                    ? 'bg-purple-50 border-purple-200 text-purple-700 shadow-sm' 
+                    : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100'
                 }`}
               >
-                <div className="font-medium text-sm">{level.label}</div>
-                <div className="text-xs opacity-75">{level.desc}</div>
+                <div className="font-medium">{level.label}</div>
+                <div className="text-xs opacity-75 mt-1">
+                  {isMobile ? level.shortDesc : level.desc}
+                </div>
               </button>
             ))}
           </div>
         </div>
 
-        <Textarea
-          placeholder={
-            complexity === 'app' 
-              ? "Örnek: Netflix benzeri video streaming uygulaması oluştur. Ana sayfa video kategorileri, arama özelliği, kullanıcı profilleri, watchlist, video oynatıcı, yorum sistemi ve admin paneli olsun..."
-              : complexity === 'page'
-              ? "Örnek: E-ticaret ürün detay sayfası: büyük ürün görselleri, fiyat bilgisi, sepete ekle, yorumlar, benzer ürünler, stok durumu..."
-              : "Örnek: Modern ve responsive bir e-ticaret ürün kartı oluştur..."
-          }
-          value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
-          className="min-h-[200px] resize-none bg-white/10 border-white/20 text-white placeholder:text-gray-400 focus:border-purple-400 focus:ring-purple-400/20 text-base"
-        />
+        {/* Main Textarea */}
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-gray-700">💭 Ne yapmak istiyorsunuz?</label>
+          <Textarea
+            placeholder={
+              complexity === 'app' 
+                ? "Örnek: Netflix benzeri video streaming uygulaması. Ana sayfa, kategori filtreleme, arama, kullanıcı profilleri, video oynatıcı ve admin paneli..."
+                : complexity === 'page'
+                ? "Örnek: Modern e-ticaret ürün sayfası. Büyük görseller, fiyat bilgisi, sepete ekle, yorumlar, benzer ürünler..."
+                : "Örnek: Modern ve responsive bir e-ticaret ürün kartı. Hover efektleri, sepete ekle butonu, fiyat gösterimi..."
+            }
+            value={prompt}
+            onChange={(e) => setPrompt(e.target.value)}
+            className="min-h-[120px] sm:min-h-[150px] resize-none text-sm border-gray-200 focus:border-purple-300 focus:ring-purple-200"
+          />
+          <div className="flex justify-between text-xs text-gray-500">
+            <span>{prompt.length} karakter</span>
+            <span>Min. 50 karakter öneriyoruz</span>
+          </div>
+        </div>
         
         {/* Advanced Options */}
-        <div className="space-y-4">
+        <div className="space-y-3">
           <button
             onClick={() => setShowAdvanced(!showAdvanced)}
-            className="flex items-center gap-2 text-sm text-purple-300 hover:text-purple-200"
+            className="flex items-center gap-2 text-sm font-medium text-purple-600 hover:text-purple-700 transition-colors"
           >
-            <span>{showAdvanced ? '▼' : '▶'}</span>
+            {showAdvanced ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
             Gelişmiş Seçenekler
           </button>
           
           {showAdvanced && (
-            <div className="space-y-4 p-4 bg-white/5 rounded-lg border border-white/10">
-              <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="text-white text-sm font-medium">🎨 Stil Tercihi</label>
-                  <select className="w-full mt-1 p-2 bg-white/10 border border-white/20 rounded text-white text-sm">
+                  <label className="text-xs font-medium text-gray-700 mb-1 block">🎨 Stil Tercihi</label>
+                  <select className="w-full text-sm p-2 bg-white border border-gray-200 rounded-md focus:border-purple-300 focus:ring-1 focus:ring-purple-200">
                     <option value="modern">Modern & Minimal</option>
                     <option value="corporate">Kurumsal</option>
                     <option value="colorful">Renkli & Eğlenceli</option>
@@ -194,8 +207,8 @@ export function PromptInput({ onCodeGenerated }: PromptInputProps) {
                   </select>
                 </div>
                 <div>
-                  <label className="text-white text-sm font-medium">📱 Hedef Platform</label>
-                  <select className="w-full mt-1 p-2 bg-white/10 border border-white/20 rounded text-white text-sm">
+                  <label className="text-xs font-medium text-gray-700 mb-1 block">📱 Hedef Platform</label>
+                  <select className="w-full text-sm p-2 bg-white border border-gray-200 rounded-md focus:border-purple-300 focus:ring-1 focus:ring-purple-200">
                     <option value="web">Web (Desktop + Mobile)</option>
                     <option value="mobile">Mobile First</option>
                     <option value="desktop">Desktop First</option>
@@ -206,41 +219,51 @@ export function PromptInput({ onCodeGenerated }: PromptInputProps) {
           )}
         </div>
 
-        <div className="space-y-4">
-          <div className="flex items-center gap-2 text-sm text-gray-300">
-            <Lightbulb className="h-4 w-4 text-yellow-400" />
-            <span className="font-medium">🔥 Devasa Uygulama Örnekleri:</span>
-          </div>
-          <div className="grid grid-cols-1 gap-3 max-h-48 overflow-y-auto scrollbar-thin scrollbar-thumb-white/20">
-            {ADVANCED_EXAMPLE_PROMPTS.map((example, index) => (
-              <div
-                key={index}
-                className="cursor-pointer hover:bg-white/10 p-4 rounded-lg border border-white/10 transition-all duration-200 hover:border-white/20 hover:scale-[1.01]"
-                onClick={() => useExamplePrompt(example)}
-              >
-                <p className="text-xs text-gray-300 leading-relaxed">{example}</p>
+        {/* Examples */}
+        <div className="space-y-3">
+          <button
+            onClick={() => setShowExamples(!showExamples)}
+            className="flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors"
+          >
+            <Lightbulb className="h-4 w-4 text-amber-500" />
+            <span>Örnek Projeler</span>
+            {showExamples ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+          </button>
+          
+          {showExamples && (
+            <div className="space-y-3">
+              <div className="grid grid-cols-1 gap-2 max-h-48 overflow-y-auto">
+                {ADVANCED_EXAMPLE_PROMPTS.slice(0, 6).map((example, index) => (
+                  <button
+                    key={index}
+                    className="text-left p-3 text-xs bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg transition-colors"
+                    onClick={() => useExamplePrompt(example)}
+                  >
+                    <span className="text-gray-700 line-clamp-2">{example}</span>
+                  </button>
+                ))}
               </div>
-            ))}
-          </div>
+            </div>
+          )}
         </div>
 
+        {/* Generate Button */}
         <Button 
           onClick={handleGenerate}
           disabled={!prompt.trim() || isGenerating}
-          className="w-full h-16 text-xl font-bold bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 hover:from-purple-600 hover:via-pink-600 hover:to-blue-600 border-0 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.02]"
+          className="w-full h-12 text-base font-semibold bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 border-0 shadow-lg hover:shadow-xl transition-all duration-200"
           size="lg"
         >
           {isGenerating ? (
-            <div className="flex items-center gap-3">
-              <Loader2 className="h-6 w-6 animate-spin" />
-              <span>Devasa uygulama üretiliyor...</span>
-              <span className="text-2xl">🚀</span>
+            <div className="flex items-center gap-2">
+              <Loader2 className="h-5 w-5 animate-spin" />
+              <span>Kod üretiliyor...</span>
             </div>
           ) : (
-            <div className="flex items-center gap-3">
-              <span className="text-2xl">🎯</span>
-              <span>Devasa Uygulamayı Üret</span>
-              <span className="text-2xl">✨</span>
+            <div className="flex items-center gap-2">
+              <Wand2 className="h-5 w-5" />
+              <span>Kodu Üret</span>
+              <span className="hidden sm:inline">✨</span>
             </div>
           )}
         </Button>

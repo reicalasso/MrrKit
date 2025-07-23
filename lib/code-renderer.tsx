@@ -156,15 +156,15 @@ export function CodeRenderer({ code, onError }: CodeRendererProps) {
       onError?.(errorMessage)
       
       return () => React.createElement('div', { 
-        className: 'text-red-500 p-4 border border-red-300 rounded bg-red-50 max-w-full' 
+        className: 'text-red-500 p-3 sm:p-4 border border-red-300 rounded-lg bg-red-50 max-w-full mx-2 sm:mx-0' 
       }, [
-        React.createElement('h4', { key: 'title', className: 'font-bold mb-2' }, 'Render Hatası'),
-        React.createElement('p', { key: 'message', className: 'text-sm mb-2' }, errorMessage),
+        React.createElement('h4', { key: 'title', className: 'font-bold mb-2 text-sm sm:text-base' }, 'Render Hatası'),
+        React.createElement('p', { key: 'message', className: 'text-xs sm:text-sm mb-2' }, errorMessage),
         React.createElement('details', { key: 'details', className: 'mt-2' }, [
           React.createElement('summary', { key: 'summary', className: 'cursor-pointer text-xs font-medium' }, 'Hata Detayları'),
           React.createElement('pre', { 
             key: 'stack', 
-            className: 'text-xs mt-1 whitespace-pre-wrap bg-red-100 p-2 rounded max-h-32 overflow-auto' 
+            className: 'text-xs mt-1 whitespace-pre-wrap bg-red-100 p-2 rounded max-h-32 overflow-auto break-all' 
           }, error instanceof Error ? error.stack : 'Stack trace mevcut değil')
         ])
       ])
@@ -173,18 +173,18 @@ export function CodeRenderer({ code, onError }: CodeRendererProps) {
 
   if (!RenderedComponent) {
     return (
-      <div className="flex items-center justify-center h-64 text-gray-500 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
-        <div className="text-center">
-          <div className="text-4xl mb-2">📝</div>
-          <p className="text-lg font-medium">Kod bekleniyor</p>
-          <p className="text-sm">Bir prompt girin ve kod üretin</p>
+      <div className="flex items-center justify-center h-48 sm:h-64 text-gray-500 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300 mx-2 sm:mx-0">
+        <div className="text-center px-4">
+          <div className="text-3xl sm:text-4xl mb-2">📝</div>
+          <p className="text-base sm:text-lg font-medium">Kod bekleniyor</p>
+          <p className="text-xs sm:text-sm">Bir prompt girin ve kod üretin</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="bg-white p-4 rounded-lg border min-h-[200px]">
+    <div className="bg-white p-3 sm:p-4 rounded-lg border min-h-[150px] sm:min-h-[200px] mx-2 sm:mx-0">
       <RenderedComponent />
     </div>
   )
