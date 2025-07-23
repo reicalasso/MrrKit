@@ -517,7 +517,11 @@ export default App;`
       <div className="h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center shadow-sm mx-auto mb-4 animate-pulse">
-            <span className="text-sm font-bold text-white">M</span>
+            <img 
+              src="/favicon.ico" 
+              alt="MrrKit Logo" 
+              className="w-5 h-5 object-contain"
+            />
           </div>
           <p className="text-gray-600">Loading workspace...</p>
         </div>
@@ -538,7 +542,11 @@ export default App;`
           </button>
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center shadow-sm">
-              <span className="text-sm font-bold text-white">M</span>
+              <img 
+                src="/favicon.ico" 
+                alt="MrrKit Logo" 
+                className="w-5 h-5 object-contain"
+              />
             </div>
             <div>
               <h1 className="text-base sm:text-lg font-bold text-gray-900">MrrKit Workspace</h1>
@@ -598,7 +606,11 @@ export default App;`
           <div className="h-80 border-b border-gray-200 p-4 bg-gradient-to-br from-purple-50 to-pink-50 flex-shrink-0">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center shadow-sm">
-                <Sparkles className="h-4 w-4 text-white" />
+                <img 
+                  src="/favicon.ico" 
+                  alt="MrrKit Logo" 
+                  className="w-5 h-5 object-contain"
+                />
               </div>
               <div>
                 <h2 className="text-base font-bold text-gray-900">AI Code Generator</h2>

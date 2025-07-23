@@ -37,11 +37,11 @@ export default function Home() {
       <section className="relative z-10 container mx-auto px-4 py-16 text-center">
         {/* Cat Logo */}
         <div className="inline-flex items-center justify-center w-24 h-24 mb-8 bg-gradient-to-br from-purple-400 to-purple-300 rounded-3xl shadow-2xl">
-          <div className="text-4xl font-mono text-slate-900 font-bold">
-            <span className="inline-block transform hover:scale-110 transition-transform duration-300">
-              {'{ 🐱 }'}
-            </span>
-          </div>
+          <img 
+            src="/favicon.ico" 
+            alt="MrrKit Logo" 
+            className="w-12 h-12 object-contain"
+          />
         </div>
 
         <h1 className="text-6xl md:text-8xl font-bold mb-6 bg-gradient-to-r from-cream-100 via-purple-200 to-cream-100 bg-clip-text text-transparent leading-tight">
@@ -331,7 +331,11 @@ export default function Home() {
           <div className="text-center">
             <div className="inline-flex items-center gap-3 mb-6">
               <div className="w-10 h-10 bg-gradient-to-br from-purple-400 to-purple-300 rounded-xl flex items-center justify-center">
-                <span className="text-lg font-mono text-slate-900 font-bold">{'{ 🐱 }'}</span>
+                <img 
+                  src="/favicon.ico" 
+                  alt="MrrKit Logo" 
+                  className="w-6 h-6 object-contain"
+                />
               </div>
               <span className="text-2xl font-bold text-cream-100">MrrKit</span>
             </div>
