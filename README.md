@@ -41,26 +41,6 @@ Uygulamalı, AI destekli deneyimler yoluyla web geliştirme kavramlarını öğr
 **Yaratıcı Teknoloji Uzmanları & Sanatçılar**  
 Yazılım geliştirmeye daha ifade edici, akışkan ve estetik bir yaklaşım arayan yaratıcı profesyoneller.
 
-## 🛠️ Teknoloji Yığını
-
-**Frontend Framework: Next.js**  
-Ölçeklenebilir uygulamalar için sunucu tarafı rendering ve verimli sayfa yönlendirmesi sağlar.
-
-**Stil Sistemi: Tailwind CSS**  
-Hızlı ve responsive UI geliştirme için utility-first CSS framework'ü.
-
-**Bileşen Kütüphanesi: Shadcn UI**  
-Tam özelleştirme için tasarlanmış headless, erişilebilir React bileşenleri.
-
-**AI Entegrasyonu: OpenAI GPT-4 API**  
-Doğal dil promptlarını işler ve React uyumlu JSX kod blokları üretir.
-
-**Canlı Kod Çalıştırma: React Dynamic Rendering**  
-Anında görsel geri bildirim için üretilen bileşenleri gerçek zamanlı olarak render eder.
-
-**Deployment Platformu: Vercel**  
-Otomatik önizlemeler ve production hosting ile sorunsuz deployment pipeline'ı.
-
 ## 🎯 Kullanım
 
 1. Oluşturmak istediğiniz uygulamayı açıklayan bir prompt yazın
@@ -68,62 +48,6 @@ Otomatik önizlemeler ve production hosting ile sorunsuz deployment pipeline'ı.
 3. Gerçek zamanlı önizleme ile sonucu görün
 4. Gerekirse promptu düzenleyip iyileştirin
 5. Uygulamanızı dışa aktarın veya deploy edin
-
-## 📦 Kurulum
-
-```bash
-# Repository'yi klonlayın
-git clone https://github.com/username/MrrKit.git
-
-# Proje dizinine gidin
-cd MrrKit
-
-# Dependencies'leri yükleyin
-npm install
-
-# Environment variables'ları ayarlayın (opsiyonel)
-cp .env.local.example .env.local
-# .env.local dosyasını editleyip OpenAI API key'inizi ekleyin
-
-# Geliştirme sunucusunu başlatın
-npm run dev
-```
-
-### Environment Variables
-
-```bash
-# .env.local
-OPENAI_API_KEY=your_openai_api_key_here
-```
-
-**Not:** OpenAI API key olmadan da uygulama çalışır. Bu durumda mock responses kullanılır.
-
-## 🔧 Troubleshooting
-
-### OpenAI API Sorunları
-
-**Model Erişim Hatası (404)**
-- GPT-4 erişiminiz yoksa uygulama otomatik olarak GPT-3.5-turbo kullanacaktır
-- Desteklenen modeller: `gpt-3.5-turbo`, `gpt-3.5-turbo-16k`, `gpt-4o-mini`
-
-**API Key Hatası**
-- OpenAI hesabınızda kredi bulunduğundan emin olun
-- API key'in doğru formatta olduğunu kontrol edin
-- Rate limit aşılmışsa biraz bekleyip tekrar deneyin
-
-**Fallback Sistem**
-- OpenAI API erişilemiyor ise otomatik olarak mock responses devreye girer
-- Mock responses temel bileşenler için önceden tanımlanmış kodlar içerir
-
-## 🚀 Hızlı Başlangıç
-
-1. `http://localhost:3000` adresine gidin
-2. Sol panelde istediğiniz uygulamayı açıklayan bir prompt yazın
-3. "Kodu Üret" butonuna tıklayın
-4. Sağ panelde önizlemeyi görün ve kodu inceleyin
-5. Kodu kopyalayın veya dosya olarak indirin
-
-**İpucu:** Daha detaylı prompt'lar daha iyi sonuçlar verir. Bileşenin özelliklerini, stilini ve davranışını açıkça belirtin.
 
 ## 🤝 Katkıda Bulunma
 
