@@ -1,6 +1,6 @@
 # MrrKit
 
-Prompt ile uygulama oluşturan AI destekli web platformu.
+MrrKit, doğal dilde yazılmış komutlarla çalışan, yapay zekâ destekli bir yazılım geliştirme platformudur. Kullanıcılar yalnızca ne yapmak istediklerini yazar — örneğin “bir giriş formu oluştur” — ve MrrKit, modern ve işlevsel bir kullanıcı arayüzü üretir. Canlı önizleme, kod çıktısı ve tek tıkla deploy özellikleriyle, kod yazmayı bilmeyenler bile hızlıca yazılım inşa edebilir.
 
 ## 🎯 Amaç
 
@@ -10,17 +10,21 @@ MrrKit'in amacı, geliştiriciler, tasarımcılar ve yaratıcılar için doğal 
 
 ## 🚀 Özellikler
 
-- **Doğal Dil'den Kod'a Dönüşüm**: Arayüz veya işlevselliğinizi sade Türkçe/İngilizce ile tanımlayın, MrrKit gerçek zamanlı olarak responsive, üretime hazır kod bileşenleri üretsin
+- **Doğal Dil'den Kod'a Dönüşüm**: Arayüz veya işlevselliğinizi sade Türkçe/İngilizce ile tanımlayın, MrrKit gerçek zamanlı olarak responsive, üretime hazır kod bileşenleri üretsin.
 
-- **Canlı Önizleme Ortamı**: Yerleşik görsel önizleme paneli ile promptlarınızdan üretilen bileşenleri anında görün ve etkileşim kurun
+- **Canlı Önizleme Ortamı**: Yerleşik görsel önizleme paneli ile promptlarınızdan üretilen bileşenleri anında görün ve etkileşim kurun.
 
-- **Modüler Bileşen Kütüphanesi**: Shadcn UI ve Tailwind CSS gibi modern kütüphaneler üzerine inşa edilmiş zengin, genişletilebilir UI bileşen seti
+- **Modüler Bileşen Kütüphanesi**: Shadcn UI ve Tailwind CSS gibi modern kütüphaneler üzerine inşa edilmiş zengin, genişletilebilir UI bileşen seti.
 
-- **Sıfır Kurulum Deployment**: Vercel gibi servislerle entegrasyon sayesinde ürettiğiniz uygulamaları tek tıkla deploy edin—manuel kurulum gerektirmez
+- **Sıfır Kurulum Deployment**: Vercel gibi servislerle entegrasyon sayesinde ürettiğiniz uygulamaları tek tıkla deploy edin—manuel kurulum gerektirmez.
 
-- **Komut Satırı Arkadaşı ("CatShell")**: Proje iskeletleri oluşturmak, şablonları yönetmek veya kendi terminal ortamınızda özel scriptler çalıştırmak isteyen ileri düzey kullanıcılar için CLI aracı
+- **Komut Satırı Arkadaşı ("CatShell")**: Proje iskeletleri oluşturmak, şablonları yönetmek veya kendi terminal ortamınızda özel scriptler çalıştırmak isteyen ileri düzey kullanıcılar için CLI aracı.
 
-- **Stil ile Özelleştirme**: Minimalist'ten cyberpunk'a, kedi-ilhamlı tasarım sistemlerine kadar temalı yapılar desteği ile estetik ifade gücü
+- **Stil ile Özelleştirme**: Minimalist'ten cyberpunk'a, kedi-ilhamlı tasarım sistemlerine kadar temalı yapılar desteği ile estetik ifade gücü.
+
+- **Kod Paylaşımı ve Çalıştırma**: Kodunuzu paylaşın veya doğrudan çalıştırarak sonuçları anında görün.
+
+- **Dosya Yönetimi**: Yerleşik dosya gezgini ile dosyalarınızı düzenleyin, yeni dosyalar oluşturun veya mevcut dosyaları indirin.
 
 ## 👥 Hedef Kitle
 
@@ -41,13 +45,16 @@ Uygulamalı, AI destekli deneyimler yoluyla web geliştirme kavramlarını öğr
 **Yaratıcı Teknoloji Uzmanları & Sanatçılar**  
 Yazılım geliştirmeye daha ifade edici, akışkan ve estetik bir yaklaşım arayan yaratıcı profesyoneller.
 
+**Kedi Ruhunu Taşıyanlar**  
+Kod yazmayı mırıl mırıl keyfe dönüştürmek isteyen herkes.
+
 ## 🎯 Kullanım
 
-1. Oluşturmak istediğiniz uygulamayı açıklayan bir prompt yazın
-2. AI sizin için kodu üretsin
-3. Gerçek zamanlı önizleme ile sonucu görün
-4. Gerekirse promptu düzenleyip iyileştirin
-5. Uygulamanızı dışa aktarın veya deploy edin
+1. Oluşturmak istediğiniz uygulamayı açıklayan bir prompt yazın.
+2. AI sizin için kodu üretsin.
+3. Gerçek zamanlı önizleme ile sonucu görün.
+4. Gerekirse promptu düzenleyip iyileştirin.
+5. Uygulamanızı dışa aktarın veya deploy edin.
 
 ## 🤝 Katkıda Bulunma
 
