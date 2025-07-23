@@ -1,0 +1,16 @@
+{
+  "name": "MrrKit - AI Code Generator",
+  "short_name": "MrrKit",
+  "description": "AI destekli React bileşen oluşturucu",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1e1b4b",
+  "theme_color": "#8b5cf6",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "any",
+      "type": "image/x-icon"
+    }
+  ]
+}
