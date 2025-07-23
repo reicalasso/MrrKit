@@ -32,7 +32,6 @@ import {
   Search
 } from 'lucide-react'
 import { CodeRenderer } from '@/lib/code-renderer'
-import { useIsMobile } from '@/hooks/use-mobile'
 import { FileExplorer, type FileNode } from '@/components/code-editor/file-explorer'
 import { CodeMirrorEditor } from '@/components/code-editor/code-mirror-editor'
 import { Terminal } from '@/components/code-editor/terminal'
@@ -47,7 +46,8 @@ export default function WorkspacePage() {
   const [showTerminal, setShowTerminal] = useState(false)
   const [terminalHeight, setTerminalHeight] = useState(200)
   const [searchTerm, setSearchTerm] = useState('')
-  const isMobile = useIsMobile()
+  const [mounted, setMounted] = useState(false)
+  const [isMobile, setIsMobile] = useState(false) // Local state instead of hook
 
   // Dosya sistemi
   const [files, setFiles] = useState<FileNode[]>([
@@ -118,30 +118,46 @@ export default App;`
 
   const [activeFile, setActiveFile] = useState<FileNode | null>(null)
 
+  // Mount state'ini kontrol et ve mobile detection
+  useEffect(() => {
+    setMounted(true)
+    // Client-side mobile detection
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+
   // Ana sayfadan gelen prompt'u yükle
   useEffect(() => {
-    const initialPrompt = localStorage.getItem('initialPrompt')
-    if (initialPrompt) {
-      setPrompt(initialPrompt)
-      localStorage.removeItem('initialPrompt')
+    if (mounted && typeof window !== 'undefined') {
+      const initialPrompt = localStorage.getItem('initialPrompt')
+      if (initialPrompt) {
+        setPrompt(initialPrompt)
+        localStorage.removeItem('initialPrompt')
+      }
     }
-  }, [])
+  }, [mounted])
 
   // Mobile'da sidebar'ı varsayılan olarak kapalı tut
   useEffect(() => {
-    if (isMobile) {
-      setSidebarOpen(false)
-    } else {
-      setSidebarOpen(true)
+    if (mounted) {
+      if (isMobile) {
+        setSidebarOpen(false)
+      } else {
+        setSidebarOpen(true)
+      }
     }
-  }, [isMobile])
+  }, [isMobile, mounted])
 
   // Mobile'da split view yerine preview göster
   useEffect(() => {
-    if (isMobile && viewMode === 'split') {
+    if (mounted && isMobile && viewMode === 'split') {
       setViewMode('preview')
     }
-  }, [isMobile, viewMode])
+  }, [isMobile, viewMode, mounted])
 
   // File operations
   const findFileById = useCallback((id: string, nodes: FileNode[] = files): FileNode | null => {
@@ -495,10 +511,24 @@ export default App;`
     )
   }
 
+  // Render loading state until mounted
+  if (!mounted) {
+    return (
+      <div className="h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center shadow-sm mx-auto mb-4 animate-pulse">
+            <span className="text-sm font-bold text-white">M</span>
+          </div>
+          <p className="text-gray-600">Loading workspace...</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div className="h-screen bg-gray-50 flex flex-col">
-      {/* Header */}
-      <header className="h-14 bg-white border-b border-gray-200 flex items-center justify-between px-4 relative z-50">
+    <div className="h-screen bg-gray-50 flex flex-col overflow-hidden">
+      {/* Header - Fixed height */}
+      <header className="h-14 bg-white border-b border-gray-200 flex items-center justify-between px-4 flex-shrink-0 z-50">
         <div className="flex items-center gap-4">
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -525,16 +555,18 @@ export default App;`
         </div>
         
         <div className="flex items-center gap-2">
-          {/* Search */}
-          <div className="relative hidden sm:block">
-            <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <Input
-              placeholder="Search files..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-8 h-8 w-48"
-            />
-          </div>
+          {/* Search - Only show on larger screens */}
+          {!isMobile && (
+            <div className="relative">
+              <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Input
+                placeholder="Search files..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-8 h-8 w-48"
+              />
+            </div>
+          )}
           
           <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
             <GitBranch className="h-4 w-4" />
@@ -551,19 +583,19 @@ export default App;`
         </div>
       </header>
 
-      {/* Main Content */}
-      <div className="flex-1 flex relative">
+      {/* Main Content - Takes remaining height */}
+      <div className="flex-1 flex relative overflow-hidden">
         {/* AI Editor Sidebar */}
         <div className={`${
           isMobile 
             ? `fixed inset-y-0 left-0 z-40 w-80 transform transition-transform duration-300 ${
                 sidebarOpen ? 'translate-x-0' : '-translate-x-full'
               }`
-            : 'w-80'
-        } bg-white shadow-lg lg:shadow-none border-r border-gray-200`}>
+            : 'w-80 flex-shrink-0'
+        } bg-white shadow-lg lg:shadow-none border-r border-gray-200 flex flex-col`}>
           
           {/* AI Prompt Section */}
-          <div className="h-80 border-b border-gray-200 p-4 bg-gradient-to-br from-purple-50 to-pink-50">
+          <div className="h-80 border-b border-gray-200 p-4 bg-gradient-to-br from-purple-50 to-pink-50 flex-shrink-0">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center shadow-sm">
                 <Sparkles className="h-4 w-4 text-white" />
@@ -608,7 +640,7 @@ export default App;`
           </div>
 
           {/* File Explorer */}
-          <div className="flex-1">
+          <div className="flex-1 overflow-hidden">
             <FileExplorer
               files={files}
               activeFileId={activeFile?.id}
@@ -621,7 +653,7 @@ export default App;`
           </div>
         </div>
 
-        {/* Overlay for mobile */}
+        {/* Mobile Overlay */}
         {isMobile && sidebarOpen && (
           <div 
             className="fixed inset-0 bg-black bg-opacity-50 z-30"
@@ -629,10 +661,10 @@ export default App;`
           />
         )}
 
-        {/* Main Editor Area */}
-        <div className="flex-1 flex flex-col min-w-0">
+        {/* Main Editor Area - Flex column with terminal handling */}
+        <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
           {/* Editor Tabs */}
-          <div className="h-12 bg-white border-b border-gray-200 flex items-center justify-between px-4">
+          <div className="h-12 bg-white border-b border-gray-200 flex items-center justify-between px-4 flex-shrink-0">
             <div className="flex items-center gap-2">
               {activeFile && (
                 <div className="flex items-center gap-2 bg-blue-50 px-3 py-1 rounded-md border border-blue-200">
@@ -690,20 +722,27 @@ export default App;`
             </div>
           </div>
           
-          {/* Editor Content */}
-          <div className={`flex-1 flex ${showTerminal ? `h-[calc(100%-${terminalHeight}px)]` : 'h-full'}`}>
+          {/* Editor Content - Dynamic height based on terminal */}
+          <div 
+            className="flex flex-1 overflow-hidden"
+            style={{ 
+              height: showTerminal ? `calc(100% - ${terminalHeight}px)` : '100%' 
+            }}
+          >
             {(viewMode === 'code' || (viewMode === 'split' && !isMobile)) && (
-              <div className={`${viewMode === 'split' && !isMobile ? 'w-1/2' : 'w-full'} border-r border-gray-200`}>
+              <div className={`${viewMode === 'split' && !isMobile ? 'w-1/2' : 'w-full'} border-r border-gray-200 overflow-hidden`}>
                 {activeFile ? (
-                  <CodeMirrorEditor
-                    value={activeFile.content || ''}
-                    onChange={(value) => updateFileContent(activeFile.id, value)}
-                    language={activeFile.name.endsWith('.tsx') || activeFile.name.endsWith('.ts') ? 'typescript' : 'javascript'}
-                    onSave={() => {
-                      // Auto-save is handled by onChange
-                      console.log('File saved:', activeFile.name)
-                    }}
-                  />
+                  <div className="h-full">
+                    <CodeMirrorEditor
+                      value={activeFile.content || ''}
+                      onChange={(value) => updateFileContent(activeFile.id, value)}
+                      language={activeFile.name.endsWith('.tsx') || activeFile.name.endsWith('.ts') ? 'typescript' : 'javascript'}
+                      className="h-full"
+                      onSave={() => {
+                        console.log('File saved:', activeFile.name)
+                      }}
+                    />
+                  </div>
                 ) : (
                   <div className="h-full flex items-center justify-center text-gray-500 bg-gray-50">
                     <div className="text-center p-6">
@@ -717,9 +756,11 @@ export default App;`
             )}
             
             {(viewMode === 'preview' || (viewMode === 'split' && !isMobile)) && (
-              <div className={`${viewMode === 'split' && !isMobile ? 'w-1/2' : 'w-full'} bg-white`}>
+              <div className={`${viewMode === 'split' && !isMobile ? 'w-1/2' : 'w-full'} bg-white overflow-hidden`}>
                 {activeFile?.content ? (
-                  <CodeRenderer code={activeFile.content} />
+                  <div className="h-full">
+                    <CodeRenderer code={activeFile.content} />
+                  </div>
                 ) : (
                   <div className="h-full flex items-center justify-center text-gray-500">
                     <div className="text-center p-6">
@@ -733,10 +774,10 @@ export default App;`
             )}
           </div>
 
-          {/* Terminal */}
+          {/* Terminal - Fixed at bottom */}
           {showTerminal && (
             <div 
-              className="border-t border-gray-200"
+              className="border-t border-gray-200 flex-shrink-0 bg-gray-900"
               style={{ height: terminalHeight }}
             >
               <Terminal

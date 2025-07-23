@@ -1,9 +1,30 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
-import { cn } from '@/lib/utils'
+import React, { forwardRef, useImperativeHandle, useRef } from 'react'
+import CodeMirror, { ReactCodeMirrorRef, ViewUpdate } from '@uiw/react-codemirror'
+import { javascript } from '@codemirror/lang-javascript'
+import { css } from '@codemirror/lang-css'
+import { html } from '@codemirror/lang-html'
+import { json } from '@codemirror/lang-json'
+import { python } from '@codemirror/lang-python'
+import { java } from '@codemirror/lang-java'
+import { cpp } from '@codemirror/lang-cpp'
+import { rust } from '@codemirror/lang-rust'
+import { php } from '@codemirror/lang-php'
+import { sql } from '@codemirror/lang-sql'
+import { markdown } from '@codemirror/lang-markdown'
+import { yaml } from '@codemirror/lang-yaml'
+import { go } from '@codemirror/lang-go'
+import { vscodeDark } from '@uiw/codemirror-theme-vscode'
+import { githubLight } from '@uiw/codemirror-theme-github'
+import { autocompletion, closeBrackets, closeBracketsKeymap } from '@codemirror/autocomplete'
+import { EditorView, keymap } from '@codemirror/view'
+import { defaultKeymap, history, historyKeymap } from '@codemirror/commands'
+import { searchKeymap } from '@codemirror/search'
+import { bracketMatching, indentOnInput } from '@codemirror/language'
+import type { Extension } from '@codemirror/state'
 
-interface CodeMirrorEditorProps {
+export interface CodeMirrorEditorProps {
   value: string
   onChange: (value: string) => void
   language?: string
@@ -11,62 +32,109 @@ interface CodeMirrorEditorProps {
   readOnly?: boolean
   className?: string
   onSave?: () => void
+  options?: {
+    lineNumbers?: boolean
+    wordWrap?: boolean
+    fontSize?: number
+    tabSize?: number
+    autoComplete?: boolean
+  }
+  onCursorChange?: (state: ViewUpdate) => void
 }
 
-import dynamic from 'next/dynamic'
+export const CodeMirrorEditor = forwardRef<ReactCodeMirrorRef, CodeMirrorEditorProps>(
+  (
+    {
+      value,
+      onChange,
+      language = 'javascript',
+      theme = 'light',
+      readOnly = false,
+      className,
+      onSave,
+      options = {},
+      onCursorChange,
+    },
+    ref
+  ) => {
+    const langExtensions = {
+      javascript: [javascript({ jsx: true, typescript: false })],
+      typescript: [javascript({ jsx: true, typescript: true })],
+      jsx: [javascript({ jsx: true, typescript: false })],
+      tsx: [javascript({ jsx: true, typescript: true })],
+      css: [css()],
+      html: [html()],
+      json: [json()],
+      python: [python()],
+      java: [java()],
+      cpp: [cpp()],
+      rust: [rust()],
+      php: [php()],
+      sql: [sql()],
+      markdown: [markdown()],
+      yaml: [yaml()],
+      go: [go()],
+    }
+    const extensions: Extension[] = [
+      history(),
+      indentOnInput(),
+      bracketMatching(),
+      closeBrackets(),
+      keymap.of([
+        ...closeBracketsKeymap,
+        ...defaultKeymap,
+        ...searchKeymap,
+        ...historyKeymap,
+      ]),
+      ...(langExtensions[language as keyof typeof langExtensions] || [javascript({ jsx: true })]),
+    ]
 
-export function CodeMirrorEditor({
-  value,
-  onChange,
-  language = 'javascript',
-  theme = 'light',
-  readOnly = false,
-  className,
-  onSave
-}: CodeMirrorEditorProps) {
-  const MonacoEditor = dynamic(() => import('@monaco-editor/react').then(mod => mod.default), { ssr: false })
-
-  function handleEditorChange(value: string | undefined) {
-    onChange(value ?? '')
-  }
-
-  function handleEditorMount(editor: any, monaco: any) {
     if (onSave) {
-      editor.addCommand(
-        monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS,
-        () => {
-          onSave()
-        }
+      extensions.push(
+        keymap.of([
+          {
+            key: 'Mod-s',
+            run: () => {
+              onSave()
+              return true
+            },
+          },
+        ])
       )
     }
-  }
 
-  return (
-    <MonacoEditor
-      value={value}
-      language={language}
-      theme={theme === 'dark' ? 'vs-dark' : 'vs-light'}
-      options={{
-        readOnly,
-        automaticLayout: true,
-        fontSize: 14,
-        lineNumbers: 'on',
-        roundedSelection: false,
-        scrollBeyondLastLine: false,
-        minimap: { enabled: false },
-        folding: true,
-        wordWrap: 'on',
-        tabSize: 2,
-        insertSpaces: true,
-        bracketPairColorization: { enabled: true },
-        suggest: {
-          showKeywords: true,
-          showSnippets: true
-        }
-      }}
-      onChange={handleEditorChange}
-      onMount={handleEditorMount}
-      className={cn("w-full h-full min-h-[400px]", className)}
-    />
-  )
-}
+    if (options.autoComplete !== false) {
+      extensions.push(autocompletion())
+    }
+    
+    if (options.wordWrap) {
+      extensions.push(EditorView.lineWrapping)
+    }
+
+    return (
+      <CodeMirror
+        ref={ref}
+        value={value}
+        height="100%"
+        className={`h-full text-base ${className ?? ''}`}
+        extensions={extensions}
+        onChange={onChange}
+        theme={theme === 'dark' ? vscodeDark : githubLight}
+        onUpdate={onCursorChange}
+        basicSetup={{
+          lineNumbers: options.lineNumbers !== false,
+          foldGutter: true,
+          autocompletion: options.autoComplete !== false,
+          tabSize: options.tabSize || 2,
+          highlightActiveLine: true,
+          highlightActiveLineGutter: true,
+        }}
+        style={{
+          fontSize: options.fontSize ? `${options.fontSize}px` : '14px',
+        }}
+      />
+    )
+  }
+)
+
+CodeMirrorEditor.displayName = 'CodeMirrorEditor'

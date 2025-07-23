@@ -73,6 +73,10 @@ module.exports = {
   				200: 'hsl(35, 40%, 90%)',
   				300: 'hsl(35, 30%, 85%)',
   			},
+  			success: {
+  				DEFAULT: 'hsl(120, 60%, 50%)',
+  				foreground: 'hsl(120, 40%, 90%)',
+  			},
   		},
   		keyframes: {
   			'accordion-down': {
@@ -100,12 +104,22 @@ module.exports = {
   				'25%': { transform: 'translateY(-10px) rotate(1deg)' },
   				'75%': { transform: 'translateY(-5px) rotate(-1deg)' },
   			},
+  			fadeIn: {
+  				from: { opacity: 0 },
+  				to: { opacity: 1 },
+  			},
+  			fadeOut: {
+  				from: { opacity: 1 },
+  				to: { opacity: 0 },
+  			},
   		},
   		animation: {
   			'accordion-down': 'accordion-down 0.2s ease-out',
   			'accordion-up': 'accordion-up 0.2s ease-out',
   			'purr': 'purr 2s ease-in-out infinite',
   			'gentle-float': 'gentle-float 6s ease-in-out infinite',
+  			'fadeIn': 'fadeIn 0.3s ease-in',
+  			'fadeOut': 'fadeOut 0.3s ease-out',
   		},
   		borderRadius: {
   			lg: 'var(--radius)',
