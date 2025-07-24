@@ -26,62 +26,53 @@ export default function Home() {
   const [previewError, setPreviewError] = useState<Error | null>(null)
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-800 text-cream-50">
-      {/* Animated background elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-20 left-10 w-96 h-96 bg-purple-400/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute top-60 right-20 w-80 h-80 bg-cream-300/10 rounded-full blur-2xl animate-pulse animation-delay-2000"></div>
-        <div className="absolute bottom-32 left-1/3 w-72 h-72 bg-purple-300/15 rounded-full blur-3xl animate-pulse animation-delay-4000"></div>
+    <main className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-800 text-cream-50 relative">
+      {/* Animated background */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden z-0">
+        <div className="absolute top-20 left-10 w-96 h-96 bg-purple-400/20 rounded-full blur-3xl animate-float"></div>
+        <div className="absolute top-60 right-20 w-80 h-80 bg-cream-300/10 rounded-full blur-2xl animate-float animation-delay-2000"></div>
+        <div className="absolute bottom-32 left-1/3 w-72 h-72 bg-purple-300/15 rounded-full blur-3xl animate-float animation-delay-4000"></div>
       </div>
 
       {/* Hero Section */}
-      <section className="relative z-10 container mx-auto px-4 py-16 text-center">
-        {/* Cat Logo */}
-        <div className="inline-flex items-center justify-center w-24 h-24 mb-8 bg-gradient-to-br from-purple-400 to-purple-300 rounded-3xl shadow-2xl">
+      <section className="relative z-10 container mx-auto px-4 py-20 text-center flex flex-col items-center">
+        <div className="inline-flex items-center justify-center w-24 h-24 mb-8 bg-gradient-to-br from-purple-400 to-purple-300 rounded-3xl shadow-2xl animate-purr">
           <img 
             src="/favicon.ico" 
             alt="MrrKit Logo" 
             className="w-12 h-12 object-contain"
           />
         </div>
-
-        <h1 className="text-6xl md:text-8xl font-bold mb-6 bg-gradient-to-r from-cream-100 via-purple-200 to-cream-100 bg-clip-text text-transparent leading-tight">
-          Code Softly,<br />
-          <span className="text-purple-300">Build Boldly.</span>
+        <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-cream-100 via-purple-200 to-cream-100 bg-clip-text text-transparent leading-tight drop-shadow-lg">
+          Doğal Dille Kod, <br />
+          <span className="text-purple-300">Hızlı Üretim.</span>
         </h1>
-
-        <p className="text-xl md:text-2xl text-purple-100 max-w-4xl mx-auto mb-12 leading-relaxed">
-          MrrKit is your AI companion for creating software from natural language.
-          <br />
-          <span className="text-cream-200">Purr-fectly simple, incredibly powerful.</span>
+        <p className="text-lg md:text-2xl text-purple-100 max-w-2xl mx-auto mb-10 leading-relaxed">
+          MrrKit ile hayalinizdeki arayüzleri ve uygulamaları <b>prompt</b> yazarak anında oluşturun. <br />
+          <span className="text-cream-200">Kodlama bilginiz olmasa bile, modern ve şık bileşenler elinizin altında.</span>
         </p>
-
-        {/* CTA Buttons */}
-        <div className="flex flex-col sm:flex-row gap-6 justify-center mb-16">
+        <div className="flex flex-col sm:flex-row gap-6 justify-center mb-10">
           <Link href="/workspace">
             <Button className="bg-gradient-to-r from-purple-500 to-purple-400 hover:from-purple-600 hover:to-purple-500 text-white px-10 py-4 text-lg font-bold rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
               <Sparkles className="mr-3 h-6 w-6" />
-              Start Building
+              Hemen Başla
             </Button>
           </Link>
-          
           <Button 
             variant="outline" 
             className="bg-cream-50/10 border-cream-200/30 text-cream-100 hover:bg-cream-50/20 backdrop-blur-sm px-10 py-4 text-lg font-semibold rounded-2xl"
             onClick={() => document.querySelector('.how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
           >
             <Play className="mr-3 h-5 w-5" />
-            Learn How It Works
+            Nasıl Çalışır?
           </Button>
         </div>
-
-        {/* Feature highlights */}
         <div className="flex flex-wrap justify-center gap-4">
           {[
-            { icon: '🤖', text: 'AI-Powered' },
-            { icon: '⚡', text: 'Lightning Fast' },
-            { icon: '🎨', text: 'Beautiful UI' },
-            { icon: '😸', text: 'Kitty Smooth' }
+            { icon: '🤖', text: 'AI Destekli' },
+            { icon: '⚡', text: 'Çok Hızlı' },
+            { icon: '🎨', text: 'Modern UI' },
+            { icon: '😸', text: 'Kullanıcı Dostu' }
           ].map((feature, index) => (
             <div 
               key={index}
@@ -98,36 +89,35 @@ export default function Home() {
       <section className="how-it-works relative z-10 py-24 bg-gradient-to-r from-slate-800/50 to-purple-900/30 backdrop-blur-sm">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-5xl font-bold mb-6 text-cream-100">
-              How It <span className="text-purple-300">Purrs</span>
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-cream-100">
+              Nasıl <span className="text-purple-300">Çalışır?</span>
             </h2>
-            <p className="text-xl text-purple-100 max-w-2xl mx-auto">
-              Three simple steps to transform your ideas into reality
+            <p className="text-lg text-purple-100 max-w-2xl mx-auto">
+              3 adımda hayalinizdeki arayüzü oluşturun:
             </p>
           </div>
-
           <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {[
               {
-                step: "01",
+                step: "1",
                 icon: <Wand2 className="h-8 w-8" />,
-                title: "Write a Prompt",
-                description: "Simply describe what you want: 'Create a login form with social auth'",
-                example: "Create a login form"
+                title: "Prompt Yazın",
+                description: "Ne istediğinizi doğal dille anlatın. Örnek: 'Modern bir todo listesi oluştur, tamamlananları işaretleyebileyim.'",
+                example: "Modern bir todo listesi"
               },
               {
-                step: "02", 
+                step: "2", 
                 icon: <Code className="h-8 w-8" />,
-                title: "See Code Appear",
-                description: "Watch as MrrKit generates clean, modern code in real-time",
-                example: "Generating..."
+                title: "Kodu İzleyin",
+                description: "MrrKit, isteğinize uygun kodu anında üretir. Temiz, anlaşılır ve modern.",
+                example: "Kod üretiliyor..."
               },
               {
-                step: "03",
+                step: "3",
                 icon: <Rocket className="h-8 w-8" />,
-                title: "Preview & Deploy",
-                description: "Instantly preview your creation and deploy with one click",
-                example: "Ready to ship!"
+                title: "Önizleyin & Kullanın",
+                description: "Canlı önizleme ile sonucu hemen görün, ister kopyalayın ister projeye ekleyin.",
+                example: "Kullanıma hazır!"
               }
             ].map((step, index) => (
               <Card key={index} className="bg-cream-50/5 border-cream-200/20 backdrop-blur-sm hover:bg-cream-50/10 transition-all duration-300 hover:scale-105">
@@ -148,39 +138,38 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Key Features Section */}
+      {/* Features Section */}
       <section className="relative z-10 py-24">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-5xl font-bold mb-6 text-cream-100">
-              Features That <span className="text-purple-300">Meow</span>
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-cream-100">
+              Öne Çıkan <span className="text-purple-300">Özellikler</span>
             </h2>
-            <p className="text-xl text-purple-100 max-w-2xl mx-auto">
-              Everything you need to build amazing software, powered by AI
+            <p className="text-lg text-purple-100 max-w-2xl mx-auto">
+              Kodlama sürecinizi hızlandıran ve kolaylaştıran araçlar:
             </p>
           </div>
-
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
             {[
               {
                 icon: <Wand2 className="h-8 w-8" />,
-                title: "Natural Language to Code",
-                description: "Write in plain English, get production-ready code"
+                title: "Doğal Dilden Koda",
+                description: "İngilizce veya Türkçe prompt ile üretim."
               },
               {
                 icon: <Eye className="h-8 w-8" />,
-                title: "Live Preview Engine", 
-                description: "See your creations come to life in real-time"
+                title: "Canlı Önizleme", 
+                description: "Üretilen kodu anında test edin."
               },
               {
                 icon: <Zap className="h-8 w-8" />,
-                title: "Deployment-Ready Output",
-                description: "Code that's ready to ship, no cleanup needed"
+                title: "Hazır Proje Çıktısı",
+                description: "Kodu kopyalayın, indirin veya projeye aktarın."
               },
               {
                 icon: <Palette className="h-8 w-8" />,
-                title: "Kitty-smooth UI Components",
-                description: "Beautiful, responsive components that just work"
+                title: "Modern UI Bileşenleri",
+                description: "Tailwind CSS ile şık ve responsive arayüzler."
               }
             ].map((feature, index) => (
               <Card key={index} className="bg-cream-50/5 border-cream-200/20 backdrop-blur-sm hover:bg-cream-50/10 transition-all duration-300 hover:scale-105 group">
@@ -201,42 +190,41 @@ export default function Home() {
       <section className="relative z-10 py-24 bg-gradient-to-r from-purple-900/30 to-slate-800/50 backdrop-blur-sm">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-5xl font-bold mb-6 text-cream-100">
-              Perfect for <span className="text-purple-300">Every Cat</span>
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-cream-100">
+              Kimler <span className="text-purple-300">Kullanmalı?</span>
             </h2>
-            <p className="text-xl text-purple-100 max-w-2xl mx-auto">
-              Whether you're a developer, designer, or dreamer - MrrKit has you covered
+            <p className="text-lg text-purple-100 max-w-2xl mx-auto">
+              Geliştirici, tasarımcı veya yeni başlayan... Herkes için uygun!
             </p>
           </div>
-
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
             {[
               {
                 icon: <Code className="h-8 w-8" />,
-                title: "Developers",
-                subtitle: "Rapid Prototyping",
-                description: "Skip the boilerplate, focus on what matters",
+                title: "Geliştiriciler",
+                subtitle: "Hızlı Prototipleme",
+                description: "Tek satır prompt ile bileşen üret, zamandan kazan.",
                 emoji: "👨‍💻"
               },
               {
                 icon: <Palette className="h-8 w-8" />,
-                title: "Designers", 
-                subtitle: "No-code UI Generation",
-                description: "Turn your designs into code instantly",
+                title: "Tasarımcılar", 
+                subtitle: "No-code UI",
+                description: "Tasarımını koda dönüştür, kodla uğraşma.",
                 emoji: "🎨"
               },
               {
                 icon: <Rocket className="h-8 w-8" />,
-                title: "Startups",
-                subtitle: "Fast MVP Creation", 
-                description: "Go from idea to product in hours, not weeks",
+                title: "Startuplar",
+                subtitle: "Hızlı MVP",
+                description: "Fikirden ürüne saatler içinde ulaş.",
                 emoji: "🚀"
               },
               {
                 icon: <GraduationCap className="h-8 w-8" />,
-                title: "Students",
-                subtitle: "Learn by Building",
-                description: "See code patterns and learn best practices",
+                title: "Öğrenciler",
+                subtitle: "Deneyerek Öğren",
+                description: "Kod örnekleriyle pratik yap, öğrenmeni hızlandır.",
                 emoji: "🎓"
               }
             ].map((useCase, index) => (
@@ -261,14 +249,13 @@ export default function Home() {
       <section className="relative z-10 py-24">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-5xl font-bold mb-6 text-cream-100">
-              Try It <span className="text-purple-300">Right Meow</span>
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-cream-100">
+              Hemen <span className="text-purple-300">Deneyin</span>
             </h2>
-            <p className="text-xl text-purple-100 max-w-2xl mx-auto">
-              See MrrKit in action - write a prompt and watch the magic happen
+            <p className="text-lg text-purple-100 max-w-2xl mx-auto">
+              Prompt yazın, sonucu anında görün!
             </p>
           </div>
-          
           <div className="grid lg:grid-cols-2 gap-12 max-w-7xl mx-auto">
             <div className="order-2 lg:order-1">
               <PromptInput onCodeGenerated={(code) => {
@@ -288,10 +275,10 @@ export default function Home() {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto text-center">
             {[
-              { number: '10k+', label: 'Components Created', icon: '🧩' },
-              { number: '500+', label: 'Happy Developers', icon: '😸' },
-              { number: '99.9%', label: 'Uptime', icon: '⚡' },
-              { number: '< 3s', label: 'Generation Time', icon: '🚀' }
+              { number: '10k+', label: 'Üretilen Bileşen', icon: '🧩' },
+              { number: '500+', label: 'Mutlu Kullanıcı', icon: '😸' },
+              { number: '99.9%', label: 'Çalışma Süresi', icon: '⚡' },
+              { number: '< 3sn', label: 'Ortalama Üretim', icon: '🚀' }
             ].map((stat, index) => (
               <div key={index} className="group">
                 <div className="text-3xl mb-2">{stat.icon}</div>
@@ -309,19 +296,19 @@ export default function Home() {
       <section className="relative z-10 py-24">
         <div className="container mx-auto px-4 text-center">
           <div className="max-w-4xl mx-auto">
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-purple-400 to-purple-300 rounded-3xl mb-8 shadow-2xl">
+            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-purple-400 to-purple-300 rounded-3xl mb-8 shadow-2xl animate-purr">
               <Heart className="h-8 w-8 text-slate-900" />
             </div>
-            <h2 className="text-5xl md:text-6xl font-bold mb-6 text-cream-100">
-              Ready to Start <span className="text-purple-300">Purring</span>?
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-cream-100">
+              Sen de <span className="text-purple-300">Denemeye Başla!</span>
             </h2>
-            <p className="text-xl text-purple-100 mb-12 max-w-2xl mx-auto">
-              Join thousands of developers who are building faster, coding smarter, and shipping sooner with MrrKit.
+            <p className="text-lg text-purple-100 mb-12 max-w-2xl mx-auto">
+              Binlerce geliştirici gibi, sen de MrrKit ile hızlı ve kolay kod üret!
             </p>
             <Link href="/workspace">
               <Button className="bg-gradient-to-r from-purple-500 to-purple-400 hover:from-purple-600 hover:to-purple-500 text-white px-12 py-6 text-xl font-bold rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
                 <Sparkles className="mr-3 h-6 w-6" />
-                Start Building for Free
+                Ücretsiz Başla
                 <ArrowRight className="ml-3 h-6 w-6" />
               </Button>
             </Link>
@@ -344,13 +331,13 @@ export default function Home() {
               <span className="text-2xl font-bold text-cream-100">MrrKit</span>
             </div>
             <p className="text-purple-200 mb-6">
-              Made with <Heart className="inline h-4 w-4 text-purple-300 mx-1" /> for developers who dream in code
+              <span className="font-semibold">Sevgiyle geliştirildi.</span> <Heart className="inline h-4 w-4 text-purple-300 mx-1" /> Kod hayalleriniz için.
             </p>
             <div className="flex justify-center gap-8 text-sm text-purple-200">
-              <a href="#" className="hover:text-cream-100 transition-colors">Privacy</a>
-              <a href="#" className="hover:text-cream-100 transition-colors">Terms</a>
-              <a href="#" className="hover:text-cream-100 transition-colors">Support</a>
-              <a href="#" className="hover:text-cream-100 transition-colors">Contact</a>
+              <a href="#" className="hover:text-cream-100 transition-colors">Gizlilik</a>
+              <a href="#" className="hover:text-cream-100 transition-colors">Kullanım Şartları</a>
+              <a href="#" className="hover:text-cream-100 transition-colors">Destek</a>
+              <a href="#" className="hover:text-cream-100 transition-colors">İletişim</a>
             </div>
           </div>
         </div>
