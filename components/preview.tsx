@@ -11,9 +11,10 @@ import { useIsMobile } from '@/hooks/use-mobile'
 
 interface PreviewProps {
   generatedCode: string
+  onError?: (error: Error | null) => void
 }
 
-export function Preview({ generatedCode }: PreviewProps) {
+export function Preview({ generatedCode, onError }: PreviewProps) {
   const [viewMode, setViewMode] = useState<'preview' | 'code'>('preview')
   const [renderError, setRenderError] = useState<string | null>(null)
   const { toast } = useToast()
@@ -144,8 +145,11 @@ root.render(<App />);`,
             viewMode === 'preview' ? (
               <div className="h-[300px] sm:h-[400px] overflow-auto bg-gradient-to-br from-gray-50 to-white">
                 <CodeRenderer 
-                  code={generatedCode} 
-                  onError={setRenderError}
+                  code={generatedCode}
+                  onError={(e) => {
+                    setRenderError(e ? e.message : null)
+                    if (onError) onError(e)
+                  }}
                 />
               </div>
             ) : (

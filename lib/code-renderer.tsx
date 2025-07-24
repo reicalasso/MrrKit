@@ -1,213 +1,128 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
-import * as React from 'react'
+import React, { useEffect, useState } from 'react'
+import { transform } from '@babel/standalone'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+
+class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean; error: Error | null }> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props)
+    this.state = { hasError: false, error: null }
+  }
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error }
+  }
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error("Rendered component error:", error, errorInfo)
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="h-full w-full flex items-center justify-center text-red-500 p-4 bg-red-50">
+          <div className="text-center max-w-full">
+            <p className="text-lg font-bold mb-2">Çalışma Zamanı Hatası</p>
+            <pre className="text-xs text-left bg-red-100 p-2 rounded overflow-auto max-h-64 w-full whitespace-pre-wrap">
+              {this.state.error?.message}
+            </pre>
+          </div>
+        </div>
+      )
+    }
+    return this.props.children
+  }
+}
 
 interface CodeRendererProps {
   code: string
-  onError?: (error: string) => void
+  onError?: (error: Error | null) => void
 }
 
-export function CodeRenderer({ code, onError }: CodeRendererProps) {
-  const [Component, setComponent] = useState<React.ComponentType | null>(null)
+export const CodeRenderer: React.FC<CodeRendererProps> = ({ code, onError }) => {
+  const [RenderableComponent, setRenderableComponent] = useState<React.FC | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
-    setMounted(true)
-  }, [])
-
-  useEffect(() => {
-    if (!mounted || !code.trim()) {
-      setComponent(null)
+    if (!code) {
+      setRenderableComponent(null)
       setError(null)
+      onError?.(null)
       return
     }
 
-    try {
-      // Clean the code - remove import statements and export statements
-      let cleanCode = code
-        .replace(/import\s+.*?from\s+['"][^'"]*['"];?\s*/g, '')
-        .replace(/export\s+default\s+/g, '')
-        .replace(/export\s+/g, '')
+    const transpileAndRender = async () => {
+      try {
+        const trimmedCode = code.trim()
+        const match = trimmedCode.match(/function\s+([A-Z]\w*)/)
+        const componentName = match ? match[1] : 'Component'
+        const codeToTransform = trimmedCode.replace(/export default\s*/, '')
 
-      // If code doesn't contain a function, wrap it in a simple component
-      if (!cleanCode.includes('function') && !cleanCode.includes('=>')) {
-        cleanCode = `
-          function GeneratedComponent() {
-            return React.createElement('div', { className: 'p-4' }, \`${cleanCode.replace(/`/g, '\\`')}\`)
-          }
-        `
-      }
+        const transformed = transform(codeToTransform, {
+          presets: ['react', 'typescript'],
+          filename: 'component.tsx'
+        }).code
 
-      // Create a safe component without using eval or new Function
-      const createSafeComponent = () => {
-        try {
-          // Simple JSX to React.createElement transformation
-          let processedCode = cleanCode
-            .replace(/<(\w+)([^>]*)>/g, (match, tag, attrs) => {
-              // Basic attribute parsing
-              const attrObj = attrs.trim() ? 
-                attrs.replace(/(\w+)="([^"]*)"/g, '"$1": "$2"').replace(/(\w+)={([^}]*)}/g, '"$1": $2') : 
-                ''
-              return `React.createElement('${tag}', {${attrObj}}, `
-            })
-            .replace(/<\/\w+>/g, ')')
-            .replace(/className=/g, 'className:')
-
-          // Create a basic component that renders the processed code safely
-          return function SafeComponent() {
-            const [count, setCount] = React.useState(0)
-            
-            // Parse basic JSX patterns safely
-            if (code.includes('Counter') || code.includes('count')) {
-              return React.createElement('div', {
-                className: 'flex flex-col items-center justify-center min-h-screen bg-gray-100'
-              }, [
-                React.createElement('h1', {
-                  key: 'title',
-                  className: 'text-4xl font-bold text-gray-800 mb-8'
-                }, 'MrrKit Preview'),
-                React.createElement('div', {
-                  key: 'content',
-                  className: 'bg-white p-8 rounded-lg shadow-lg'
-                }, [
-                  React.createElement('p', {
-                    key: 'counter',
-                    className: 'text-xl mb-4'
-                  }, `Counter: ${count}`),
-                  React.createElement('div', {
-                    key: 'buttons',
-                    className: 'flex gap-4'
-                  }, [
-                    React.createElement('button', {
-                      key: 'inc',
-                      onClick: () => setCount(count + 1),
-                      className: 'px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600'
-                    }, 'Increment'),
-                    React.createElement('button', {
-                      key: 'dec',
-                      onClick: () => setCount(count - 1),
-                      className: 'px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600'
-                    }, 'Decrement')
-                  ])
-                ])
-              ])
-            }
-
-            // Default component for other code
-            return React.createElement('div', {
-              className: 'p-6 bg-white min-h-screen'
-            }, [
-              React.createElement('div', {
-                key: 'preview',
-                className: 'max-w-4xl mx-auto'
-              }, [
-                React.createElement('h2', {
-                  key: 'title',
-                  className: 'text-2xl font-bold mb-4 text-gray-800'
-                }, 'Code Preview'),
-                React.createElement('div', {
-                  key: 'content',
-                  className: 'bg-gray-50 p-4 rounded-lg border'
-                }, [
-                  React.createElement('pre', {
-                    key: 'code',
-                    className: 'text-sm text-gray-700 whitespace-pre-wrap'
-                  }, 'Component rendered successfully'),
-                  React.createElement('div', {
-                    key: 'info',
-                    className: 'mt-4 text-xs text-gray-500'
-                  }, `Generated from ${code.split('\n').length} lines of code`)
-                ])
-              ])
-            ])
-          }
-        } catch (err) {
-          console.error('Component creation error:', err)
-          return null
+        if (!transformed) {
+          throw new Error('Babel transformation failed.')
         }
+
+        const factory = new Function(
+          'React', 'useState', 'useEffect', 'useCallback', 'useMemo',
+          'Button', 'Input', 'Card', 'CardHeader', 'CardTitle', 'CardContent',
+          `
+          ${transformed}
+          return ${componentName};
+          `
+        )
+
+        const Component = factory(
+          React, React.useState, React.useEffect, React.useCallback, React.useMemo,
+          Button, Input, Card, CardHeader, CardTitle, CardContent
+        )
+
+        if (typeof Component !== 'function') {
+          throw new Error('Generated code did not produce a renderable React component.')
+        }
+
+        setRenderableComponent(() => Component)
+        setError(null)
+        onError?.(null)
+      } catch (e: any) {
+        console.error("Render Error:", e)
+        setError(e.message)
+        onError?.(e)
+        setRenderableComponent(null)
       }
-
-      const safeComponent = createSafeComponent()
-      setComponent(() => safeComponent)
-      setError(null)
-      onError?.(null as any)
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred'
-      setError(errorMessage)
-      setComponent(null)
-      onError?.(errorMessage)
     }
-  }, [code, onError, mounted])
 
-  if (!mounted) {
-    return (
-      <div className="h-full w-full flex items-center justify-center bg-gray-50">
-        <div className="text-center text-gray-500">
-          <div className="text-4xl mb-4">⏳</div>
-          <p className="text-lg font-medium">Loading preview...</p>
-        </div>
-      </div>
-    )
-  }
+    transpileAndRender()
+  }, [code, onError])
 
   if (error) {
     return (
-      <div className="h-full w-full p-4 bg-red-50 border border-red-200 rounded-lg overflow-auto">
-        <div className="text-red-700">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="text-xl">⚠️</span>
-            <strong>Preview Error</strong>
-          </div>
-          <p className="text-sm mb-4">{error}</p>
-          <div className="bg-red-100 p-3 rounded border text-xs">
-            <p className="font-medium mb-1">Troubleshooting:</p>
-            <ul className="list-disc list-inside space-y-1">
-              <li>Check for syntax errors in your code</li>
-              <li>Ensure React components are properly formatted</li>
-              <li>Remove any import/export statements</li>
-            </ul>
-          </div>
+      <div className="h-full w-full flex items-center justify-center text-red-500 p-4 bg-red-50">
+        <div className="text-center max-w-full">
+          <p className="text-lg font-bold mb-2">Render Hatası</p>
+          <pre className="text-xs text-left bg-red-100 p-2 rounded overflow-auto max-h-64 w-full whitespace-pre-wrap">{error}</pre>
         </div>
       </div>
     )
   }
 
-  if (Component) {
-    try {
-      return (
-        <div className="h-full w-full overflow-auto bg-white">
-          <div className="min-h-full">
-            <Component />
-          </div>
-        </div>
-      )
-    } catch (renderError) {
-      return (
-        <div className="h-full w-full p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-          <div className="text-yellow-700">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-xl">⚠️</span>
-              <strong>Render Error</strong>
-            </div>
-            <p className="text-sm">{renderError instanceof Error ? renderError.message : 'Component failed to render'}</p>
-          </div>
-        </div>
-      )
-    }
+  if (RenderableComponent) {
+    return (
+      <div className="p-4 h-full w-full overflow-auto bg-white">
+        <ErrorBoundary>
+          <RenderableComponent />
+        </ErrorBoundary>
+      </div>
+    )
   }
 
   return (
-    <div className="h-full w-full flex items-center justify-center bg-gray-50">
-      <div className="text-center text-gray-500 max-w-md mx-auto p-6">
-        <div className="text-6xl mb-4">🎨</div>
-        <p className="text-xl font-medium mb-2">Preview Ready</p>
-        <p className="text-sm text-gray-400 leading-relaxed">
-          Write React code or use the AI generator to see a live preview here.
-          Your components will render safely in this sandbox environment.
-        </p>
-      </div>
+    <div className="h-full flex items-center justify-center text-gray-500">
+      <p>Önizleme yükleniyor...</p>
     </div>
   )
 }

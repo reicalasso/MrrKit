@@ -23,6 +23,7 @@ import {
 
 export default function Home() {
   const [generatedCode, setGeneratedCode] = useState('')
+  const [previewError, setPreviewError] = useState<Error | null>(null)
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-800 text-cream-50">
@@ -270,10 +271,13 @@ export default function Home() {
           
           <div className="grid lg:grid-cols-2 gap-12 max-w-7xl mx-auto">
             <div className="order-2 lg:order-1">
-              <PromptInput onCodeGenerated={setGeneratedCode} />
+              <PromptInput onCodeGenerated={(code) => {
+                setGeneratedCode(code)
+                setPreviewError(null)
+              }} />
             </div>
             <div className="order-1 lg:order-2">
-              <Preview generatedCode={generatedCode} />
+              <Preview generatedCode={generatedCode} onError={setPreviewError} />
             </div>
           </div>
         </div>

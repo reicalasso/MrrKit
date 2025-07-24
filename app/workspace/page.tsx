@@ -31,9 +31,9 @@ import {
   GitBranch,
   Search
 } from 'lucide-react'
+import { CodeMirrorEditor } from '@/components/code-editor/code-mirror-editor'
 import { CodeRenderer } from '@/lib/code-renderer'
 import { FileExplorer, type FileNode } from '@/components/code-editor/file-explorer'
-import { CodeMirrorEditor } from '@/components/code-editor/code-mirror-editor'
 import { Terminal } from '@/components/code-editor/terminal'
 import { Input } from '@/components/ui/input'
 
@@ -47,7 +47,7 @@ export default function WorkspacePage() {
   const [terminalHeight, setTerminalHeight] = useState(200)
   const [searchTerm, setSearchTerm] = useState('')
   const [mounted, setMounted] = useState(false)
-  const [isMobile, setIsMobile] = useState(false) // Local state instead of hook
+  const [isMobile, setIsMobile] = useState(false)
 
   // Dosya sistemi
   const [files, setFiles] = useState<FileNode[]>([
@@ -190,6 +190,7 @@ export default App;`
     }
   }, [files, activeFile])
 
+  // Dosya oluşturma ve aktif etme işlemini güvenli hale getir
   const createFile = useCallback((name: string, type: 'file' | 'folder', parentId?: string) => {
     const newFile: FileNode = {
       id: Date.now().toString(),
@@ -201,7 +202,8 @@ export default App;`
     }
 
     if (!parentId) {
-      setFiles([...files, newFile])
+      setFiles(prev => [...prev, newFile])
+      if (type === 'file') setActiveFile(newFile)
     } else {
       const addToNode = (nodes: FileNode[]): FileNode[] => {
         return nodes.map(node => {
@@ -214,9 +216,10 @@ export default App;`
           return node
         })
       }
-      setFiles(addToNode(files))
+      setFiles(prev => addToNode(prev))
+      if (type === 'file') setActiveFile(newFile)
     }
-  }, [files])
+  }, [])
 
   const deleteFile = useCallback((fileId: string) => {
     const removeFromNodes = (nodes: FileNode[]): FileNode[] => {
@@ -268,7 +271,7 @@ export default App;`
 
   const handleGenerate = async () => {
     if (!prompt.trim()) return
-    
+
     setIsGenerating(true)
     try {
       const response = await fetch('/api/generate', {
@@ -276,26 +279,22 @@ export default App;`
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt }),
       })
-      
+
       const data = await response.json()
       if (data.success) {
         const code = data.components?.[0]?.code || data.code || ''
-        
-        // Yeni dosya oluştur veya mevcut dosyayı güncelle
         if (activeFile) {
           updateFileContent(activeFile.id, code)
         } else {
-          // Yeni dosya oluştur
           const newFileName = `generated-${Date.now()}.jsx`
-          createFile(newFileName, 'file')
-          // Yeni dosyayı aktif yap ve içeriği ekle
-          setTimeout(() => {
-            const newFile = findFileById(files[files.length - 1]?.id)
-            if (newFile) {
-              setActiveFile(newFile)
-              updateFileContent(newFile.id, code)
-            }
-          }, 100)
+          const newFile: FileNode = {
+            id: Date.now().toString(),
+            name: newFileName,
+            type: 'file',
+            content: code,
+          }
+          setFiles(prev => [...prev, newFile])
+          setActiveFile(newFile)
         }
       }
     } catch (error) {
@@ -405,107 +404,42 @@ export default App;`
     </div>
   )
 
-  // const FileExplorer = () => (
-  //   <div className="h-full bg-gray-50 border-r border-gray-200">
-  //     <div className="p-3 border-b border-gray-200 bg-white">
-  //       <div className="flex items-center justify-between">
-  //         <h3 className="text-sm font-medium text-gray-900">📁 Dosyalar</h3>
-  //         <Button size="sm" variant="ghost" className="h-6 w-6 p-0 hover:bg-gray-100">
-  //           <Plus className="h-3 w-3" />
-  //         </Button>
-  //       </div>
-  //     </div>
-  //     <div className="p-2">
-  //       {files.map((file) => (
-  //         <button
-  //           key={file.id}
-  //           onClick={() => setActiveFile(file.id)}
-  //           className={`w-full text-left p-2 text-sm rounded mb-1 transition-colors ${
-  //             file.id === activeFile 
-  //               ? 'bg-blue-100 text-blue-900 border border-blue-200' 
-  //               : 'text-gray-700 hover:bg-gray-100'
-  //           }`}
-  //         >
-  //           <FileText className="inline mr-2 h-3 w-3" />
-  //           {file.name}
-  //         </button>
-  //       ))}
-  //     </div>
-  //   </div>
-  // )
-
   const CodeEditor = () => {
-    const activeFileContent = files.find(f => f.id === activeFile?.id)?.content || ''
-    
+    const activeFileContent = activeFile?.content || ''
+
     return (
       <div className="h-full flex flex-col">
         <div className="flex items-center justify-between p-3 border-b border-gray-200 bg-white">
           <div className="flex items-center gap-2">
             <Code className="h-4 w-4 text-gray-500" />
             <span className="text-sm font-medium text-gray-900">
-              {activeFile?.name || 'App.jsx'}
+              {activeFile?.name || 'Dosya seçilmedi'}
             </span>
           </div>
-          <div className="flex gap-1">
-            {!isMobile && (
-              <Button
-                size="sm"
-                variant={viewMode === 'split' ? 'default' : 'ghost'}
-                onClick={() => setViewMode('split')}
-                className="h-8 px-2"
-              >
-                <Split className="h-3 w-3" />
-              </Button>
-            )}
-            <Button
-              size="sm"
-              variant={viewMode === 'code' ? 'default' : 'ghost'}
-              onClick={() => setViewMode('code')}
-              className="h-8 px-2"
-            >
-              <Code className="h-3 w-3" />
-            </Button>
-            <Button
-              size="sm"
-              variant={viewMode === 'preview' ? 'default' : 'ghost'}
-              onClick={() => setViewMode('preview')}
-              className="h-8 px-2"
-            >
-              <Eye className="h-3 w-3" />
-            </Button>
-          </div>
         </div>
-        
+
         <div className="flex-1 flex">
-          {(viewMode === 'code' || (viewMode === 'split' && !isMobile)) && (
-            <div className={`${viewMode === 'split' && !isMobile ? 'w-1/2' : 'w-full'} border-r border-gray-200`}>
-              <CodeMirrorEditor
-                value={activeFileContent}
-                onChange={(value) => updateFileContent(activeFile!.id, value)}
-                language={activeFile?.name.endsWith('.tsx') || activeFile?.name.endsWith('.ts') ? 'typescript' : 'javascript'}
-                onSave={() => {
-                  // Auto-save is handled by onChange
-                  console.log('File saved:', activeFile?.name)
-                }}
-              />
-            </div>
-          )}
-          
-          {(viewMode === 'preview' || (viewMode === 'split' && !isMobile)) && (
-            <div className={`${viewMode === 'split' && !isMobile ? 'w-1/2' : 'w-full'} bg-white`}>
-              {activeFileContent ? (
-                <CodeRenderer code={activeFileContent} />
-              ) : (
-                <div className="h-full flex items-center justify-center text-gray-500">
-                  <div className="text-center p-6">
-                    <Eye className="h-16 w-16 mx-auto mb-4 opacity-30" />
-                    <p className="text-lg font-medium mb-2">Önizleme bekleniyor</p>
-                    <p className="text-sm text-gray-400">AI editörü ile kod üretin</p>
-                  </div>
+          <div className="w-1/2 border-r border-gray-200">
+            <CodeMirrorEditor
+              value={activeFileContent}
+              onChange={(value) => updateFileContent(activeFile!.id, value)}
+              language={activeFile?.name.endsWith('.tsx') || activeFile?.name.endsWith('.ts') ? 'typescript' : 'javascript'}
+              onSave={() => console.log('File saved:', activeFile?.name)}
+            />
+          </div>
+          <div className="w-1/2 bg-white">
+            {activeFileContent ? (
+              <CodeRenderer code={activeFileContent} />
+            ) : (
+              <div className="h-full flex items-center justify-center text-gray-500">
+                <div className="text-center p-6">
+                  <Eye className="h-16 w-16 mx-auto mb-4 opacity-30" />
+                  <p className="text-lg font-medium mb-2">Dosya seçilmedi</p>
+                  <p className="text-sm text-gray-400">Soldaki menüden bir dosya seçin</p>
                 </div>
-              )}
-            </div>
-          )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     )

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { forwardRef, useImperativeHandle, useRef } from 'react'
+import React, { forwardRef, useEffect, useImperativeHandle, useRef } from 'react'
 import CodeMirror, { ReactCodeMirrorRef, ViewUpdate } from '@uiw/react-codemirror'
 import { javascript } from '@codemirror/lang-javascript'
 import { css } from '@codemirror/lang-css'
@@ -22,7 +22,9 @@ import { EditorView, keymap } from '@codemirror/view'
 import { defaultKeymap, history, historyKeymap } from '@codemirror/commands'
 import { searchKeymap } from '@codemirror/search'
 import { bracketMatching, indentOnInput } from '@codemirror/language'
+import { linter, lintGutter } from '@codemirror/lint'
 import type { Extension } from '@codemirror/state'
+import { transform } from '@babel/standalone'
 
 export interface CodeMirrorEditorProps {
   value: string
@@ -111,13 +113,62 @@ export const CodeMirrorEditor = forwardRef<ReactCodeMirrorRef, CodeMirrorEditorP
       extensions.push(EditorView.lineWrapping)
     }
 
+    const editorRef = useRef<EditorView | null>(null)
+
+    useEffect(() => {
+      const handleKeyDown = (event: KeyboardEvent) => {
+        if (event.ctrlKey && event.key === 's') {
+          event.preventDefault()
+          onSave?.()
+        }
+      }
+      window.addEventListener('keydown', handleKeyDown)
+      return () => window.removeEventListener('keydown', handleKeyDown)
+    }, [onSave])
+
+    const babelLinter = linter((view) => {
+      if (!language.includes('js') && !language.includes('ts')) {
+        return []
+      }
+      const diagnostics: import('@codemirror/lint').Diagnostic[] = []
+      try {
+        // Use Babel to transform the code and catch syntax errors
+        transform(view.state.doc.toString(), {
+          presets: ['react', 'typescript'],
+          filename: 'component.tsx',
+        })
+      } catch (error: any) {
+        const loc = error.loc
+        let from = 0
+        // Babel can sometimes not provide a location.
+        if (loc) {
+          // CodeMirror lines are 1-based, Babel's are too.
+          // CodeMirror columns are 1-based, Babel's are 0-based.
+          const line = view.state.doc.line(loc.line)
+          from = line.from + loc.column
+        }
+        
+        diagnostics.push({
+          from: from,
+          to: from + 1, // Highlight at least one character
+          severity: "error",
+          message: error.message.replace(/\(\d+:\d+\)/, '').trim(),
+        })
+      }
+      return diagnostics
+    })
+
     return (
       <CodeMirror
         ref={ref}
         value={value}
         height="100%"
         className={`h-full text-base ${className ?? ''}`}
-        extensions={extensions}
+        extensions={[
+          ...extensions,
+          lintGutter(),
+          babelLinter,
+        ]}
         onChange={onChange}
         theme={theme === 'dark' ? vscodeDark : githubLight}
         onUpdate={onCursorChange}
