@@ -112,32 +112,42 @@ export function AdvancedEditor({
 
   const validateCode = (code: string) => {
     const newProblems: Problem[] = []
-    
     // Basic validation
     const lines = code.split('\n')
     lines.forEach((line, index) => {
-      // Check for missing semicolons (JavaScript)
-      if (selectedLanguage === 'javascript' && line.trim().endsWith('}') === false && 
-          line.includes('=') && !line.trim().endsWith(';') && line.trim() !== '') {
-        newProblems.push({
-          severity: 'warning',
-          message: 'Missing semicolon',
-          line: index + 1,
-          column: line.length
-        })
-      }
-      
-      // Check for console.log
-      if (line.includes('console.log')) {
-        newProblems.push({
-          severity: 'info',
-          message: 'Console statement found',
-          line: index + 1,
-          column: line.indexOf('console.log')
-        })
+      // Sadece geçerli kod satırlarını kontrol et
+      if (selectedLanguage === 'javascript') {
+        // Yorum satırlarını ve boş satırları atla
+        if (line.trim().startsWith('//') || line.trim() === '') return
+        // Eksik noktalı virgül kontrolü
+        if (
+          line.includes('=') &&
+          !line.trim().endsWith(';') &&
+          !line.trim().endsWith('}') &&
+          !line.trim().endsWith('{') &&
+          !line.includes('function') &&
+          !line.includes('if') &&
+          !line.includes('for') &&
+          !line.includes('while')
+        ) {
+          newProblems.push({
+            severity: 'warning',
+            message: 'Missing semicolon',
+            line: index + 1,
+            column: line.length
+          })
+        }
+        // console.log uyarısı
+        if (line.includes('console.log')) {
+          newProblems.push({
+            severity: 'info',
+            message: 'Console statement found',
+            line: index + 1,
+            column: line.indexOf('console.log')
+          })
+        }
       }
     })
-    
     setProblems(newProblems)
   }
 

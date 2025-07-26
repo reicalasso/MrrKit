@@ -4,9 +4,9 @@ MrrKit, doğal dilde yazılmış komutlarla çalışan, yapay zekâ destekli bir
 
 ## 🎯 Amaç
 
-MrrKit'in amacı, geliştiriciler, tasarımcılar ve yaratıcılar için doğal dil promptları kullanarak fonksiyonel yazılım uygulamaları oluşturabilecekleri sezgisel, AI destekli bir ortam sağlamaktır.
+MrrKit'in amacı; geliştiriciler, tasarımcılar ve yaratıcılar için doğal dil promptları kullanarak fonksiyonel yazılım uygulamaları oluşturabilecekleri sezgisel, AI destekli bir ortam sağlamaktır.
 
-İnsan niyeti ile çalıştırılabilir kod arasındaki boşluğu doldurarak, MrrKit yazılım yaratma sürecini basitleştirmeyi, daha erişilebilir, eğlenceli ve ifade edici hale getirmeyi hedefler—tıpkı bir yazılımcının odaklanmış ve verimli çalışma anları gibi.
+İnsan niyeti ile çalıştırılabilir kod arasındaki boşluğu doldurarak, yazılım yaratma sürecini basitleştirmeyi, daha erişilebilir, eğlenceli ve ifade edici hale getirmeyi hedefler. Tıpkı bir yazılımcının odaklanmış ve verimli çalışma anları gibi.
 
 ## 🚀 Özellikler
 
@@ -30,23 +30,23 @@ MrrKit'in amacı, geliştiriciler, tasarımcılar ve yaratıcılar için doğal 
 
 MrrKit, yazılımı hızlı ve yaratıcı şekilde oluşturmak isteyen geniş bir yaratıcı kitlesine yöneliktir:
 
-**Frontend Geliştiriciler**  
-Fikirleri prototiplemek veya akıllı otomasyon kullanarak tam UI'lar üretmek isteyen geliştiriciler.
+**Frontend Geliştiriciler**
+- Fikirleri prototiplemek veya akıllı otomasyon kullanarak tam UI'lar üretmek isteyen geliştiriciler.
 
-**UI/UX Tasarımcılar**  
-Düzenleri ve etkileşimleri sıfırdan kodlamak yerine açıklayarak tasarlamayı tercih eden tasarımcılar.
+**UI/UX Tasarımcılar**
+- Düzenleri ve etkileşimleri sıfırdan kodlamak yerine açıklayarak tasarlamayı tercih eden tasarımcılar.
 
-**Bağımsız Yapımcılar & Startup'lar**  
-Büyük geliştirici ekipleri kurmadan MVP'ler oluşturmak ve ürünleri hızla piyasaya sürmek isteyen girişimciler.
+**Bağımsız Yapımcılar & Startup'lar**
+- Büyük geliştirici ekipleri kurmadan MVP'ler oluşturmak ve ürünleri hızla piyasaya sürmek isteyen girişimciler.
 
-**Eğitimciler & Öğrenciler**  
-Uygulamalı, AI destekli deneyimler yoluyla web geliştirme kavramlarını öğrenmek veya öğretmek isteyen akademisyenler.
+**Eğitimciler & Öğrenciler**
+- Uygulamalı, AI destekli deneyimler yoluyla web geliştirme kavramlarını öğrenmek veya öğretmek isteyen akademisyenler.
 
-**Yaratıcı Teknoloji Uzmanları & Sanatçılar**  
-Yazılım geliştirmeye daha ifade edici, akışkan ve estetik bir yaklaşım arayan yaratıcı profesyoneller.
+**Yaratıcı Teknoloji Uzmanları & Sanatçılar**
+- Yazılım geliştirmeye daha ifade edici, akışkan ve estetik bir yaklaşım arayan yaratıcı profesyoneller.
 
-**Kedi Ruhunu Taşıyanlar**  
-Kod yazmayı mırıl mırıl keyfe dönüştürmek isteyen herkes.
+**Kedi Ruhunu Taşıyanlar**
+- Kod yazmayı mırıl mırıl keyfe dönüştürmek isteyen herkes.
 
 ## 🎯 Kullanım
 
