@@ -66,8 +66,6 @@ export default function WorkspacePage() {
     updateFile,
   } = useWorkspaceStore()
 
-  const activeFile = files.find(f => findFileInTree(files, activeFileId))
-
   const findFileInTree = (fileList: any[], targetId: string | null): any => {
     if (!targetId) return null
     for (const file of fileList) {
@@ -79,6 +77,8 @@ export default function WorkspacePage() {
     }
     return null
   }
+
+  const activeFile = findFileInTree(files, activeFileId)
 
   // Mount state'ini kontrol et ve mobile detection
   useEffect(() => {
