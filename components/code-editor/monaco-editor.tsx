@@ -75,10 +75,25 @@ export const MonacoEditor = forwardRef<MonacoEditorRef, MonacoEditorProps>(
     }))
 
     useEffect(() => {
-      if (!containerRef.current || isInitialized.current) return
+      if (!mounted || !containerRef.current || isInitialized.current) return
 
       const initEditor = async () => {
         try {
+          setIsLoading(true)
+
+          // Dynamically import Monaco Editor
+          if (!monaco) {
+            monaco = await import('monaco-editor')
+
+            // Configure Monaco loader
+            const { loader } = await import('@monaco-editor/react')
+            loader.config({
+              paths: {
+                vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/min/vs'
+              }
+            })
+          }
+
           // Define custom themes
           monaco.editor.defineTheme('mrrkit-light', {
             base: 'vs',
