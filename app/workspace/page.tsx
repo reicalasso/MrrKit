@@ -47,6 +47,7 @@ export default function WorkspacePage() {
   const [mounted, setMounted] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const [terminalHeight, setTerminalHeight] = useState(200)
+  const [showSharingPanel, setShowSharingPanel] = useState(false)
 
   // Zustand store
   const {
