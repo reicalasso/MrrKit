@@ -133,8 +133,6 @@ export function ThemeSettings({ isOpen = false, onClose }: ThemeSettingsProps) {
       fontFamily: 'JetBrains Mono, Fira Code, Monaco, Consolas, monospace',
       lineHeight: 1.5,
     })
-    setTheme('light')
-    setEditorTheme('vs')
   }
 
   if (!isOpen) return null
