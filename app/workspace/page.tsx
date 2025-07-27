@@ -470,6 +470,15 @@ export default function WorkspacePage() {
               >
                 <Eye className="h-4 w-4" />
               </Button>
+              <Button
+                size="sm"
+                variant={viewMode === 'builder' ? 'default' : 'ghost'}
+                onClick={() => setViewMode('builder')}
+                className="h-9 px-3 rounded-lg transition-all duration-200"
+                title="UI Builder"
+              >
+                <Palette className="h-4 w-4" />
+              </Button>
             </div>
           </div>
           
