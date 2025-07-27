@@ -38,6 +38,8 @@ import { FileTabs } from '@/components/code-editor/file-tabs'
 import { Terminal } from '@/components/code-editor/terminal'
 import { Input } from '@/components/ui/input'
 import { ErrorBoundary } from '@/components/error-boundary'
+import { useWorkspaceStore } from '@/lib/stores/workspace-store'
+import { AIPanel } from '@/components/ai-assistant/ai-panel'
 
 export default function WorkspacePage() {
   const [prompt, setPrompt] = useState('')
