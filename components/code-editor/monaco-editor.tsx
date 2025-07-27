@@ -281,20 +281,32 @@ export const MonacoEditor = forwardRef<MonacoEditorRef, MonacoEditorProps>(
 
     // Update theme when prop changes
     useEffect(() => {
-      if (editorRef.current) {
+      if (editorRef.current && monaco) {
         monaco.editor.setTheme(theme === 'dark' ? 'mrrkit-dark' : 'mrrkit-light')
       }
-    }, [theme])
+    }, [theme, mounted])
 
     // Update language when prop changes
     useEffect(() => {
-      if (editorRef.current) {
+      if (editorRef.current && monaco) {
         const model = editorRef.current.getModel()
         if (model) {
           monaco.editor.setModelLanguage(model, language)
         }
       }
-    }, [language])
+    }, [language, mounted])
+
+    // Don't render anything on server side
+    if (!mounted) {
+      return (
+        <div
+          className={`h-full w-full border border-gray-200 rounded-lg overflow-hidden shadow-sm flex items-center justify-center bg-gray-50 ${className}`}
+          style={{ minHeight: '200px' }}
+        >
+          <div className="text-gray-500">Loading editor...</div>
+        </div>
+      )
+    }
 
     return (
       <div 
