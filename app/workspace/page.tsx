@@ -497,17 +497,21 @@ export default App;`
         </div>
         
         <div className="flex items-center gap-2">
-          {/* Search - Only show on larger screens */}
-          {!isMobile && (
+          {/* Search - Responsive */}
+          {!isMobile ? (
             <div className="relative">
-              <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
                 placeholder="Search files..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-8 h-8 w-48"
+                className="pl-9 h-9 w-52 bg-white/80 backdrop-blur-sm border-gray-200/60 rounded-xl shadow-sm transition-all duration-200 focus:w-64"
               />
             </div>
+          ) : (
+            <Button size="sm" variant="ghost" className="h-9 w-9 p-0 hover:bg-gray-100/80 rounded-xl transition-all duration-200">
+              <Search className="h-4 w-4 text-gray-600" />
+            </Button>
           )}
           
           <Button size="sm" variant="ghost" className="h-9 w-9 p-0 hover:bg-gray-100/80 rounded-xl transition-all duration-200">
