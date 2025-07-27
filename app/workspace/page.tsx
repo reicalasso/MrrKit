@@ -43,6 +43,7 @@ import { useWorkspaceStore } from '@/lib/stores/workspace-store'
 import { AIPanel } from '@/components/ai-assistant/ai-panel'
 import { SharingPanel } from '@/components/sharing/sharing-panel'
 import { ThemeSettings } from '@/components/theme/theme-settings'
+import { UIBuilderPanel } from '@/components/ui-builder/ui-builder-panel'
 
 export default function WorkspacePage() {
   const [searchTerm, setSearchTerm] = useState('')
