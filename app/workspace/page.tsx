@@ -185,12 +185,62 @@ export default App;`
         return node
       })
     }
-    
+
     setFiles(updateNode(files))
+
+    // Update active file if it's the one being edited
     if (activeFile?.id === fileId) {
       setActiveFile({ ...activeFile, content })
     }
+
+    // Update open files
+    setOpenFiles(prev => prev.map(file =>
+      file.id === fileId ? { ...file, content } : file
+    ))
   }, [files, activeFile])
+
+  const handleFileSelect = useCallback((file: FileNode) => {
+    setActiveFile(file)
+
+    // Add to open files if not already open
+    setOpenFiles(prev => {
+      const isAlreadyOpen = prev.some(f => f.id === file.id)
+      if (!isAlreadyOpen) {
+        return [...prev, file]
+      }
+      return prev
+    })
+  }, [])
+
+  const handleFileClose = useCallback((fileId: string) => {
+    setOpenFiles(prev => prev.filter(f => f.id !== fileId))
+
+    // If closing active file, switch to another open file or null
+    if (activeFile?.id === fileId) {
+      setOpenFiles(prev => {
+        const remaining = prev.filter(f => f.id !== fileId)
+        if (remaining.length > 0) {
+          setActiveFile(remaining[remaining.length - 1])
+        } else {
+          setActiveFile(null)
+        }
+        return remaining
+      })
+    }
+  }, [activeFile])
+
+  const handleCloseAll = useCallback(() => {
+    setOpenFiles([])
+    setActiveFile(null)
+  }, [])
+
+  const handleCloseOthers = useCallback((keepFileId: string) => {
+    const fileToKeep = openFiles.find(f => f.id === keepFileId)
+    if (fileToKeep) {
+      setOpenFiles([fileToKeep])
+      setActiveFile(fileToKeep)
+    }
+  }, [openFiles])
 
   // Dosya oluşturma ve aktif etme işlemini güvenli hale getir
   const createFile = useCallback((name: string, type: 'file' | 'folder', parentId?: string) => {
