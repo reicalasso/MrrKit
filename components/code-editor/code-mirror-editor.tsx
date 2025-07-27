@@ -159,31 +159,69 @@ export const CodeMirrorEditor = forwardRef<ReactCodeMirrorRef, CodeMirrorEditorP
     })
 
     return (
-      <CodeMirror
-        ref={ref}
-        value={value}
-        height="100%"
-        className={`h-full text-base ${className ?? ''}`}
-        extensions={[
-          ...extensions,
-          lintGutter(),
-          babelLinter,
-        ]}
-        onChange={onChange}
-        theme={theme === 'dark' ? vscodeDark : githubLight}
-        onUpdate={onCursorChange}
-        basicSetup={{
-          lineNumbers: options.lineNumbers !== false,
-          foldGutter: true,
-          autocompletion: options.autoComplete !== false,
-          tabSize: options.tabSize || 2,
-          highlightActiveLine: true,
-          highlightActiveLineGutter: true,
-        }}
-        style={{
-          fontSize: options.fontSize ? `${options.fontSize}px` : '14px',
-        }}
-      />
+      <div className="h-full border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+        <CodeMirror
+          ref={ref}
+          value={value}
+          height="100%"
+          className={`h-full text-base font-mono ${className ?? ''}`}
+          extensions={[
+            ...extensions,
+            lintGutter(),
+            babelLinter,
+            EditorView.theme({
+              '&': {
+                height: '100%',
+              },
+              '.cm-editor': {
+                height: '100%',
+              },
+              '.cm-scroller': {
+                fontFamily: 'JetBrains Mono, Fira Code, Monaco, Consolas, monospace',
+              },
+              '.cm-focused': {
+                outline: 'none',
+              },
+              '.cm-line': {
+                padding: '0 8px',
+              },
+              '.cm-lineNumbers': {
+                color: '#6b7280',
+                backgroundColor: '#f9fafb',
+                borderRight: '1px solid #e5e7eb',
+                paddingRight: '8px',
+              },
+              '.cm-activeLineGutter': {
+                backgroundColor: '#f3f4f6',
+              },
+              '.cm-activeLine': {
+                backgroundColor: '#fafafa',
+              },
+              '.cm-gutters': {
+                borderRight: '1px solid #e5e7eb',
+                backgroundColor: '#f9fafb',
+              },
+            }),
+          ]}
+          onChange={onChange}
+          theme={theme === 'dark' ? vscodeDark : githubLight}
+          onUpdate={onCursorChange}
+          basicSetup={{
+            lineNumbers: options.lineNumbers !== false,
+            foldGutter: true,
+            autocompletion: options.autoComplete !== false,
+            tabSize: options.tabSize || 2,
+            highlightActiveLine: true,
+            highlightActiveLineGutter: true,
+            searchKeymap: true,
+            dropCursor: true,
+          }}
+          style={{
+            fontSize: options.fontSize ? `${options.fontSize}px` : '14px',
+            height: '100%',
+          }}
+        />
+      </div>
     )
   }
 )
