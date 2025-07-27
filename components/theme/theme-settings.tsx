@@ -29,9 +29,36 @@ interface ThemeSettingsProps {
 }
 
 export function ThemeSettings({ isOpen = false, onClose }: ThemeSettingsProps) {
-  const { theme, editorTheme, resolvedTheme, setTheme, setEditorTheme } = useTheme()
   const { theme: storeTheme, updateTheme } = useWorkspaceStore()
   const [activeTab, setActiveTab] = useState('appearance')
+  const [systemTheme, setSystemTheme] = useState<'light' | 'dark'>('light')
+
+  // Handle system theme detection
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+      setSystemTheme(mediaQuery.matches ? 'dark' : 'light')
+
+      const handleChange = (e: MediaQueryListEvent) => {
+        setSystemTheme(e.matches ? 'dark' : 'light')
+      }
+
+      mediaQuery.addEventListener('change', handleChange)
+      return () => mediaQuery.removeEventListener('change', handleChange)
+    }
+  }, [])
+
+  const resolvedTheme = storeTheme.mode === 'auto' ? systemTheme : storeTheme.mode
+  const theme = storeTheme.mode
+  const editorTheme = storeTheme.editorTheme
+
+  const setTheme = (newTheme: 'light' | 'dark' | 'auto') => {
+    updateTheme({ mode: newTheme })
+  }
+
+  const setEditorTheme = (newEditorTheme: string) => {
+    updateTheme({ editorTheme: newEditorTheme as any })
+  }
 
   const themes = [
     { value: 'light', label: 'Light', icon: Sun, description: 'Clean and bright interface' },
