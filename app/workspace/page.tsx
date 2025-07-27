@@ -422,9 +422,16 @@ export default function WorkspacePage() {
               {!isMobile && (
                 <input
                   type="text"
-                  value={projectName}
-                  onChange={(e) => setProjectName(e.target.value)}
+                  value={currentProject?.name || 'Untitled Project'}
+                  onChange={(e) => {
+                    if (currentProject) {
+                      // Update project name in store
+                      // For now, just show the name without editing
+                    }
+                  }}
                   className="text-xs text-gray-600 bg-transparent border-none outline-none p-0"
+                  placeholder="Project Name"
+                  readOnly
                 />
               )}
             </div>
