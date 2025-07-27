@@ -1,8 +1,9 @@
 'use client'
 
-import type * as monaco from 'monaco-editor'
 import React, { useRef, useEffect, forwardRef, useImperativeHandle, useState } from 'react'
 import dynamic from "next/dynamic";
+import type * as monaco from 'monaco-editor';
+import { loader } from '@monaco-editor/react';
 
 // Dynamically import MonacoEditor to avoid SSR issues
 const MonacoEditorDynamic = dynamic(
@@ -12,6 +13,46 @@ const MonacoEditorDynamic = dynamic(
 
 // Dynamic import for Monaco to avoid SSR issues
 let monacoInstance: typeof import('monaco-editor') | null = null
+let monacoConfigured = false
+
+// Monaco loader ve worker ayarları - dosyanın en başında olmalı
+if (typeof window !== 'undefined') {
+  // Sadece bir kez konfigüre et
+  // @ts-ignore
+  if (!window.__monacoConfigured) {
+    loader.config({
+      paths: {
+        vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/min/vs'
+      }
+    });
+
+    // Monaco worker ayarları
+    // @ts-ignore
+    window.MonacoEnvironment = {
+      getWorkerUrl: function (_moduleId: string, label: string) {
+        switch (label) {
+          case 'json':
+            return 'https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/min/vs/language/json/json.worker.js';
+          case 'css':
+          case 'scss':
+          case 'less':
+            return 'https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/min/vs/language/css/css.worker.js';
+          case 'html':
+          case 'handlebars':
+          case 'razor':
+            return 'https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/min/vs/language/html/html.worker.js';
+          case 'typescript':
+          case 'javascript':
+            return 'https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/min/vs/language/typescript/ts.worker.js';
+          default:
+            return 'https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/min/vs/editor/editor.worker.js';
+        }
+      }
+    }
+    // @ts-ignore
+    window.__monacoConfigured = true
+  }
+}
 
 export interface MonacoEditorProps {
   value: string
@@ -30,28 +71,6 @@ export interface MonacoEditorRef {
   focus: () => void
   getSelection: () => string
   insertAtCursor: (text: string) => void
-}
-
-// Monaco worker ayarları - dosyanın en başında, global olarak tanımlanmalı
-if (typeof window !== 'undefined') {
-  // @ts-ignore
-  window.MonacoEnvironment = {
-    getWorkerUrl: function (moduleId, label) {
-      if (label === 'json') {
-        return 'https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/min/vs/language/json/json.worker.js'
-      }
-      if (label === 'css' || label === 'scss' || label === 'less') {
-        return 'https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/min/vs/language/css/css.worker.js'
-      }
-      if (label === 'html' || label === 'handlebars' || label === 'razor') {
-        return 'https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/min/vs/language/html/html.worker.js'
-      }
-      if (label === 'typescript' || label === 'javascript') {
-        return 'https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/min/vs/language/typescript/ts.worker.js'
-      }
-      return 'https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/min/vs/editor/editor.worker.js'
-    }
-  }
 }
 
 export const MonacoEditor = forwardRef<MonacoEditorRef, MonacoEditorProps>(
@@ -123,14 +142,6 @@ export const MonacoEditor = forwardRef<MonacoEditorRef, MonacoEditorProps>(
           // Dynamically import Monaco Editor
           if (!monacoInstance) {
             monacoInstance = await import('monaco-editor')
-
-            // Configure Monaco loader
-            const { loader } = await import('@monaco-editor/react')
-            loader.config({
-              paths: {
-                vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/min/vs'
-              }
-            })
           }
 
           // Define custom themes
@@ -366,5 +377,7 @@ export const MonacoEditor = forwardRef<MonacoEditorRef, MonacoEditorProps>(
     )
   }
 )
+
+MonacoEditor.displayName = 'MonacoEditor'
 
 MonacoEditor.displayName = 'MonacoEditor'
