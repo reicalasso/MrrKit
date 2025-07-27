@@ -249,8 +249,10 @@ export const MonacoEditor = forwardRef<MonacoEditorRef, MonacoEditorProps>(
           }
 
           isInitialized.current = true
+          setIsLoading(false)
         } catch (error) {
           console.error('Failed to initialize Monaco Editor:', error)
+          setIsLoading(false)
         }
       }
 
@@ -263,7 +265,7 @@ export const MonacoEditor = forwardRef<MonacoEditorRef, MonacoEditorProps>(
           isInitialized.current = false
         }
       }
-    }, [])
+    }, [mounted])
 
     // Update value when prop changes
     useEffect(() => {
