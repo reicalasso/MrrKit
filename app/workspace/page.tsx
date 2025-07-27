@@ -34,6 +34,7 @@ import {
 import { MonacoEditor } from '@/components/code-editor/monaco-editor'
 import { LivePreview } from '@/components/code-editor/live-preview'
 import { FileExplorer, type FileNode } from '@/components/code-editor/file-explorer'
+import { FileTabs } from '@/components/code-editor/file-tabs'
 import { Terminal } from '@/components/code-editor/terminal'
 import { Input } from '@/components/ui/input'
 
