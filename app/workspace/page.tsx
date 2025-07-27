@@ -587,6 +587,12 @@ export default function WorkspacePage() {
         isOpen={showSharingPanel}
         onClose={() => setShowSharingPanel(false)}
       />
+
+      {/* Theme Settings */}
+      <ThemeSettings
+        isOpen={showThemeSettings}
+        onClose={() => setShowThemeSettings(false)}
+      />
     </div>
   )
 }
