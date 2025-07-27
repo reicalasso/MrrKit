@@ -207,25 +207,32 @@ export function FileExplorer({
 
   return (
     <div className="h-full flex flex-col">
-      <div className="p-3 border-b border-gray-200 bg-white">
-        <div className="flex items-center justify-between mb-2">
-          <h3 className="text-sm font-medium text-gray-900">📁 Dosyalar</h3>
+      <div className="p-4 border-b border-gray-200/50 bg-gradient-to-r from-white to-gray-50/50">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
+            <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-lg flex items-center justify-center">
+              <Folder className="h-3 w-3 text-white" />
+            </div>
+            Dosyalar
+          </h3>
           <div className="flex gap-1">
-            <Button 
-              size="sm" 
-              variant="ghost" 
-              className="h-6 w-6 p-0"
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-7 w-7 p-0 hover:bg-blue-100 rounded-lg transition-all duration-200"
               onClick={() => onFileCreate('new-file.js', 'file')}
+              title="Yeni dosya"
             >
-              <Plus className="h-3 w-3" />
+              <Plus className="h-3 w-3 text-blue-600" />
             </Button>
-            <Button 
-              size="sm" 
-              variant="ghost" 
-              className="h-6 w-6 p-0"
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-7 w-7 p-0 hover:bg-blue-100 rounded-lg transition-all duration-200"
               onClick={() => onFileCreate('new-folder', 'folder')}
+              title="Yeni klasör"
             >
-              <Folder className="h-3 w-3" />
+              <Folder className="h-3 w-3 text-blue-600" />
             </Button>
           </div>
         </div>
