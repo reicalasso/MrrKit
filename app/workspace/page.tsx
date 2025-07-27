@@ -578,7 +578,7 @@ export default App;`
                 {isGenerating ? (
                   <>
                     <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                    Üretiliyor...
+                    ��retiliyor...
                   </>
                 ) : (
                   <>
@@ -722,11 +722,17 @@ export default App;`
                     <CodeRenderer code={activeFile.content} />
                   </div>
                 ) : (
-                  <div className="h-full flex items-center justify-center text-gray-500">
-                    <div className="text-center p-6">
-                      <Eye className="h-16 w-16 mx-auto mb-4 opacity-30" />
-                      <p className="text-lg font-medium mb-2">Önizleme bekleniyor</p>
-                      <p className="text-sm text-gray-400">Kod yazın veya AI ile üretin</p>
+                  <div className="h-full flex items-center justify-center text-gray-500 bg-gradient-to-br from-white to-gray-50/30">
+                    <div className="text-center p-8 max-w-md">
+                      <div className="w-20 h-20 bg-gradient-to-br from-purple-100 to-pink-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                        <Eye className="h-10 w-10 text-purple-500" />
+                      </div>
+                      <h3 className="text-xl font-semibold mb-3 text-gray-700">Canlı Önizleme</h3>
+                      <p className="text-gray-500 mb-4">Kod yazın veya AI ile komponenet üretin</p>
+                      <div className="flex items-center justify-center gap-2 text-sm text-gray-400">
+                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                        Hazır bekleniyor
+                      </div>
                     </div>
                   </div>
                 )}
