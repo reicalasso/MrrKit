@@ -785,17 +785,19 @@ export default App;`
               <div className={`${viewMode === 'split' && !isMobile ? 'w-1/2' : 'w-full'} bg-white overflow-hidden`}>
                 {activeFile?.content ? (
                   <div className="h-full">
-                    <LivePreview
-                      code={activeFile.content}
-                      language={
-                        activeFile.name.endsWith('.html') ? 'html' : 'javascript'
-                      }
-                      onError={(error) => {
-                        if (error) {
-                          console.error('Preview error:', error)
+                    <ErrorBoundary>
+                      <LivePreview
+                        code={activeFile.content}
+                        language={
+                          activeFile.name.endsWith('.html') ? 'html' : 'javascript'
                         }
-                      }}
-                    />
+                        onError={(error) => {
+                          if (error) {
+                            console.error('Preview error:', error)
+                          }
+                        }}
+                      />
+                    </ErrorBoundary>
                   </div>
                 ) : (
                   <div className="h-full flex items-center justify-center text-gray-500 bg-gradient-to-br from-white to-gray-50/30">
