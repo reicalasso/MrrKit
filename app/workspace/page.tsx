@@ -733,30 +733,32 @@ export default App;`
               <div className={`${viewMode === 'split' && !isMobile ? 'w-1/2' : 'w-full'} border-r border-gray-200 overflow-hidden`}>
                 {activeFile ? (
                   <div className="h-full">
-                    <MonacoEditor
-                      key={activeFile.id} // Force remount when file changes
-                      value={activeFile.content || ''}
-                      onChange={(value) => updateFileContent(activeFile.id, value)}
-                      language={
-                        activeFile.name.endsWith('.tsx') || activeFile.name.endsWith('.ts')
-                          ? 'typescript'
-                          : activeFile.name.endsWith('.css')
-                          ? 'css'
-                          : activeFile.name.endsWith('.html')
-                          ? 'html'
-                          : activeFile.name.endsWith('.json')
-                          ? 'json'
-                          : 'javascript'
-                      }
-                      onSave={() => {
-                        console.log('File saved:', activeFile.name)
-                      }}
-                      options={{
-                        minimap: { enabled: !isMobile },
-                        fontSize: isMobile ? 12 : 14,
-                        wordWrap: isMobile ? 'on' : 'off',
-                      }}
-                    />
+                    <ErrorBoundary>
+                      <MonacoEditor
+                        key={activeFile.id} // Force remount when file changes
+                        value={activeFile.content || ''}
+                        onChange={(value) => updateFileContent(activeFile.id, value)}
+                        language={
+                          activeFile.name.endsWith('.tsx') || activeFile.name.endsWith('.ts')
+                            ? 'typescript'
+                            : activeFile.name.endsWith('.css')
+                            ? 'css'
+                            : activeFile.name.endsWith('.html')
+                            ? 'html'
+                            : activeFile.name.endsWith('.json')
+                            ? 'json'
+                            : 'javascript'
+                        }
+                        onSave={() => {
+                          console.log('File saved:', activeFile.name)
+                        }}
+                        options={{
+                          minimap: { enabled: !isMobile },
+                          fontSize: isMobile ? 12 : 14,
+                          wordWrap: isMobile ? 'on' : 'off',
+                        }}
+                      />
+                    </ErrorBoundary>
                   </div>
                 ) : (
                   <div className="h-full flex items-center justify-center text-gray-500 bg-gradient-to-br from-gray-50 to-white">
