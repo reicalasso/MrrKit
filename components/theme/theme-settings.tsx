@@ -113,8 +113,6 @@ export function ThemeSettings({ isOpen = false, onClose }: ThemeSettingsProps) {
           try {
             const themeConfig = JSON.parse(e.target?.result as string)
             updateTheme(themeConfig)
-            setTheme(themeConfig.mode)
-            setEditorTheme(themeConfig.editorTheme)
           } catch (error) {
             console.error('Failed to import theme:', error)
           }
