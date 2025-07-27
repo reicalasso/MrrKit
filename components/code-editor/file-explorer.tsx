@@ -148,19 +148,19 @@ export function FileExplorer({
               autoFocus
             />
           ) : (
-            <span className="text-sm truncate">{file.name}</span>
+            <span className="text-sm font-medium truncate text-gray-800">{file.name}</span>
           )}
         </div>
-        
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100"
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 w-7 p-0 opacity-0 group-hover:opacity-100 hover:bg-white/80 rounded-lg transition-all duration-200"
               onClick={(e) => e.stopPropagation()}
             >
-              <MoreHorizontal className="h-3 w-3" />
+              <MoreHorizontal className="h-4 w-4 text-gray-500" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
