@@ -20,10 +20,13 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
   render() {
     if (this.state.hasError) {
       return (
-        <div className="h-full w-full flex items-center justify-center text-red-500 p-4 bg-red-50">
-          <div className="text-center max-w-full">
-            <p className="text-lg font-bold mb-2">Çalışma Zamanı Hatası</p>
-            <pre className="text-xs text-left bg-red-100 p-2 rounded overflow-auto max-h-64 w-full whitespace-pre-wrap">
+        <div className="h-full w-full flex items-center justify-center text-red-600 p-6 bg-gradient-to-br from-red-50 to-rose-50">
+          <div className="text-center max-w-full bg-white rounded-xl p-6 shadow-lg border border-red-200/50">
+            <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span className="text-2xl">💥</span>
+            </div>
+            <p className="text-lg font-bold mb-3 text-red-700">Çalışma Zamanı Hatası</p>
+            <pre className="text-xs text-left bg-red-50 p-4 rounded-lg overflow-auto max-h-64 w-full whitespace-pre-wrap border border-red-200 text-red-600">
               {this.state.error?.message}
             </pre>
           </div>
