@@ -77,25 +77,39 @@ export function FileExplorer({
 
   const getFileIcon = (file: FileNode) => {
     if (file.type === 'folder') {
-      return expandedFolders.has(file.id) ? 
-        <FolderOpen className="h-4 w-4 text-blue-500" /> : 
-        <Folder className="h-4 w-4 text-blue-500" />
+      return expandedFolders.has(file.id) ?
+        <div className="flex items-center justify-center w-5 h-5 bg-blue-100 rounded-md">
+          <FolderOpen className="h-3 w-3 text-blue-600" />
+        </div> :
+        <div className="flex items-center justify-center w-5 h-5 bg-blue-100 rounded-md">
+          <Folder className="h-3 w-3 text-blue-600" />
+        </div>
     }
-    
+
     const ext = file.name.split('.').pop()
     switch (ext) {
       case 'js':
       case 'jsx':
-        return <FileText className="h-4 w-4 text-yellow-500" />
+        return <div className="flex items-center justify-center w-5 h-5 bg-yellow-100 rounded-md">
+          <FileText className="h-3 w-3 text-yellow-600" />
+        </div>
       case 'ts':
       case 'tsx':
-        return <FileText className="h-4 w-4 text-blue-600" />
+        return <div className="flex items-center justify-center w-5 h-5 bg-blue-100 rounded-md">
+          <FileText className="h-3 w-3 text-blue-600" />
+        </div>
       case 'css':
-        return <FileText className="h-4 w-4 text-blue-400" />
+        return <div className="flex items-center justify-center w-5 h-5 bg-indigo-100 rounded-md">
+          <FileText className="h-3 w-3 text-indigo-600" />
+        </div>
       case 'html':
-        return <FileText className="h-4 w-4 text-orange-500" />
+        return <div className="flex items-center justify-center w-5 h-5 bg-orange-100 rounded-md">
+          <FileText className="h-3 w-3 text-orange-600" />
+        </div>
       default:
-        return <FileText className="h-4 w-4 text-gray-500" />
+        return <div className="flex items-center justify-center w-5 h-5 bg-gray-100 rounded-md">
+          <FileText className="h-3 w-3 text-gray-600" />
+        </div>
     }
   }
 
