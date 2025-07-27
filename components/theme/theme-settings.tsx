@@ -184,7 +184,7 @@ export function ThemeSettings({ isOpen = false, onClose }: ThemeSettingsProps) {
                     return (
                       <button
                         key={themeOption.value}
-                        onClick={() => setTheme(themeOption.value as any)}
+                        onClick={() => setTheme(themeOption.value as 'light' | 'dark' | 'auto')}
                         className={`p-4 rounded-xl border-2 transition-all duration-200 text-left ${
                           theme === themeOption.value
                             ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
