@@ -158,22 +158,29 @@ export default function WorkspacePage() {
     })
   }, [openFiles, removeOpenFile])
 
-  // Dosya oluşturma ve aktif etme işlemini güvenli hale getir
+  // File creation using store methods
   const createFile = useCallback((name: string, type: 'file' | 'folder', parentId?: string) => {
-    const newFile: FileNode = {
+    const newFile = {
       id: Date.now().toString(),
       name,
-      type,
+      type: type as 'file' | 'folder',
       content: type === 'file' ? '' : undefined,
       children: type === 'folder' ? [] : undefined,
-      parent: parentId
+      parent: parentId,
+      language: type === 'file' ? getLanguageFromExtension(name) : undefined,
+      isDirty: false
     }
 
     if (!parentId) {
-      setFiles(prev => [...prev, newFile])
-      if (type === 'file') setActiveFile(newFile)
+      // Add to root level
+      setFiles([...files, newFile])
+      if (type === 'file') {
+        setActiveFile(newFile.id)
+        addOpenFile(newFile)
+      }
     } else {
-      const addToNode = (nodes: FileNode[]): FileNode[] => {
+      // Add to parent folder
+      const addToNode = (nodes: any[]): any[] => {
         return nodes.map(node => {
           if (node.id === parentId && node.children) {
             return { ...node, children: [...node.children, newFile] }
@@ -184,10 +191,25 @@ export default function WorkspacePage() {
           return node
         })
       }
-      setFiles(prev => addToNode(prev))
-      if (type === 'file') setActiveFile(newFile)
+      setFiles(addToNode(files))
+      if (type === 'file') {
+        setActiveFile(newFile.id)
+        addOpenFile(newFile)
+      }
     }
-  }, [])
+  }, [files, setFiles, setActiveFile, addOpenFile])
+
+  const getLanguageFromExtension = (filename: string) => {
+    const ext = filename.split('.').pop()?.toLowerCase()
+    switch (ext) {
+      case 'js': case 'jsx': return 'javascript'
+      case 'ts': case 'tsx': return 'typescript'
+      case 'css': return 'css'
+      case 'html': return 'html'
+      case 'json': return 'json'
+      default: return 'javascript'
+    }
+  }
 
   const deleteFile = useCallback((fileId: string) => {
     const removeFromNodes = (nodes: FileNode[]): FileNode[] => {
