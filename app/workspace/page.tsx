@@ -483,13 +483,19 @@ export default function WorkspacePage() {
           </div>
           
           {/* Editor Content - Dynamic height based on terminal */}
-          <div 
+          <div
             className="flex flex-1 overflow-hidden"
-            style={{ 
-              height: showTerminal ? `calc(100% - ${terminalHeight}px)` : '100%' 
+            style={{
+              height: showTerminal ? `calc(100% - ${terminalHeight}px)` : '100%'
             }}
           >
-            {(viewMode === 'code' || (viewMode === 'split' && !isMobile)) && (
+            {viewMode === 'builder' ? (
+              <div className="w-full h-full">
+                <ErrorBoundary>
+                  <UIBuilderPanel />
+                </ErrorBoundary>
+              </div>
+            ) : (viewMode === 'code' || (viewMode === 'split' && !isMobile)) && (
               <div className={`${viewMode === 'split' && !isMobile ? 'w-1/2' : 'w-full'} border-r border-gray-200 overflow-hidden`}>
                 {activeFile ? (
                   <div className="h-full">
