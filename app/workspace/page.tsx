@@ -506,6 +506,12 @@ export default function WorkspacePage() {
                   <UIBuilderPanel />
                 </ErrorBoundary>
               </div>
+            ) : viewMode === 'store' ? (
+              <div className="w-full h-full">
+                <ErrorBoundary>
+                  <ComponentStorePanel />
+                </ErrorBoundary>
+              </div>
             ) : (
               <>
                 {(viewMode === 'code' || (viewMode === 'split' && !isMobile)) && (
