@@ -134,73 +134,29 @@ export default function WorkspacePage() {
   }, [files])
 
   const updateFileContent = useCallback((fileId: string, content: string) => {
-    const updateNode = (nodes: FileNode[]): FileNode[] => {
-      return nodes.map(node => {
-        if (node.id === fileId) {
-          return { ...node, content }
-        }
-        if (node.children) {
-          return { ...node, children: updateNode(node.children) }
-        }
-        return node
-      })
-    }
+    updateFile(fileId, { content, isDirty: true })
+  }, [updateFile])
 
-    setFiles(updateNode(files))
-
-    // Update active file if it's the one being edited
-    if (activeFile?.id === fileId) {
-      setActiveFile({ ...activeFile, content })
-    }
-
-    // Update open files
-    setOpenFiles(prev => prev.map(file =>
-      file.id === fileId ? { ...file, content } : file
-    ))
-  }, [files, activeFile])
-
-  const handleFileSelect = useCallback((file: FileNode) => {
-    setActiveFile(file)
-
-    // Add to open files if not already open
-    setOpenFiles(prev => {
-      const isAlreadyOpen = prev.some(f => f.id === file.id)
-      if (!isAlreadyOpen) {
-        return [...prev, file]
-      }
-      return prev
-    })
-  }, [])
+  const handleFileSelect = useCallback((file: any) => {
+    setActiveFile(file.id)
+    addOpenFile(file)
+  }, [setActiveFile, addOpenFile])
 
   const handleFileClose = useCallback((fileId: string) => {
-    setOpenFiles(prev => prev.filter(f => f.id !== fileId))
-
-    // If closing active file, switch to another open file or null
-    if (activeFile?.id === fileId) {
-      setOpenFiles(prev => {
-        const remaining = prev.filter(f => f.id !== fileId)
-        if (remaining.length > 0) {
-          setActiveFile(remaining[remaining.length - 1])
-        } else {
-          setActiveFile(null)
-        }
-        return remaining
-      })
-    }
-  }, [activeFile])
+    removeOpenFile(fileId)
+  }, [removeOpenFile])
 
   const handleCloseAll = useCallback(() => {
-    setOpenFiles([])
-    setActiveFile(null)
-  }, [])
+    openFiles.forEach(file => removeOpenFile(file.id))
+  }, [openFiles, removeOpenFile])
 
   const handleCloseOthers = useCallback((keepFileId: string) => {
-    const fileToKeep = openFiles.find(f => f.id === keepFileId)
-    if (fileToKeep) {
-      setOpenFiles([fileToKeep])
-      setActiveFile(fileToKeep)
-    }
-  }, [openFiles])
+    openFiles.forEach(file => {
+      if (file.id !== keepFileId) {
+        removeOpenFile(file.id)
+      }
+    })
+  }, [openFiles, removeOpenFile])
 
   // Dosya oluşturma ve aktif etme işlemini güvenli hale getir
   const createFile = useCallback((name: string, type: 'file' | 'folder', parentId?: string) => {
