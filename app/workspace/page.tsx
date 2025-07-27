@@ -99,7 +99,7 @@ export default function WorkspacePage() {
     if (mounted && typeof window !== 'undefined') {
       const initialPrompt = localStorage.getItem('initialPrompt')
       if (initialPrompt) {
-        setPrompt(initialPrompt)
+        // Handle initial prompt if needed
         localStorage.removeItem('initialPrompt')
       }
     }
