@@ -212,7 +212,7 @@ export default function WorkspacePage() {
   }
 
   const deleteFile = useCallback((fileId: string) => {
-    const removeFromNodes = (nodes: FileNode[]): FileNode[] => {
+    const removeFromNodes = (nodes: any[]): any[] => {
       return nodes.filter(node => {
         if (node.id === fileId) return false
         if (node.children) {
@@ -221,18 +221,16 @@ export default function WorkspacePage() {
         return true
       })
     }
-    
+
     setFiles(removeFromNodes(files))
-    if (activeFile?.id === fileId) {
-      setActiveFile(null)
-    }
-  }, [files, activeFile])
+    removeOpenFile(fileId)
+  }, [files, setFiles, removeOpenFile])
 
   const renameFile = useCallback((fileId: string, newName: string) => {
-    const updateNode = (nodes: FileNode[]): FileNode[] => {
+    const updateNode = (nodes: any[]): any[] => {
       return nodes.map(node => {
         if (node.id === fileId) {
-          return { ...node, name: newName }
+          return { ...node, name: newName, language: getLanguageFromExtension(newName) }
         }
         if (node.children) {
           return { ...node, children: updateNode(node.children) }
@@ -240,12 +238,14 @@ export default function WorkspacePage() {
         return node
       })
     }
-    
+
     setFiles(updateNode(files))
-    if (activeFile?.id === fileId) {
-      setActiveFile({ ...activeFile, name: newName })
-    }
-  }, [files, activeFile])
+    // Update open files as well
+    const updatedOpenFiles = openFiles.map(file =>
+      file.id === fileId ? { ...file, name: newName, language: getLanguageFromExtension(newName) } : file
+    )
+    // This would need a store method to update multiple open files
+  }, [files, openFiles, setFiles, getLanguageFromExtension])
 
   const downloadFile = useCallback((file: FileNode) => {
     if (file.type === 'file' && file.content) {
