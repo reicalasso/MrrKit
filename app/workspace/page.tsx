@@ -510,17 +510,18 @@ export default App;`
             </div>
           )}
           
-          <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
-            <GitBranch className="h-4 w-4" />
+          <Button size="sm" variant="ghost" className="h-9 w-9 p-0 hover:bg-gray-100/80 rounded-xl transition-all duration-200">
+            <GitBranch className="h-4 w-4 text-gray-600" />
           </Button>
-          <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
-            <Upload className="h-4 w-4" />
+          <Button size="sm" variant="ghost" className="h-9 w-9 p-0 hover:bg-gray-100/80 rounded-xl transition-all duration-200">
+            <Upload className="h-4 w-4 text-gray-600" />
           </Button>
-          <Badge variant="secondary" className="bg-green-100 text-green-700 border-green-200 text-xs">
+          <Badge variant="secondary" className="bg-gradient-to-r from-emerald-100 to-green-100 text-emerald-700 border-emerald-200/50 text-xs px-3 py-1 rounded-full shadow-sm">
+            <div className="w-2 h-2 bg-emerald-500 rounded-full mr-2 animate-pulse"></div>
             Çevrimiçi
           </Badge>
-          <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
-            <Settings className="h-4 w-4" />
+          <Button size="sm" variant="ghost" className="h-9 w-9 p-0 hover:bg-gray-100/80 rounded-xl transition-all duration-200">
+            <Settings className="h-4 w-4 text-gray-600" />
           </Button>
         </div>
       </header>
