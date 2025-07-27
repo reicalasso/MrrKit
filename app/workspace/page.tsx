@@ -40,6 +40,7 @@ import { Input } from '@/components/ui/input'
 import { ErrorBoundary } from '@/components/error-boundary'
 import { useWorkspaceStore } from '@/lib/stores/workspace-store'
 import { AIPanel } from '@/components/ai-assistant/ai-panel'
+import { SharingPanel } from '@/components/sharing/sharing-panel'
 
 export default function WorkspacePage() {
   const [searchTerm, setSearchTerm] = useState('')
