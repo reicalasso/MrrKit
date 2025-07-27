@@ -107,7 +107,7 @@ interface WorkspaceState {
   
   setSidebarOpen: (open: boolean) => void
   setTerminalOpen: (open: boolean) => void
-  setPreviewMode: (mode: 'split' | 'code' | 'preview') => void
+  setPreviewMode: (mode: 'split' | 'code' | 'preview' | 'builder' | 'store') => void
   
   updateTheme: (theme: Partial<Theme>) => void
   updatePreviewSettings: (settings: Partial<PreviewSettings>) => void
