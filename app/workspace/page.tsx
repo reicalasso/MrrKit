@@ -647,7 +647,7 @@ export default App;`
             <FileExplorer
               files={files}
               activeFileId={activeFile?.id}
-              onFileSelect={setActiveFile}
+              onFileSelect={handleFileSelect}
               onFileCreate={createFile}
               onFileRename={renameFile}
               onFileDelete={deleteFile}
