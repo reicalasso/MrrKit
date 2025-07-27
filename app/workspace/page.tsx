@@ -712,6 +712,12 @@ export default function WorkspacePage() {
           )}
         </div>
       </div>
+
+      {/* Sharing Panel */}
+      <SharingPanel
+        isOpen={showSharingPanel}
+        onClose={() => setShowSharingPanel(false)}
+      />
     </div>
   )
 }
