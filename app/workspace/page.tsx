@@ -31,7 +31,7 @@ import {
   GitBranch,
   Search
 } from 'lucide-react'
-import { CodeMirrorEditor } from '@/components/code-editor/code-mirror-editor'
+import { MonacoEditor } from '@/components/code-editor/monaco-editor'
 import { CodeRenderer } from '@/lib/code-renderer'
 import { FileExplorer, type FileNode } from '@/components/code-editor/file-explorer'
 import { Terminal } from '@/components/code-editor/terminal'
@@ -578,7 +578,7 @@ export default App;`
                 {isGenerating ? (
                   <>
                     <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                    ��retiliyor...
+                    Üretiliyor...
                   </>
                 ) : (
                   <>
