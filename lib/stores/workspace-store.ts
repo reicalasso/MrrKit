@@ -63,7 +63,7 @@ interface WorkspaceState {
   // UI State
   sidebarOpen: boolean
   terminalOpen: boolean
-  previewMode: 'split' | 'code' | 'preview' | 'builder'
+  previewMode: 'split' | 'code' | 'preview' | 'builder' | 'store'
   
   // Settings
   theme: Theme
