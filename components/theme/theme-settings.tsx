@@ -20,7 +20,7 @@ import {
   Upload,
   RotateCcw
 } from 'lucide-react'
-import { useTheme } from './theme-provider'
+// import { useTheme } from './theme-provider' // Removed to avoid context dependency
 import { useWorkspaceStore } from '@/lib/stores/workspace-store'
 
 interface ThemeSettingsProps {
