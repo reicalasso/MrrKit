@@ -7,16 +7,16 @@ import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { 
-  Split, 
-  Play, 
-  Code, 
-  Eye, 
-  Download, 
-  Share, 
-  Settings, 
-  Wand2, 
-  FileText, 
+import {
+  Split,
+  Play,
+  Code,
+  Eye,
+  Download,
+  Share,
+  Settings,
+  Wand2,
+  FileText,
   Folder,
   Plus,
   Save,
@@ -29,7 +29,8 @@ import {
   Terminal as TerminalIcon,
   Upload,
   GitBranch,
-  Search
+  Search,
+  Palette
 } from 'lucide-react'
 import { MonacoEditor } from '@/components/code-editor/monaco-editor'
 import { LivePreview } from '@/components/code-editor/live-preview'
