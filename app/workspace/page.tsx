@@ -546,7 +546,13 @@ export default function WorkspacePage() {
                 )}
               </div>
             )}
-            
+
+            {!isMobile && viewMode === 'builder' && (
+              <div className="w-full h-full">
+                {/* UI Builder is already rendered above */}
+              </div>
+            )}
+
             {(viewMode === 'preview' || (viewMode === 'split' && !isMobile)) && (
               <div className={`${viewMode === 'split' && !isMobile ? 'w-1/2' : 'w-full'} bg-white overflow-hidden`}>
                 {activeFile?.content ? (
