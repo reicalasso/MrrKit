@@ -30,7 +30,8 @@ import {
   Upload,
   GitBranch,
   Search,
-  Palette
+  Palette,
+  Package
 } from 'lucide-react'
 import { MonacoEditor } from '@/components/code-editor/monaco-editor'
 import { LivePreview } from '@/components/code-editor/live-preview'
