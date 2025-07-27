@@ -89,8 +89,16 @@ export function ComponentStorePanel() {
   const handleInstallComponent = useCallback((item: StoreItem) => {
     if (currentProject) {
       const fileName = `${item.name.toLowerCase().replace(/\s+/g, '-')}.tsx`;
-      addFile(currentProject.id, fileName, item.code);
-      
+      const newFile = {
+        id: Date.now().toString(),
+        name: fileName,
+        type: "file" as const,
+        content: item.code,
+        language: 'typescript',
+        isDirty: false,
+        parent: undefined,
+      };
+      addFile(newFile);
       // Show success notification
       console.log(`Installed: ${item.name}`);
     }

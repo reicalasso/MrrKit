@@ -13,13 +13,13 @@ import {
   Link, 
   MousePointer2, 
   ToggleLeft,
-  RadioItem,
   Hash,
   AlignLeft,
   CreditCard,
   User,
   Minus,
-  Layers
+  Layers,
+  Circle
 } from 'lucide-react';
 
 const componentCategories = [
@@ -47,7 +47,7 @@ const componentCategories = [
       { type: 'textarea', label: 'Textarea', icon: AlignLeft, description: 'Multi-line input' },
       { type: 'select', label: 'Select', icon: Layers, description: 'Dropdown select' },
       { type: 'checkbox', label: 'Checkbox', icon: ToggleLeft, description: 'Checkbox input' },
-      { type: 'radio', label: 'Radio', icon: RadioItem, description: 'Radio button' }
+      { type: 'radio', label: 'Radio', icon: Circle, description: 'Radio button' }
     ]
   },
   {

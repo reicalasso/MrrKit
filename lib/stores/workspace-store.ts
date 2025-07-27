@@ -23,7 +23,7 @@ export interface AIAssistant {
 
 export interface Theme {
   mode: 'light' | 'dark' | 'auto'
-  editorTheme: 'vs' | 'vs-dark' | 'hc-black'
+  editorTheme: 'vs' | 'vs-dark' | 'hc-black' | 'github-light' | 'github-dark'
   fontSize: number
   fontFamily: string
   lineHeight: number

@@ -77,10 +77,19 @@ export function UIBuilderPanel() {
 
   const handleGenerateCode = useCallback(() => {
     const code = generateComponentCode(componentName, canvasElements);
-    
+
     if (currentProject) {
       const fileName = `${componentName}.tsx`;
-      addFile(currentProject.id, fileName, code);
+      const newFile = {
+        id: Date.now().toString(),
+        name: fileName,
+        type: "file" as const,
+        content: code,
+        language: 'typescript',
+        isDirty: false,
+        parent: undefined,
+      };
+      addFile(newFile);
     }
   }, [componentName, canvasElements, currentProject, addFile]);
 

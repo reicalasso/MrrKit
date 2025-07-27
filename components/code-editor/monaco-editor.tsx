@@ -1,9 +1,17 @@
 'use client'
 
+import type * as monaco from 'monaco-editor'
 import React, { useRef, useEffect, forwardRef, useImperativeHandle, useState } from 'react'
+import dynamic from "next/dynamic";
+
+// Dynamically import MonacoEditor to avoid SSR issues
+const MonacoEditorDynamic = dynamic(
+  () => import("@monaco-editor/react").then((mod) => mod.default),
+  { ssr: false }
+);
 
 // Dynamic import for Monaco to avoid SSR issues
-let monaco: typeof import('monaco-editor') | null = null
+let monacoInstance: typeof import('monaco-editor') | null = null
 
 export interface MonacoEditorProps {
   value: string
@@ -24,6 +32,28 @@ export interface MonacoEditorRef {
   insertAtCursor: (text: string) => void
 }
 
+// Monaco worker ayarları - dosyanın en başında, global olarak tanımlanmalı
+if (typeof window !== 'undefined') {
+  // @ts-ignore
+  window.MonacoEnvironment = {
+    getWorkerUrl: function (moduleId, label) {
+      if (label === 'json') {
+        return 'https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/min/vs/language/json/json.worker.js'
+      }
+      if (label === 'css' || label === 'scss' || label === 'less') {
+        return 'https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/min/vs/language/css/css.worker.js'
+      }
+      if (label === 'html' || label === 'handlebars' || label === 'razor') {
+        return 'https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/min/vs/language/html/html.worker.js'
+      }
+      if (label === 'typescript' || label === 'javascript') {
+        return 'https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/min/vs/language/typescript/ts.worker.js'
+      }
+      return 'https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/min/vs/editor/editor.worker.js'
+    }
+  }
+}
+
 export const MonacoEditor = forwardRef<MonacoEditorRef, MonacoEditorProps>(
   (
     {
@@ -39,6 +69,7 @@ export const MonacoEditor = forwardRef<MonacoEditorRef, MonacoEditorProps>(
     },
     ref
   ) => {
+    // MonacoEditorDynamic is available if you want to use the dynamic import elsewhere
     const containerRef = useRef<HTMLDivElement>(null)
     const editorRef = useRef<any>(null)
     const isInitialized = useRef(false)
@@ -56,7 +87,7 @@ export const MonacoEditor = forwardRef<MonacoEditorRef, MonacoEditorProps>(
       getSelection: () => {
         try {
           const selection = editorRef.current?.getSelection()
-          if (selection && monaco) {
+          if (selection && monacoInstance) {
             return editorRef.current?.getModel()?.getValueInRange(selection) || ''
           }
         } catch (error) {
@@ -67,11 +98,11 @@ export const MonacoEditor = forwardRef<MonacoEditorRef, MonacoEditorProps>(
       insertAtCursor: (text: string) => {
         try {
           const editor = editorRef.current
-          if (editor && monaco) {
+          if (editor && monacoInstance) {
             const position = editor.getPosition()
             if (position) {
               editor.executeEdits('insert-text', [{
-                range: new monaco.Range(position.lineNumber, position.column, position.lineNumber, position.column),
+                range: new monacoInstance.Range(position.lineNumber, position.column, position.lineNumber, position.column),
                 text
               }])
             }
@@ -90,8 +121,8 @@ export const MonacoEditor = forwardRef<MonacoEditorRef, MonacoEditorProps>(
           setIsLoading(true)
 
           // Dynamically import Monaco Editor
-          if (!monaco) {
-            monaco = await import('monaco-editor')
+          if (!monacoInstance) {
+            monacoInstance = await import('monaco-editor')
 
             // Configure Monaco loader
             const { loader } = await import('@monaco-editor/react')
@@ -103,7 +134,7 @@ export const MonacoEditor = forwardRef<MonacoEditorRef, MonacoEditorProps>(
           }
 
           // Define custom themes
-          monaco.editor.defineTheme('mrrkit-light', {
+          monacoInstance!.editor.defineTheme('mrrkit-light', {
             base: 'vs',
             inherit: true,
             rules: [
@@ -126,7 +157,7 @@ export const MonacoEditor = forwardRef<MonacoEditorRef, MonacoEditorProps>(
             }
           })
 
-          monaco.editor.defineTheme('mrrkit-dark', {
+          monacoInstance!.editor.defineTheme('mrrkit-dark', {
             base: 'vs-dark',
             inherit: true,
             rules: [
@@ -150,18 +181,18 @@ export const MonacoEditor = forwardRef<MonacoEditorRef, MonacoEditorProps>(
           })
 
           // Configure TypeScript/JavaScript language features
-          const jsDefaults = monaco.languages.typescript.javascriptDefaults
-          const tsDefaults = monaco.languages.typescript.typescriptDefaults
+          const jsDefaults = monacoInstance!.languages.typescript.javascriptDefaults
+          const tsDefaults = monacoInstance!.languages.typescript.typescriptDefaults
 
           // Set compiler options
           const compilerOptions = {
-            target: monaco.languages.typescript.ScriptTarget.ES2020,
+            target: monacoInstance!.languages.typescript.ScriptTarget.ES2020,
             allowNonTsExtensions: true,
-            moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
-            module: monaco.languages.typescript.ModuleKind.CommonJS,
+            moduleResolution: monacoInstance!.languages.typescript.ModuleResolutionKind.NodeJs,
+            module: monacoInstance!.languages.typescript.ModuleKind.CommonJS,
             noEmit: true,
             esModuleInterop: true,
-            jsx: monaco.languages.typescript.JsxEmit.React,
+            jsx: monacoInstance!.languages.typescript.JsxEmit.React,
             reactNamespace: 'React',
             allowJs: true,
             typeRoots: ['node_modules/@types']
@@ -193,10 +224,10 @@ export const MonacoEditor = forwardRef<MonacoEditorRef, MonacoEditorProps>(
             }
           `
 
-          monaco.languages.typescript.javascriptDefaults.addExtraLib(reactTypes, 'file:///react.d.ts')
-          monaco.languages.typescript.typescriptDefaults.addExtraLib(reactTypes, 'file:///react.d.ts')
+          monacoInstance!.languages.typescript.javascriptDefaults.addExtraLib(reactTypes, 'file:///react.d.ts')
+          monacoInstance!.languages.typescript.typescriptDefaults.addExtraLib(reactTypes, 'file:///react.d.ts')
 
-          const editor = monaco.editor.create(containerRef.current, {
+          const editor = monacoInstance!.editor.create(containerRef.current!, {
             value,
             language,
             theme: theme === 'dark' ? 'mrrkit-dark' : 'mrrkit-light',
@@ -246,7 +277,7 @@ export const MonacoEditor = forwardRef<MonacoEditorRef, MonacoEditorProps>(
 
           // Handle save command
           if (onSave) {
-            editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {
+            editor.addCommand(monacoInstance!.KeyMod.CtrlCmd | monacoInstance!.KeyCode.KeyS, () => {
               onSave()
             })
           }
@@ -289,17 +320,17 @@ export const MonacoEditor = forwardRef<MonacoEditorRef, MonacoEditorProps>(
 
     // Update theme when prop changes
     useEffect(() => {
-      if (editorRef.current && monaco) {
-        monaco.editor.setTheme(theme === 'dark' ? 'mrrkit-dark' : 'mrrkit-light')
+      if (editorRef.current && monacoInstance) {
+        monacoInstance.editor.setTheme(theme === 'dark' ? 'mrrkit-dark' : 'mrrkit-light')
       }
     }, [theme, mounted])
 
     // Update language when prop changes
     useEffect(() => {
-      if (editorRef.current && monaco) {
+      if (editorRef.current && monacoInstance) {
         const model = editorRef.current.getModel()
         if (model) {
-          monaco.editor.setModelLanguage(model, language)
+          monacoInstance.editor.setModelLanguage(model, language)
         }
       }
     }, [language, mounted])
