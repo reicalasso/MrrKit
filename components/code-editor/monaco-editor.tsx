@@ -40,8 +40,15 @@ export const MonacoEditor = forwardRef<MonacoEditorRef, MonacoEditorProps>(
     ref
   ) => {
     const containerRef = useRef<HTMLDivElement>(null)
-    const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null)
+    const editorRef = useRef<any>(null)
     const isInitialized = useRef(false)
+    const [isLoading, setIsLoading] = useState(true)
+    const [mounted, setMounted] = useState(false)
+
+    // Only run on client side
+    useEffect(() => {
+      setMounted(true)
+    }, [])
 
     useImperativeHandle(ref, () => ({
       getEditor: () => editorRef.current,
