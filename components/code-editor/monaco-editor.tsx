@@ -1,15 +1,9 @@
 'use client'
 
-import React, { useRef, useEffect, forwardRef, useImperativeHandle } from 'react'
-import * as monaco from 'monaco-editor'
-import { loader } from '@monaco-editor/react'
+import React, { useRef, useEffect, forwardRef, useImperativeHandle, useState } from 'react'
 
-// Configure Monaco loader
-loader.config({
-  paths: {
-    vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/min/vs'
-  }
-})
+// Dynamic import for Monaco to avoid SSR issues
+let monaco: typeof import('monaco-editor') | null = null
 
 export interface MonacoEditorProps {
   value: string
