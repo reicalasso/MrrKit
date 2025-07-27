@@ -101,10 +101,10 @@ export function FileExplorer({
 
   const renderFileNode = (file: FileNode, depth = 0) => (
     <div key={file.id} className="select-none">
-      <div 
+      <div
         className={cn(
-          "flex items-center justify-between group hover:bg-gray-50 rounded px-2 py-1 cursor-pointer",
-          activeFileId === file.id && "bg-blue-50 border-l-2 border-blue-500",
+          "flex items-center justify-between group hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 rounded-lg mx-1 px-3 py-2 cursor-pointer transition-all duration-200",
+          activeFileId === file.id && "bg-gradient-to-r from-blue-100 to-indigo-100 border-l-4 border-blue-500 shadow-sm",
           `ml-${depth * 4}`
         )}
         onClick={() => {
