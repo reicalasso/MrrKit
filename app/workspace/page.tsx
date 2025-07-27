@@ -474,16 +474,16 @@ export default App;`
           >
             {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center shadow-sm">
-              <img 
-                src="/favicon.ico" 
-                alt="MrrKit Logo" 
-                className="w-5 h-5 object-contain"
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+              <img
+                src="/favicon.ico"
+                alt="MrrKit Logo"
+                className="w-6 h-6 object-contain"
               />
             </div>
             <div>
-              <h1 className="text-base sm:text-lg font-bold text-gray-900">MrrKit Workspace</h1>
+              <h1 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-gray-900 to-purple-600 bg-clip-text text-transparent">MrrKit Workspace</h1>
               {!isMobile && (
                 <input
                   type="text"
