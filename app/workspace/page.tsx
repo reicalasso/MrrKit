@@ -695,11 +695,20 @@ export default App;`
                     />
                   </div>
                 ) : (
-                  <div className="h-full flex items-center justify-center text-gray-500 bg-gray-50">
-                    <div className="text-center p-6">
-                      <FileText className="h-16 w-16 mx-auto mb-4 opacity-30" />
-                      <p className="text-lg font-medium mb-2">Dosya seçilmedi</p>
-                      <p className="text-sm text-gray-400">Soldaki menüden bir dosya seçin</p>
+                  <div className="h-full flex items-center justify-center text-gray-500 bg-gradient-to-br from-gray-50 to-white">
+                    <div className="text-center p-8 max-w-md">
+                      <div className="w-20 h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                        <FileText className="h-10 w-10 text-gray-400" />
+                      </div>
+                      <h3 className="text-xl font-semibold mb-3 text-gray-700">Kod Editörü</h3>
+                      <p className="text-gray-500 mb-4">Soldaki menüden bir dosya seçin veya yeni bir dosya oluşturun</p>
+                      <Button
+                        onClick={() => createFile('component.jsx', 'file')}
+                        className="bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white px-6 py-2 rounded-lg shadow-lg transition-all duration-200"
+                      >
+                        <Plus className="w-4 h-4 mr-2" />
+                        Yeni Dosya
+                      </Button>
                     </div>
                   </div>
                 )}
