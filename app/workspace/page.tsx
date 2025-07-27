@@ -118,6 +118,7 @@ export default App;`
   ])
 
   const [activeFile, setActiveFile] = useState<FileNode | null>(null)
+  const [openFiles, setOpenFiles] = useState<FileNode[]>([])
 
   // Mount state'ini kontrol et ve mobile detection
   useEffect(() => {
