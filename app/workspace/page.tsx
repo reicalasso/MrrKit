@@ -37,6 +37,7 @@ import { FileExplorer, type FileNode } from '@/components/code-editor/file-explo
 import { FileTabs } from '@/components/code-editor/file-tabs'
 import { Terminal } from '@/components/code-editor/terminal'
 import { Input } from '@/components/ui/input'
+import { ErrorBoundary } from '@/components/error-boundary'
 
 export default function WorkspacePage() {
   const [prompt, setPrompt] = useState('')
