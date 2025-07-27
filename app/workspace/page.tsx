@@ -684,13 +684,27 @@ export default App;`
               <div className={`${viewMode === 'split' && !isMobile ? 'w-1/2' : 'w-full'} border-r border-gray-200 overflow-hidden`}>
                 {activeFile ? (
                   <div className="h-full">
-                    <CodeMirrorEditor
+                    <MonacoEditor
                       value={activeFile.content || ''}
                       onChange={(value) => updateFileContent(activeFile.id, value)}
-                      language={activeFile.name.endsWith('.tsx') || activeFile.name.endsWith('.ts') ? 'typescript' : 'javascript'}
-                      className="h-full"
+                      language={
+                        activeFile.name.endsWith('.tsx') || activeFile.name.endsWith('.ts')
+                          ? 'typescript'
+                          : activeFile.name.endsWith('.css')
+                          ? 'css'
+                          : activeFile.name.endsWith('.html')
+                          ? 'html'
+                          : activeFile.name.endsWith('.json')
+                          ? 'json'
+                          : 'javascript'
+                      }
                       onSave={() => {
                         console.log('File saved:', activeFile.name)
+                      }}
+                      options={{
+                        minimap: { enabled: !isMobile },
+                        fontSize: isMobile ? 12 : 14,
+                        wordWrap: isMobile ? 'on' : 'off',
                       }}
                     />
                   </div>
