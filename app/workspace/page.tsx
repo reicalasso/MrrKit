@@ -534,8 +534,8 @@ export default App;`
       <div className="flex-1 flex relative overflow-hidden">
         {/* AI Editor Sidebar */}
         <div className={`${
-          isMobile 
-            ? `fixed inset-y-0 left-0 z-40 w-80 transform transition-transform duration-300 ${
+          isMobile
+            ? `fixed inset-y-0 left-0 z-40 w-80 max-w-[85vw] transform transition-all duration-300 ease-in-out ${
                 sidebarOpen ? 'translate-x-0' : '-translate-x-full'
               }`
             : 'w-80 flex-shrink-0'
