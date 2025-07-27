@@ -538,18 +538,18 @@ export default App;`
         } bg-white/95 backdrop-blur-md shadow-xl lg:shadow-lg border-r border-gray-200/50 flex flex-col`}>
           
           {/* AI Prompt Section */}
-          <div className="h-80 border-b border-gray-200 p-4 bg-gradient-to-br from-purple-50 to-pink-50 flex-shrink-0">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center shadow-sm">
-                <img 
-                  src="/favicon.ico" 
-                  alt="MrrKit Logo" 
-                  className="w-5 h-5 object-contain"
+          <div className="h-80 border-b border-gray-200/50 p-6 bg-gradient-to-br from-purple-50/70 to-pink-50/70 flex-shrink-0">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg">
+                <img
+                  src="/favicon.ico"
+                  alt="MrrKit Logo"
+                  className="w-6 h-6 object-contain"
                 />
               </div>
               <div>
-                <h2 className="text-base font-bold text-gray-900">AI Code Generator</h2>
-                <p className="text-xs text-gray-600">Prompt yazın, kod alın</p>
+                <h2 className="text-lg font-bold text-gray-900">AI Code Generator</h2>
+                <p className="text-sm text-gray-600">Prompt yazın, kod alın ✨</p>
               </div>
             </div>
             
