@@ -562,14 +562,14 @@ export default App;`
                   placeholder="Örnek: Modern bir todo app komponenti oluştur..."
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
-                  className="min-h-[80px] text-sm border-gray-200 resize-none focus:border-purple-300 focus:ring-1 focus:ring-purple-200"
+                  className="min-h-[80px] text-sm border-gray-200/60 bg-white/70 backdrop-blur-sm resize-none focus:border-purple-300 focus:ring-2 focus:ring-purple-200/50 rounded-xl shadow-sm transition-all duration-200"
                 />
               </div>
 
-              <Button 
+              <Button
                 onClick={handleGenerate}
                 disabled={!prompt.trim() || isGenerating}
-                className="w-full h-10 text-sm bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 border-0 shadow-sm"
+                className="w-full h-12 text-sm bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 border-0 shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl font-semibold"
               >
                 {isGenerating ? (
                   <>
