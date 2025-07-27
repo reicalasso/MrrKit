@@ -66,75 +66,19 @@ export default function WorkspacePage() {
     updateFile,
   } = useWorkspaceStore()
 
-  // Dosya sistemi
-  const [files, setFiles] = useState<FileNode[]>([
-    {
-      id: 'src',
-      name: 'src',
-      type: 'folder',
-      children: [
-        {
-          id: 'app',
-          name: 'App.jsx',
-          type: 'file',
-          content: `import React, { useState } from 'react';
+  const activeFile = files.find(f => findFileInTree(files, activeFileId))
 
-function App() {
-  const [count, setCount] = useState(0);
-
-  return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-      <h1 className="text-4xl font-bold text-gray-800 mb-8">
-        MrrKit Workspace
-      </h1>
-      <div className="bg-white p-8 rounded-lg shadow-lg">
-        <p className="text-xl mb-4">Counter: {count}</p>
-        <div className="flex gap-4">
-          <button 
-            onClick={() => setCount(count + 1)}
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-          >
-            Increment
-          </button>
-          <button 
-            onClick={() => setCount(count - 1)}
-            className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-          >
-            Decrement
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-export default App;`
-        }
-      ]
-    },
-    {
-      id: 'components',
-      name: 'components',
-      type: 'folder',
-      children: []
-    },
-    {
-      id: 'package',
-      name: 'package.json',
-      type: 'file',
-      content: `{
-  "name": "mrrkit-project",
-  "version": "1.0.0",
-  "dependencies": {
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0"
-  }
-}`
+  const findFileInTree = (fileList: any[], targetId: string | null): any => {
+    if (!targetId) return null
+    for (const file of fileList) {
+      if (file.id === targetId) return file
+      if (file.children) {
+        const found = findFileInTree(file.children, targetId)
+        if (found) return found
+      }
     }
-  ])
-
-  const [activeFile, setActiveFile] = useState<FileNode | null>(null)
-  const [openFiles, setOpenFiles] = useState<FileNode[]>([])
+    return null
+  }
 
   // Mount state'ini kontrol et ve mobile detection
   useEffect(() => {
