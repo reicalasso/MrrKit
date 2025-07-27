@@ -237,40 +237,7 @@ export default function WorkspacePage() {
     }
   }, [])
 
-  const handleGenerate = async () => {
-    if (!prompt.trim()) return
 
-    setIsGenerating(true)
-    try {
-      const response = await fetch('/api/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt }),
-      })
-
-      const data = await response.json()
-      if (data.success) {
-        const code = data.components?.[0]?.code || data.code || ''
-        if (activeFile) {
-          updateFileContent(activeFile.id, code)
-        } else {
-          const newFileName = `generated-${Date.now()}.jsx`
-          const newFile: FileNode = {
-            id: Date.now().toString(),
-            name: newFileName,
-            type: 'file',
-            content: code,
-          }
-          setFiles(prev => [...prev, newFile])
-          setActiveFile(newFile)
-        }
-      }
-    } catch (error) {
-      console.error('Generation error:', error)
-    } finally {
-      setIsGenerating(false)
-    }
-  }
 
   const AIEditor = () => (
     <div className="h-full flex flex-col bg-gradient-to-br from-purple-50 to-pink-50 border-r border-gray-200">
