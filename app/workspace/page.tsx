@@ -606,8 +606,8 @@ export default App;`
 
         {/* Mobile Overlay */}
         {isMobile && sidebarOpen && (
-          <div 
-            className="fixed inset-0 bg-black bg-opacity-50 z-30"
+          <div
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 transition-all duration-300"
             onClick={() => setSidebarOpen(false)}
           />
         )}
