@@ -54,22 +54,30 @@ export const MonacoEditor = forwardRef<MonacoEditorRef, MonacoEditorProps>(
       getEditor: () => editorRef.current,
       focus: () => editorRef.current?.focus(),
       getSelection: () => {
-        const selection = editorRef.current?.getSelection()
-        if (selection) {
-          return editorRef.current?.getModel()?.getValueInRange(selection) || ''
+        try {
+          const selection = editorRef.current?.getSelection()
+          if (selection && monaco) {
+            return editorRef.current?.getModel()?.getValueInRange(selection) || ''
+          }
+        } catch (error) {
+          console.warn('Failed to get selection:', error)
         }
         return ''
       },
       insertAtCursor: (text: string) => {
-        const editor = editorRef.current
-        if (editor) {
-          const position = editor.getPosition()
-          if (position) {
-            editor.executeEdits('insert-text', [{
-              range: new monaco.Range(position.lineNumber, position.column, position.lineNumber, position.column),
-              text
-            }])
+        try {
+          const editor = editorRef.current
+          if (editor && monaco) {
+            const position = editor.getPosition()
+            if (position) {
+              editor.executeEdits('insert-text', [{
+                range: new monaco.Range(position.lineNumber, position.column, position.lineNumber, position.column),
+                text
+              }])
+            }
           }
+        } catch (error) {
+          console.warn('Failed to insert text:', error)
         }
       }
     }))
