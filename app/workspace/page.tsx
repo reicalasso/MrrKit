@@ -733,6 +733,7 @@ export default App;`
                 {activeFile ? (
                   <div className="h-full">
                     <MonacoEditor
+                      key={activeFile.id} // Force remount when file changes
                       value={activeFile.content || ''}
                       onChange={(value) => updateFileContent(activeFile.id, value)}
                       language={
