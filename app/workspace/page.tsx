@@ -535,7 +535,7 @@ export default App;`
                 sidebarOpen ? 'translate-x-0' : '-translate-x-full'
               }`
             : 'w-80 flex-shrink-0'
-        } bg-white shadow-lg lg:shadow-none border-r border-gray-200 flex flex-col`}>
+        } bg-white/95 backdrop-blur-md shadow-xl lg:shadow-lg border-r border-gray-200/50 flex flex-col`}>
           
           {/* AI Prompt Section */}
           <div className="h-80 border-b border-gray-200 p-4 bg-gradient-to-br from-purple-50 to-pink-50 flex-shrink-0">
