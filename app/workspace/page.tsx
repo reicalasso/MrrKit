@@ -666,24 +666,20 @@ export default App;`
 
         {/* Main Editor Area - Flex column with terminal handling */}
         <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-          {/* Editor Tabs */}
-          <div className="h-14 bg-white/90 backdrop-blur-sm border-b border-gray-200/50 flex items-center justify-between px-6 flex-shrink-0">
-            <div className="flex items-center gap-2">
-              {activeFile && (
-                <div className="flex items-center gap-2 bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-2 rounded-xl border border-blue-200/50 shadow-sm">
-                  <FileText className="h-4 w-4 text-blue-600" />
-                  <span className="text-sm font-semibold text-blue-900">{activeFile.name}</span>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="h-4 w-4 p-0 hover:bg-blue-100"
-                    onClick={() => setActiveFile(null)}
-                  >
-                    <X className="h-3 w-3" />
-                  </Button>
-                </div>
-              )}
-            </div>
+          {/* File Tabs */}
+          <FileTabs
+            openFiles={openFiles}
+            activeFileId={activeFile?.id || null}
+            onFileSelect={handleFileSelect}
+            onFileClose={handleFileClose}
+            onFileCreate={createFile}
+            onCloseAll={handleCloseAll}
+            onCloseOthers={handleCloseOthers}
+            className="h-12 flex-shrink-0"
+          />
+
+          {/* Editor Controls */}
+          <div className="h-12 bg-white/90 backdrop-blur-sm border-b border-gray-200/50 flex items-center justify-between px-6 flex-shrink-0">
             
             <div className="flex items-center gap-1">
               <Button
