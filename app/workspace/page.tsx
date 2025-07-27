@@ -509,53 +509,11 @@ export default function WorkspacePage() {
             : 'w-80 flex-shrink-0'
         } bg-white/95 backdrop-blur-md shadow-xl lg:shadow-lg border-r border-gray-200/50 flex flex-col`}>
           
-          {/* AI Prompt Section */}
-          <div className="h-80 border-b border-gray-200/50 p-6 bg-gradient-to-br from-purple-50/70 to-pink-50/70 flex-shrink-0">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg">
-                <img
-                  src="/favicon.ico"
-                  alt="MrrKit Logo"
-                  className="w-6 h-6 object-contain"
-                />
-              </div>
-              <div>
-                <h2 className="text-lg font-bold text-gray-900">AI Code Generator</h2>
-                <p className="text-sm text-gray-600">Prompt yazın, kod alın ✨</p>
-              </div>
-            </div>
-            
-            <div className="space-y-4">
-              <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
-                  💭 Ne yapmak istiyorsunuz?
-                </label>
-                <Textarea
-                  placeholder="Örnek: Modern bir todo app komponenti oluştur..."
-                  value={prompt}
-                  onChange={(e) => setPrompt(e.target.value)}
-                  className="min-h-[80px] text-sm border-gray-200/60 bg-white/70 backdrop-blur-sm resize-none focus:border-purple-300 focus:ring-2 focus:ring-purple-200/50 rounded-xl shadow-sm transition-all duration-200"
-                />
-              </div>
-
-              <Button
-                onClick={handleGenerate}
-                disabled={!prompt.trim() || isGenerating}
-                className="w-full h-12 text-sm bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 border-0 shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl font-semibold"
-              >
-                {isGenerating ? (
-                  <>
-                    <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                    Üretiliyor...
-                  </>
-                ) : (
-                  <>
-                    <Wand2 className="mr-2 h-4 w-4" />
-                    Kod Üret
-                  </>
-                )}
-              </Button>
-            </div>
+          {/* AI Assistant Panel */}
+          <div className="h-96 border-b border-gray-200/50 flex-shrink-0">
+            <ErrorBoundary>
+              <AIPanel />
+            </ErrorBoundary>
           </div>
 
           {/* File Explorer */}
