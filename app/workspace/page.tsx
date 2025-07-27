@@ -32,7 +32,7 @@ import {
   Search
 } from 'lucide-react'
 import { MonacoEditor } from '@/components/code-editor/monaco-editor'
-import { CodeRenderer } from '@/lib/code-renderer'
+import { LivePreview } from '@/components/code-editor/live-preview'
 import { FileExplorer, type FileNode } from '@/components/code-editor/file-explorer'
 import { Terminal } from '@/components/code-editor/terminal'
 import { Input } from '@/components/ui/input'
