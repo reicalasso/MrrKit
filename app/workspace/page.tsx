@@ -483,6 +483,15 @@ export default function WorkspacePage() {
           <Button size="sm" variant="ghost" className="h-9 w-9 p-0 hover:bg-gray-100/80 rounded-xl transition-all duration-200">
             <GitBranch className="h-4 w-4 text-gray-600" />
           </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            className="h-9 w-9 p-0 hover:bg-gray-100/80 rounded-xl transition-all duration-200"
+            onClick={() => setShowSharingPanel(true)}
+            title="Share code"
+          >
+            <Share className="h-4 w-4 text-gray-600" />
+          </Button>
           <Button size="sm" variant="ghost" className="h-9 w-9 p-0 hover:bg-gray-100/80 rounded-xl transition-all duration-200">
             <Upload className="h-4 w-4 text-gray-600" />
           </Button>
