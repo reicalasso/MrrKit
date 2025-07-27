@@ -481,6 +481,15 @@ export default function WorkspacePage() {
               >
                 <Palette className="h-4 w-4" />
               </Button>
+              <Button
+                size="sm"
+                variant={viewMode === 'store' ? 'default' : 'ghost'}
+                onClick={() => setViewMode('store')}
+                className="h-9 px-3 rounded-lg transition-all duration-200"
+                title="Component Store"
+              >
+                <Package className="h-4 w-4" />
+              </Button>
             </div>
           </div>
           
