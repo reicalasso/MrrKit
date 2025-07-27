@@ -611,7 +611,7 @@ export default App;`
         {/* Main Editor Area - Flex column with terminal handling */}
         <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
           {/* Editor Tabs */}
-          <div className="h-12 bg-white border-b border-gray-200 flex items-center justify-between px-4 flex-shrink-0">
+          <div className="h-14 bg-white/90 backdrop-blur-sm border-b border-gray-200/50 flex items-center justify-between px-6 flex-shrink-0">
             <div className="flex items-center gap-2">
               {activeFile && (
                 <div className="flex items-center gap-2 bg-blue-50 px-3 py-1 rounded-md border border-blue-200">
