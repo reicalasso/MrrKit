@@ -654,17 +654,17 @@ export default App;`
                 size="sm"
                 variant={viewMode === 'code' ? 'default' : 'ghost'}
                 onClick={() => setViewMode('code')}
-                className="h-8 px-2"
+                className="h-9 px-3 rounded-lg transition-all duration-200"
               >
-                <Code className="h-3 w-3" />
+                <Code className="h-4 w-4" />
               </Button>
               <Button
                 size="sm"
                 variant={viewMode === 'preview' ? 'default' : 'ghost'}
                 onClick={() => setViewMode('preview')}
-                className="h-8 px-2"
+                className="h-9 px-3 rounded-lg transition-all duration-200"
               >
-                <Eye className="h-3 w-3" />
+                <Eye className="h-4 w-4" />
               </Button>
             </div>
           </div>
