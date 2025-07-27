@@ -362,7 +362,13 @@ export default function WorkspacePage() {
             <div className="w-2 h-2 bg-emerald-500 rounded-full mr-2 animate-pulse"></div>
             Çevrimiçi
           </Badge>
-          <Button size="sm" variant="ghost" className="h-9 w-9 p-0 hover:bg-gray-100/80 rounded-xl transition-all duration-200">
+          <Button
+            size="sm"
+            variant="ghost"
+            className="h-9 w-9 p-0 hover:bg-gray-100/80 rounded-xl transition-all duration-200"
+            onClick={() => setShowThemeSettings(true)}
+            title="Theme & Settings"
+          >
             <Settings className="h-4 w-4 text-gray-600" />
           </Button>
         </div>
