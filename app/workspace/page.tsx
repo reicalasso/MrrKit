@@ -565,7 +565,7 @@ export default function WorkspacePage() {
               className="border-t border-gray-200 flex-shrink-0 bg-gray-900"
               style={{ height: terminalHeight }}
             >
-              <Terminal
+              <EnhancedTerminal
                 onClose={() => setShowTerminal(false)}
                 onMinimize={() => setShowTerminal(false)}
               />
