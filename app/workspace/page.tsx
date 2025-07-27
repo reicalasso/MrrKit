@@ -42,16 +42,29 @@ import { useWorkspaceStore } from '@/lib/stores/workspace-store'
 import { AIPanel } from '@/components/ai-assistant/ai-panel'
 
 export default function WorkspacePage() {
-  const [prompt, setPrompt] = useState('')
-  const [isGenerating, setIsGenerating] = useState(false)
-  const [viewMode, setViewMode] = useState<'split' | 'code' | 'preview'>('split')
-  const [projectName, setProjectName] = useState('Yeni Proje')
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [showTerminal, setShowTerminal] = useState(false)
-  const [terminalHeight, setTerminalHeight] = useState(200)
   const [searchTerm, setSearchTerm] = useState('')
   const [mounted, setMounted] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
+  const [terminalHeight, setTerminalHeight] = useState(200)
+
+  // Zustand store
+  const {
+    files,
+    openFiles,
+    activeFileId,
+    sidebarOpen,
+    terminalOpen: showTerminal,
+    previewMode: viewMode,
+    currentProject,
+    setFiles,
+    addOpenFile,
+    removeOpenFile,
+    setActiveFile,
+    setSidebarOpen,
+    setTerminalOpen: setShowTerminal,
+    setPreviewMode: setViewMode,
+    updateFile,
+  } = useWorkspaceStore()
 
   // Dosya sistemi
   const [files, setFiles] = useState<FileNode[]>([
