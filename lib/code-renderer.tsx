@@ -115,7 +115,7 @@ export const CodeRenderer: React.FC<CodeRendererProps> = ({ code, onError }) => 
 
   if (RenderableComponent) {
     return (
-      <div className="p-4 h-full w-full overflow-auto bg-white">
+      <div className="p-6 h-full w-full overflow-auto bg-gradient-to-br from-white to-gray-50/30">
         <ErrorBoundary>
           <RenderableComponent />
         </ErrorBoundary>
@@ -124,8 +124,14 @@ export const CodeRenderer: React.FC<CodeRendererProps> = ({ code, onError }) => 
   }
 
   return (
-    <div className="h-full flex items-center justify-center text-gray-500">
-      <p>Önizleme yükleniyor...</p>
+    <div className="h-full flex items-center justify-center text-gray-500 bg-gradient-to-br from-gray-50 to-white">
+      <div className="text-center">
+        <div className="w-12 h-12 bg-gradient-to-br from-purple-100 to-pink-100 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
+          <span className="text-2xl">⚡</span>
+        </div>
+        <p className="text-lg font-medium text-gray-600">Önizleme yükleniyor...</p>
+        <p className="text-sm text-gray-400 mt-2">Kod analiz ediliyor</p>
+      </div>
     </div>
   )
 }
