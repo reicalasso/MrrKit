@@ -345,9 +345,9 @@ export function ThemeSettings({ isOpen = false, onClose }: ThemeSettingsProps) {
                       <Label className="text-sm font-medium">High Contrast Mode</Label>
                       <p className="text-xs text-gray-600 dark:text-gray-400">Enhances contrast for better visibility</p>
                     </div>
-                    <Switch 
+                    <Switch
                       checked={editorTheme === 'hc-black'}
-                      onCheckedChange={(checked) => setEditorTheme(checked ? 'hc-black' : 'vs')}
+                      onCheckedChange={(checked) => updateTheme({ editorTheme: checked ? 'hc-black' : 'vs' })}
                     />
                   </div>
                   
