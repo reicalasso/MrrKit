@@ -645,9 +645,9 @@ export default App;`
                   size="sm"
                   variant={viewMode === 'split' ? 'default' : 'ghost'}
                   onClick={() => setViewMode('split')}
-                  className="h-8 px-2"
+                  className="h-9 px-3 rounded-lg transition-all duration-200"
                 >
-                  <Split className="h-3 w-3" />
+                  <Split className="h-4 w-4" />
                 </Button>
               )}
               <Button
