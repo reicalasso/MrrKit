@@ -630,9 +630,26 @@ export function TemplateLibrary({ onTemplateSelect }: TemplateLibraryProps) {
                   <Eye className="h-4 w-4 mr-1" />
                   Preview
                 </Button>
-                <Button size="sm" className="flex-1">
-                  <Download className="h-4 w-4 mr-1" />
-                  Use Template
+                <Button
+                  size="sm"
+                  className="flex-1"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleTemplateInstall(template);
+                  }}
+                  disabled={installingTemplate === template.id}
+                >
+                  {installingTemplate === template.id ? (
+                    <>
+                      <div className="h-4 w-4 mr-1 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                      Installing...
+                    </>
+                  ) : (
+                    <>
+                      <Download className="h-4 w-4 mr-1" />
+                      Use Template
+                    </>
+                  )}
                 </Button>
               </div>
             </CardContent>
