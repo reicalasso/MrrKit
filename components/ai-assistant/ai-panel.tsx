@@ -164,23 +164,26 @@ export function AIPanel() {
 
         // If generating new code and we have an active file, update it
         if (selectedTask === 'generate' && activeFileId) {
-          updateFile(activeFileId, { 
+          updateFile(activeFileId, {
             content: response.result,
             isDirty: true
           })
         } else if (selectedTask === 'generate') {
           // Create new file if no active file
-          const newFileName = `generated-${Date.now()}.jsx`
+          const newFileName = `generated-${Date.now()}.${selectedFramework === 'react' ? 'jsx' : 'js'}`
           const newFile = {
             id: Date.now().toString(),
             name: newFileName,
             type: 'file' as const,
             content: response.result,
-            language: 'javascript',
+            language: selectedFramework === 'react' ? 'javascript' : 'javascript',
             isDirty: false
           }
-          // Note: This would need to be handled by the parent component
-          console.log('New file would be created:', newFile)
+
+          // Add the file to the workspace
+          addFile(newFile)
+          setActiveFile(newFile.id)
+          addOpenFile(newFile)
         }
 
         setPrompt('')
