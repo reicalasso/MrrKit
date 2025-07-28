@@ -7,20 +7,19 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { 
   Search, 
+  Star, 
   Download, 
   Eye, 
-  Star, 
-  Layout, 
-  Smartphone, 
-  Monitor, 
+  Layers,
+  Layout,
   Globe,
-  ShoppingBag,
-  Briefcase,
-  Users,
-  BookOpen,
-  Camera,
-  Music,
-  Gamepad2
+  ShoppingCart,
+  User,
+  BarChart,
+  FileText,
+  Mail,
+  Settings,
+  Calendar
 } from 'lucide-react';
 import { StoreItem } from './component-store-panel';
 
@@ -29,632 +28,418 @@ interface TemplateLibraryProps {
 }
 
 const templateCategories = [
-  { id: 'all', label: 'All Templates', icon: Layout },
+  { id: 'all', label: 'All Templates', icon: Layers },
   { id: 'landing', label: 'Landing Pages', icon: Globe },
-  { id: 'dashboard', label: 'Dashboards', icon: Monitor },
-  { id: 'ecommerce', label: 'E-commerce', icon: ShoppingBag },
-  { id: 'portfolio', label: 'Portfolio', icon: Briefcase },
-  { id: 'blog', label: 'Blog', icon: BookOpen },
-  { id: 'social', label: 'Social', icon: Users },
-  { id: 'mobile', label: 'Mobile', icon: Smartphone }
+  { id: 'dashboard', label: 'Dashboards', icon: BarChart },
+  { id: 'ecommerce', label: 'E-commerce', icon: ShoppingCart },
+  { id: 'portfolio', label: 'Portfolio', icon: User },
+  { id: 'blog', label: 'Blog', icon: FileText },
+  { id: 'contact', label: 'Contact', icon: Mail },
+  { id: 'admin', label: 'Admin Panels', icon: Settings },
+  { id: 'calendar', label: 'Calendar', icon: Calendar }
 ];
 
 const templates: StoreItem[] = [
   {
-    id: 'landing-saas',
+    id: 'saas-landing',
     name: 'SaaS Landing Page',
     description: 'Modern landing page template for SaaS products with hero section, features, pricing, and testimonials',
     category: 'templates',
-    tags: ['landing', 'saas', 'business', 'hero', 'pricing'],
-    author: 'Design Team',
-    downloads: 2847,
-    likes: 312,
-    rating: 4.8,
+    tags: ['landing', 'saas', 'hero', 'pricing', 'testimonials'],
+    author: 'Template Studio',
+    downloads: 12456,
+    likes: 2341,
+    rating: 4.9,
     framework: 'react',
     featured: true,
+    new: false,
     thumbnail: '/templates/saas-landing.jpg',
-    createdAt: new Date('2024-01-15'),
-    updatedAt: new Date('2024-02-01'),
+    createdAt: new Date('2024-01-05'),
+    updatedAt: new Date('2024-02-10'),
     preview: '',
     code: `import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Star, Check, ArrowRight, Zap, Shield, Globe } from 'lucide-react';
+import { CheckCircle, Star, ArrowRight, Zap, Shield, Globe } from 'lucide-react';
 
 export default function SaaSLandingPage() {
+  const features = [
+    { icon: Zap, title: 'Lightning Fast', description: 'Optimized for speed and performance' },
+    { icon: Shield, title: 'Secure by Default', description: 'Enterprise-grade security built-in' },
+    { icon: Globe, title: 'Global Scale', description: 'Deploy worldwide with our CDN' }
+  ];
+
+  const pricing = [
+    { name: 'Starter', price: 29, features: ['5 Projects', '1GB Storage', 'Basic Support'] },
+    { name: 'Pro', price: 79, features: ['Unlimited Projects', '10GB Storage', 'Priority Support'], popular: true },
+    { name: 'Enterprise', price: 199, features: ['Everything', 'Unlimited Storage', '24/7 Support'] }
+  ];
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className="min-h-screen">
+      {/* Header */}
+      <header className="border-b">
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-blue-600 rounded-lg"></div>
+            <span className="text-xl font-bold">ProductName</span>
+          </div>
+          <nav className="hidden md:flex items-center gap-6">
+            <a href="#features" className="text-gray-600 hover:text-gray-900">Features</a>
+            <a href="#pricing" className="text-gray-600 hover:text-gray-900">Pricing</a>
+            <a href="#about" className="text-gray-600 hover:text-gray-900">About</a>
+            <Button variant="outline">Sign In</Button>
+            <Button>Get Started</Button>
+          </nav>
+        </div>
+      </header>
+
       {/* Hero Section */}
-      <section className="relative px-6 py-20 text-center">
-        <div className="max-w-4xl mx-auto">
-          <Badge className="mb-6 bg-blue-100 text-blue-800 border-blue-200">
-            ✨ Now with AI-powered features
-          </Badge>
-          <h1 className="text-5xl font-bold mb-6 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            Build Amazing Products 10x Faster
+      <section className="py-20 px-4 text-center">
+        <div className="container mx-auto max-w-4xl">
+          <Badge className="mb-4">🎉 New Feature Released</Badge>
+          <h1 className="text-5xl font-bold mb-6">
+            Build Amazing Products
+            <span className="block text-blue-600">10x Faster</span>
           </h1>
           <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-            The all-in-one platform that helps teams ship better products faster with AI-powered tools and seamless collaboration.
+            The all-in-one platform that helps teams ship better products faster. 
+            From idea to launch in record time.
           </p>
-          <div className="flex items-center justify-center gap-4">
-            <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button size="lg" className="text-lg px-8">
               Start Free Trial
-              <ArrowRight className="ml-2 h-4 w-4" />
+              <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
-            <Button size="lg" variant="outline">
+            <Button size="lg" variant="outline" className="text-lg px-8">
               Watch Demo
             </Button>
+          </div>
+          <div className="mt-12 bg-gray-100 rounded-lg p-8">
+            <div className="text-sm text-gray-600 mb-4">Trusted by 10,000+ companies</div>
+            <div className="flex items-center justify-center gap-8 opacity-60">
+              {/* Company logos would go here */}
+              <div className="w-24 h-8 bg-gray-300 rounded"></div>
+              <div className="w-24 h-8 bg-gray-300 rounded"></div>
+              <div className="w-24 h-8 bg-gray-300 rounded"></div>
+              <div className="w-24 h-8 bg-gray-300 rounded"></div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Features Section */}
-      <section className="px-6 py-20 bg-white">
-        <div className="max-w-6xl mx-auto">
+      <section id="features" className="py-20 px-4 bg-gray-50">
+        <div className="container mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold mb-4">Everything you need to succeed</h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
-              Powerful features designed to help your team collaborate better and ship faster.
+              Powerful features designed to help you build, deploy, and scale your applications.
             </p>
           </div>
-          
           <div className="grid md:grid-cols-3 gap-8">
-            <Card className="border-0 shadow-lg">
-              <CardHeader>
-                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
-                  <Zap className="h-6 w-6 text-blue-600" />
-                </div>
-                <CardTitle>Lightning Fast</CardTitle>
-                <CardDescription>
-                  Built for speed with modern architecture and optimized performance.
-                </CardDescription>
-              </CardHeader>
-            </Card>
-            
-            <Card className="border-0 shadow-lg">
-              <CardHeader>
-                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
-                  <Shield className="h-6 w-6 text-green-600" />
-                </div>
-                <CardTitle>Enterprise Security</CardTitle>
-                <CardDescription>
-                  Bank-level security with SOC 2 compliance and end-to-end encryption.
-                </CardDescription>
-              </CardHeader>
-            </Card>
-            
-            <Card className="border-0 shadow-lg">
-              <CardHeader>
-                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
-                  <Globe className="h-6 w-6 text-purple-600" />
-                </div>
-                <CardTitle>Global Scale</CardTitle>
-                <CardDescription>
-                  Deploy worldwide with our global CDN and 99.9% uptime guarantee.
-                </CardDescription>
-              </CardHeader>
-            </Card>
+            {features.map((feature, index) => (
+              <Card key={index}>
+                <CardHeader>
+                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                    <feature.icon className="h-6 w-6 text-blue-600" />
+                  </div>
+                  <CardTitle>{feature.title}</CardTitle>
+                  <CardDescription>{feature.description}</CardDescription>
+                </CardHeader>
+              </Card>
+            ))}
           </div>
         </div>
       </section>
 
       {/* Pricing Section */}
-      <section className="px-6 py-20 bg-gray-50">
-        <div className="max-w-6xl mx-auto">
+      <section id="pricing" className="py-20 px-4">
+        <div className="container mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold mb-4">Simple, transparent pricing</h2>
-            <p className="text-gray-600">Choose the plan that's right for your team</p>
+            <p className="text-gray-600">Choose the plan that works for you</p>
           </div>
-          
-          <div className="grid md:grid-cols-3 gap-8">
-            <Card>
-              <CardHeader>
-                <CardTitle>Starter</CardTitle>
-                <div className="text-3xl font-bold">$29<span className="text-sm font-normal text-gray-500">/month</span></div>
-                <CardDescription>Perfect for small teams getting started</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-3">
-                  <li className="flex items-center gap-2">
-                    <Check className="h-4 w-4 text-green-600" />
-                    Up to 5 team members
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Check className="h-4 w-4 text-green-600" />
-                    100GB storage
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Check className="h-4 w-4 text-green-600" />
-                    Basic analytics
-                  </li>
-                </ul>
-                <Button className="w-full mt-6">Get Started</Button>
-              </CardContent>
-            </Card>
-            
-            <Card className="border-blue-200 relative">
-              <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-blue-600">
-                Most Popular
-              </Badge>
-              <CardHeader>
-                <CardTitle>Professional</CardTitle>
-                <div className="text-3xl font-bold">$99<span className="text-sm font-normal text-gray-500">/month</span></div>
-                <CardDescription>For growing teams that need more power</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-3">
-                  <li className="flex items-center gap-2">
-                    <Check className="h-4 w-4 text-green-600" />
-                    Up to 25 team members
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Check className="h-4 w-4 text-green-600" />
-                    1TB storage
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Check className="h-4 w-4 text-green-600" />
-                    Advanced analytics
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Check className="h-4 w-4 text-green-600" />
-                    Priority support
-                  </li>
-                </ul>
-                <Button className="w-full mt-6 bg-blue-600 hover:bg-blue-700">Get Started</Button>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader>
-                <CardTitle>Enterprise</CardTitle>
-                <div className="text-3xl font-bold">Custom</div>
-                <CardDescription>For large organizations with specific needs</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-3">
-                  <li className="flex items-center gap-2">
-                    <Check className="h-4 w-4 text-green-600" />
-                    Unlimited team members
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Check className="h-4 w-4 text-green-600" />
-                    Unlimited storage
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Check className="h-4 w-4 text-green-600" />
-                    Custom integrations
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Check className="h-4 w-4 text-green-600" />
-                    Dedicated support
-                  </li>
-                </ul>
-                <Button variant="outline" className="w-full mt-6">Contact Sales</Button>
-              </CardContent>
-            </Card>
+          <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+            {pricing.map((plan, index) => (
+              <Card key={index} className={\`relative \${plan.popular ? 'border-blue-500 shadow-lg scale-105' : ''}\`}>
+                {plan.popular && (
+                  <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                    Most Popular
+                  </Badge>
+                )}
+                <CardHeader className="text-center">
+                  <CardTitle>{plan.name}</CardTitle>
+                  <div className="text-3xl font-bold">\${plan.price}<span className="text-sm font-normal">/month</span></div>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-3 mb-6">
+                    {plan.features.map((feature, featureIndex) => (
+                      <li key={featureIndex} className="flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-500" />
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+                  <Button className="w-full" variant={plan.popular ? 'default' : 'outline'}>
+                    Get Started
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
       </section>
-    </div>
-  );
-}`,
-    dependencies: ['lucide-react']
-  },
-  {
-    id: 'ecommerce-product',
-    name: 'E-commerce Product Page',
-    description: 'Complete product page with image gallery, reviews, related products and shopping cart integration',
-    category: 'templates',
-    tags: ['ecommerce', 'product', 'shopping', 'cart', 'reviews'],
-    author: 'Commerce Team',
-    downloads: 1926,
-    likes: 245,
-    rating: 4.7,
-    framework: 'react',
-    new: true,
-    thumbnail: '/templates/ecommerce-product.jpg',
-    createdAt: new Date('2024-02-10'),
-    updatedAt: new Date('2024-02-15'),
-    preview: '',
-    code: `import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Star, Heart, Share, ShoppingCart, Truck, Shield, RotateCcw } from 'lucide-react';
 
-export default function EcommerceProductPage() {
-  const [selectedImage, setSelectedImage] = useState(0);
-  const [selectedSize, setSelectedSize] = useState('M');
-  const [quantity, setQuantity] = useState(1);
-
-  const images = [
-    '/products/product-1.jpg',
-    '/products/product-2.jpg',
-    '/products/product-3.jpg',
-    '/products/product-4.jpg'
-  ];
-
-  const sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
-
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="grid lg:grid-cols-2 gap-12">
-          {/* Product Images */}
-          <div className="space-y-4">
-            <div className="aspect-square bg-white rounded-lg overflow-hidden shadow-sm">
-              <img 
-                src={images[selectedImage]} 
-                alt="Product" 
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <div className="grid grid-cols-4 gap-4">
-              {images.map((image, index) => (
-                <button
-                  key={index}
-                  onClick={() => setSelectedImage(index)}
-                  className={\`aspect-square bg-white rounded-lg overflow-hidden border-2 \${
-                    selectedImage === index ? 'border-blue-500' : 'border-gray-200'
-                  }\`}
-                >
-                  <img src={image} alt={\`Product \${index + 1}\`} className="w-full h-full object-cover" />
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Product Details */}
-          <div className="space-y-6">
+      {/* Footer */}
+      <footer className="bg-gray-900 text-white py-12">
+        <div className="container mx-auto px-4">
+          <div className="grid md:grid-cols-4 gap-8">
             <div>
-              <Badge className="mb-2">New Arrival</Badge>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                Premium Cotton T-Shirt
-              </h1>
-              <div className="flex items-center gap-4 mb-4">
-                <div className="flex items-center">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                  ))}
-                  <span className="ml-2 text-sm text-gray-600">(128 reviews)</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Button variant="ghost" size="sm">
-                    <Heart className="h-4 w-4" />
-                  </Button>
-                  <Button variant="ghost" size="sm">
-                    <Share className="h-4 w-4" />
-                  </Button>
-                </div>
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-8 h-8 bg-blue-600 rounded-lg"></div>
+                <span className="text-xl font-bold">ProductName</span>
               </div>
-              <div className="flex items-center gap-4">
-                <span className="text-3xl font-bold text-gray-900">$49.99</span>
-                <span className="text-lg text-gray-500 line-through">$69.99</span>
-                <Badge variant="destructive">30% OFF</Badge>
-              </div>
-            </div>
-
-            <div>
-              <p className="text-gray-600 leading-relaxed">
-                Made from 100% organic cotton, this premium t-shirt offers unmatched comfort and style. 
-                Perfect for everyday wear with a relaxed fit and breathable fabric that gets softer with every wash.
+              <p className="text-gray-400">
+                Building the future of web development, one component at a time.
               </p>
             </div>
-
-            {/* Size Selection */}
             <div>
-              <h3 className="font-medium mb-3">Size</h3>
-              <div className="flex gap-2">
-                {sizes.map((size) => (
-                  <button
-                    key={size}
-                    onClick={() => setSelectedSize(size)}
-                    className={\`px-4 py-2 border rounded-md \${
-                      selectedSize === size
-                        ? 'border-blue-500 bg-blue-50 text-blue-600'
-                        : 'border-gray-300 hover:border-gray-400'
-                    }\`}
-                  >
-                    {size}
-                  </button>
-                ))}
-              </div>
+              <h3 className="font-semibold mb-4">Product</h3>
+              <ul className="space-y-2 text-gray-400">
+                <li><a href="#" className="hover:text-white">Features</a></li>
+                <li><a href="#" className="hover:text-white">Pricing</a></li>
+                <li><a href="#" className="hover:text-white">Documentation</a></li>
+              </ul>
             </div>
-
-            {/* Quantity */}
             <div>
-              <h3 className="font-medium mb-3">Quantity</h3>
-              <div className="flex items-center gap-4">
-                <div className="flex items-center border rounded-md">
-                  <button 
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="px-3 py-2 hover:bg-gray-100"
-                  >
-                    -
-                  </button>
-                  <span className="px-4 py-2 min-w-[60px] text-center">{quantity}</span>
-                  <button 
-                    onClick={() => setQuantity(quantity + 1)}
-                    className="px-3 py-2 hover:bg-gray-100"
-                  >
-                    +
-                  </button>
-                </div>
-                <span className="text-sm text-gray-600">Only 8 left in stock</span>
-              </div>
+              <h3 className="font-semibold mb-4">Company</h3>
+              <ul className="space-y-2 text-gray-400">
+                <li><a href="#" className="hover:text-white">About</a></li>
+                <li><a href="#" className="hover:text-white">Blog</a></li>
+                <li><a href="#" className="hover:text-white">Careers</a></li>
+              </ul>
             </div>
-
-            {/* Actions */}
-            <div className="space-y-4">
-              <Button size="lg" className="w-full">
-                <ShoppingCart className="mr-2 h-5 w-5" />
-                Add to Cart
-              </Button>
-              <Button variant="outline" size="lg" className="w-full">
-                Buy Now
-              </Button>
-            </div>
-
-            {/* Features */}
-            <div className="grid grid-cols-3 gap-4 pt-6 border-t">
-              <div className="text-center">
-                <Truck className="h-6 w-6 mx-auto mb-2 text-green-600" />
-                <p className="text-xs font-medium">Free Shipping</p>
-                <p className="text-xs text-gray-500">On orders over $50</p>
-              </div>
-              <div className="text-center">
-                <Shield className="h-6 w-6 mx-auto mb-2 text-blue-600" />
-                <p className="text-xs font-medium">Secure Payment</p>
-                <p className="text-xs text-gray-500">SSL encrypted</p>
-              </div>
-              <div className="text-center">
-                <RotateCcw className="h-6 w-6 mx-auto mb-2 text-purple-600" />
-                <p className="text-xs font-medium">Easy Returns</p>
-                <p className="text-xs text-gray-500">30-day policy</p>
-              </div>
+            <div>
+              <h3 className="font-semibold mb-4">Support</h3>
+              <ul className="space-y-2 text-gray-400">
+                <li><a href="#" className="hover:text-white">Help Center</a></li>
+                <li><a href="#" className="hover:text-white">Contact</a></li>
+                <li><a href="#" className="hover:text-white">Status</a></li>
+              </ul>
             </div>
           </div>
+          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+            <p>&copy; 2024 ProductName. All rights reserved.</p>
+          </div>
         </div>
-      </div>
+      </footer>
     </div>
   );
 }`,
-    dependencies: ['lucide-react']
+    dependencies: ['@/components/ui/button', '@/components/ui/card', '@/components/ui/badge', 'lucide-react']
   },
   {
-    id: 'dashboard-analytics',
-    name: 'Analytics Dashboard',
-    description: 'Modern dashboard with charts, metrics, and data visualization for business analytics',
+    id: 'dashboard-template',
+    name: 'Admin Dashboard',
+    description: 'Complete admin dashboard with sidebar navigation, charts, tables, and user management',
     category: 'templates',
-    tags: ['dashboard', 'analytics', 'charts', 'metrics', 'admin'],
-    author: 'Dashboard Team',
-    downloads: 3421,
-    likes: 567,
-    rating: 4.9,
+    tags: ['dashboard', 'admin', 'charts', 'tables', 'sidebar'],
+    author: 'Dashboard Pro',
+    downloads: 8932,
+    likes: 1654,
+    rating: 4.8,
     framework: 'react',
     featured: true,
-    thumbnail: '/templates/analytics-dashboard.jpg',
-    createdAt: new Date('2024-01-08'),
-    updatedAt: new Date('2024-02-12'),
+    thumbnail: '/templates/admin-dashboard.jpg',
+    createdAt: new Date('2024-01-10'),
+    updatedAt: new Date('2024-02-05'),
     preview: '',
-    code: `import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+    code: `import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { 
-  TrendingUp, 
-  TrendingDown, 
+  BarChart3, 
   Users, 
-  DollarSign, 
   ShoppingCart, 
-  Eye,
-  MoreHorizontal,
-  Calendar
+  TrendingUp, 
+  Menu,
+  Home,
+  FileText,
+  Settings,
+  LogOut
 } from 'lucide-react';
+import { useState } from 'react';
 
-export default function AnalyticsDashboard() {
+export default function AdminDashboard() {
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+
   const stats = [
-    {
-      title: 'Total Revenue',
-      value: '$45,231.89',
-      change: '+20.1%',
-      trend: 'up',
-      icon: DollarSign,
-      color: 'text-green-600'
-    },
-    {
-      title: 'Active Users',
-      value: '2,350',
-      change: '+180.1%',
-      trend: 'up',
-      icon: Users,
-      color: 'text-blue-600'
-    },
-    {
-      title: 'Orders',
-      value: '12,234',
-      change: '+19%',
-      trend: 'up',
-      icon: ShoppingCart,
-      color: 'text-purple-600'
-    },
-    {
-      title: 'Page Views',
-      value: '573,204',
-      change: '-4.3%',
-      trend: 'down',
-      icon: Eye,
-      color: 'text-orange-600'
-    }
+    { title: 'Total Users', value: '12,456', change: '+12%', icon: Users, color: 'text-blue-600' },
+    { title: 'Revenue', value: '$45,231', change: '+8%', icon: TrendingUp, color: 'text-green-600' },
+    { title: 'Orders', value: '1,234', change: '+23%', icon: ShoppingCart, color: 'text-purple-600' },
+    { title: 'Growth', value: '+12.5%', change: '+3%', icon: BarChart3, color: 'text-orange-600' }
+  ];
+
+  const recentOrders = [
+    { id: '#3024', customer: 'John Doe', amount: '$125.00', status: 'Completed' },
+    { id: '#3023', customer: 'Jane Smith', amount: '$89.00', status: 'Pending' },
+    { id: '#3022', customer: 'Bob Johnson', amount: '$156.00', status: 'Completed' },
+    { id: '#3021', customer: 'Alice Brown', amount: '$67.00', status: 'Cancelled' }
+  ];
+
+  const menuItems = [
+    { icon: Home, label: 'Dashboard', active: true },
+    { icon: Users, label: 'Users' },
+    { icon: ShoppingCart, label: 'Orders' },
+    { icon: FileText, label: 'Reports' },
+    { icon: Settings, label: 'Settings' }
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Analytics Dashboard</h1>
-            <p className="text-gray-600 mt-1">Welcome back! Here's what's happening with your business.</p>
-          </div>
-          <div className="flex items-center gap-4">
-            <Button variant="outline">
-              <Calendar className="mr-2 h-4 w-4" />
-              Last 30 days
-            </Button>
-            <Button>Download Report</Button>
+    <div className="flex h-screen bg-gray-100">
+      {/* Sidebar */}
+      <div className={\`bg-white shadow-lg transition-all duration-300 \${sidebarOpen ? 'w-64' : 'w-16'}\`}>
+        <div className="p-4">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-blue-600 rounded-lg"></div>
+            {sidebarOpen && <h1 className="text-xl font-bold">Admin Panel</h1>}
           </div>
         </div>
+        <nav className="mt-8">
+          {menuItems.map((item, index) => (
+            <a
+              key={index}
+              href="#"
+              className={\`flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-100 \${
+                item.active ? 'bg-blue-50 text-blue-600 border-r-2 border-blue-600' : ''
+              }\`}
+            >
+              <item.icon className="h-5 w-5" />
+              {sidebarOpen && <span>{item.label}</span>}
+            </a>
+          ))}
+          <div className="mt-auto p-4">
+            <a
+              href="#"
+              className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-100"
+            >
+              <LogOut className="h-5 w-5" />
+              {sidebarOpen && <span>Logout</span>}
+            </a>
+          </div>
+        </nav>
+      </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {stats.map((stat, index) => (
-            <Card key={index}>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-gray-600">
-                  {stat.title}
-                </CardTitle>
-                <stat.icon className={\`h-4 w-4 \${stat.color}\`} />
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Header */}
+        <header className="bg-white shadow-sm border-b">
+          <div className="flex items-center justify-between px-6 py-4">
+            <div className="flex items-center gap-4">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+              >
+                <Menu className="h-5 w-5" />
+              </Button>
+              <h2 className="text-xl font-semibold">Dashboard</h2>
+            </div>
+            <div className="flex items-center gap-4">
+              <Button variant="outline" size="sm">
+                Export Data
+              </Button>
+              <Avatar>
+                <AvatarFallback>AD</AvatarFallback>
+              </Avatar>
+            </div>
+          </div>
+        </header>
+
+        {/* Content */}
+        <main className="flex-1 overflow-auto p-6">
+          {/* Stats Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            {stats.map((stat, index) => (
+              <Card key={index}>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-gray-600">{stat.title}</p>
+                      <p className="text-3xl font-bold">{stat.value}</p>
+                    </div>
+                    <div className={\`p-3 rounded-full bg-gray-100 \${stat.color}\`}>
+                      <stat.icon className="h-6 w-6" />
+                    </div>
+                  </div>
+                  <div className="mt-4">
+                    <Badge variant="outline" className="text-green-600 border-green-200">
+                      {stat.change} from last month
+                    </Badge>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {/* Charts and Tables */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Chart */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Revenue Overview</CardTitle>
+                <CardDescription>Monthly revenue for the last 6 months</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{stat.value}</div>
-                <div className="flex items-center text-xs text-gray-600 mt-1">
-                  {stat.trend === 'up' ? (
-                    <TrendingUp className="h-3 w-3 text-green-600 mr-1" />
-                  ) : (
-                    <TrendingDown className="h-3 w-3 text-red-600 mr-1" />
-                  )}
-                  <span className={\`\${stat.trend === 'up' ? 'text-green-600' : 'text-red-600'}\`}>
-                    {stat.change}
-                  </span>
-                  <span className="ml-1">from last month</span>
+                <div className="h-64 bg-gray-50 rounded-lg flex items-center justify-center">
+                  <div className="text-center text-gray-500">
+                    <BarChart3 className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                    <p>Chart would be rendered here</p>
+                  </div>
                 </div>
               </CardContent>
             </Card>
-          ))}
-        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Revenue Chart */}
-          <Card className="col-span-2">
-            <CardHeader>
-              <CardTitle>Revenue Overview</CardTitle>
-              <CardDescription>Monthly revenue for the last 6 months</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="h-64 flex items-end justify-between gap-2">
-                {[40, 60, 45, 80, 65, 90].map((height, index) => (
-                  <div key={index} className="flex-1 flex flex-col items-center">
-                    <div 
-                      className="w-full bg-blue-500 rounded-t"
-                      style={{ height: \`\${height}%\` }}
-                    />
-                    <span className="text-xs text-gray-500 mt-2">
-                      {['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'][index]}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Top Products */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Top Products</CardTitle>
-              <CardDescription>Best selling products this month</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {[
-                { name: 'Wireless Headphones', sales: 1234, growth: 12 },
-                { name: 'Smart Watch', sales: 982, growth: 8 },
-                { name: 'Laptop Stand', sales: 756, growth: 15 },
-                { name: 'USB-C Hub', sales: 643, growth: -3 },
-                { name: 'Mechanical Keyboard', sales: 521, growth: 22 }
-              ].map((product, index) => (
-                <div key={index} className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <p className="font-medium text-sm">{product.name}</p>
-                    <p className="text-xs text-gray-600">{product.sales} sales</p>
-                  </div>
-                  <Badge 
-                    variant={product.growth > 0 ? "default" : "destructive"}
-                    className="text-xs"
-                  >
-                    {product.growth > 0 ? '+' : ''}{product.growth}%
-                  </Badge>
+            {/* Recent Orders */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Recent Orders</CardTitle>
+                <CardDescription>Latest customer orders</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {recentOrders.map((order, index) => (
+                    <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                      <div>
+                        <p className="font-medium">{order.id}</p>
+                        <p className="text-sm text-gray-600">{order.customer}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-medium">{order.amount}</p>
+                        <Badge 
+                          variant={
+                            order.status === 'Completed' ? 'default' :
+                            order.status === 'Pending' ? 'secondary' : 'destructive'
+                          }
+                          className="text-xs"
+                        >
+                          {order.status}
+                        </Badge>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Recent Activity */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent Activity</CardTitle>
-              <CardDescription>Latest user activities and orders</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {[
-                { user: 'John Doe', action: 'made a purchase', time: '2 minutes ago', amount: '$129.99' },
-                { user: 'Sarah Wilson', action: 'signed up', time: '5 minutes ago', amount: null },
-                { user: 'Mike Johnson', action: 'left a review', time: '10 minutes ago', amount: null },
-                { user: 'Emily Brown', action: 'made a purchase', time: '15 minutes ago', amount: '$89.99' },
-                { user: 'David Lee', action: 'updated profile', time: '20 minutes ago', amount: null }
-              ].map((activity, index) => (
-                <div key={index} className="flex items-center justify-between py-2">
-                  <div className="flex-1">
-                    <p className="text-sm">
-                      <span className="font-medium">{activity.user}</span> {activity.action}
-                    </p>
-                    <p className="text-xs text-gray-600">{activity.time}</p>
-                  </div>
-                  {activity.amount && (
-                    <Badge variant="outline" className="text-green-600">
-                      {activity.amount}
-                    </Badge>
-                  )}
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-
-          {/* Performance Metrics */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Performance Metrics</CardTitle>
-              <CardDescription>Key performance indicators</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {[
-                { label: 'Conversion Rate', value: 3.2, target: 4.0, unit: '%' },
-                { label: 'Average Order Value', value: 84, target: 100, unit: '$' },
-                { label: 'Customer Satisfaction', value: 4.6, target: 5.0, unit: '/5' },
-                { label: 'Response Time', value: 1.2, target: 1.0, unit: 's' }
-              ].map((metric, index) => (
-                <div key={index} className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">{metric.label}</span>
-                    <span className="text-sm text-gray-600">
-                      {metric.value}{metric.unit} / {metric.target}{metric.unit}
-                    </span>
-                  </div>
-                  <Progress 
-                    value={(metric.value / metric.target) * 100} 
-                    className="h-2"
-                  />
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-        </div>
+              </CardContent>
+            </Card>
+          </div>
+        </main>
       </div>
     </div>
   );
 }`,
-    dependencies: ['lucide-react']
+    dependencies: ['@/components/ui/button', '@/components/ui/card', '@/components/ui/badge', '@/components/ui/avatar', 'lucide-react']
   }
 ];
 
@@ -667,98 +452,91 @@ export function TemplateLibrary({ onTemplateSelect }: TemplateLibraryProps) {
                          template.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          template.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
     
-    const matchesCategory = selectedCategory === 'all' || 
-                           template.tags.some(tag => tag === selectedCategory);
+    const matchesCategory = selectedCategory === 'all' || template.tags.includes(selectedCategory);
     
     return matchesSearch && matchesCategory;
   });
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h3 className="text-lg font-semibold">Template Library</h3>
-          <p className="text-sm text-muted-foreground">
-            Complete page templates ready to use
-          </p>
-        </div>
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+      {/* Search and Filters */}
+      <div className="flex flex-col sm:flex-row gap-4">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
           <Input
             placeholder="Search templates..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9 w-64"
+            className="pl-9"
           />
+        </div>
+        <div className="flex gap-2 overflow-x-auto pb-2">
+          {templateCategories.map((category) => (
+            <Button
+              key={category.id}
+              variant={selectedCategory === category.id ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setSelectedCategory(category.id)}
+              className="flex items-center gap-2 whitespace-nowrap"
+            >
+              <category.icon className="h-4 w-4" />
+              {category.label}
+            </Button>
+          ))}
         </div>
       </div>
 
-      {/* Categories */}
-      <div className="flex flex-wrap gap-2">
-        {templateCategories.map((category) => (
-          <Button
-            key={category.id}
-            variant={selectedCategory === category.id ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setSelectedCategory(category.id)}
-            className="flex items-center gap-2"
-          >
-            <category.icon className="h-4 w-4" />
-            {category.label}
-          </Button>
-        ))}
-      </div>
-
       {/* Templates Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {filteredTemplates.map((template) => (
-          <Card 
-            key={template.id} 
-            className="hover:shadow-lg transition-all cursor-pointer group"
-            onClick={() => onTemplateSelect(template)}
-          >
+          <Card key={template.id} className="hover:shadow-lg transition-all cursor-pointer group">
             <CardHeader className="p-0">
-              <div className="w-full h-40 bg-gradient-to-br from-gray-100 to-gray-200 rounded-t-lg flex items-center justify-center relative overflow-hidden">
+              <div className="w-full h-48 bg-gradient-to-br from-gray-100 to-gray-200 rounded-t-lg relative overflow-hidden">
                 {template.thumbnail ? (
                   <img 
                     src={template.thumbnail} 
-                    alt={template.name} 
+                    alt={template.name}
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <Layout className="h-12 w-12 text-gray-400" />
+                  <div className="w-full h-full flex items-center justify-center">
+                    <Layout className="h-16 w-16 text-gray-400" />
+                  </div>
                 )}
                 
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
-                  <Button size="sm" variant="secondary">
+                  <Button 
+                    size="sm" 
+                    variant="secondary"
+                    onClick={() => onTemplateSelect(template)}
+                  >
                     <Eye className="h-4 w-4 mr-1" />
                     Preview
                   </Button>
                 </div>
                 
-                <div className="absolute top-2 left-2 flex gap-1">
-                  {template.featured && <Badge variant="secondary" className="text-xs">Featured</Badge>}
-                  {template.new && <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">New</Badge>}
-                </div>
-                
-                <div className="absolute top-2 right-2">
-                  <Badge variant="outline" className="text-xs capitalize">
-                    {template.framework}
-                  </Badge>
+                <div className="absolute top-3 left-3 flex gap-2">
+                  {template.featured && (
+                    <Badge variant="secondary" className="text-xs bg-yellow-100 text-yellow-800">
+                      Featured
+                    </Badge>
+                  )}
+                  {template.new && (
+                    <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
+                      New
+                    </Badge>
+                  )}
                 </div>
               </div>
             </CardHeader>
             
-            <CardContent className="p-4">
+            <CardContent className="p-6">
               <div className="mb-3">
-                <h3 className="font-semibold text-sm mb-1">{template.name}</h3>
-                <p className="text-xs text-muted-foreground line-clamp-2">
-                  {template.description}
-                </p>
+                <h3 className="font-semibold text-lg mb-2">{template.name}</h3>
+                <p className="text-gray-600 text-sm line-clamp-2">{template.description}</p>
               </div>
               
-              <div className="flex flex-wrap gap-1 mb-3">
+              <div className="flex flex-wrap gap-1 mb-4">
                 {template.tags.slice(0, 3).map((tag) => (
                   <Badge key={tag} variant="outline" className="text-xs">
                     {tag}
@@ -771,7 +549,7 @@ export function TemplateLibrary({ onTemplateSelect }: TemplateLibraryProps) {
                 )}
               </div>
               
-              <div className="flex items-center justify-between text-xs text-muted-foreground">
+              <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
                 <span className="flex items-center gap-1">
                   <Download className="h-3 w-3" />
                   {template.downloads}
@@ -780,6 +558,23 @@ export function TemplateLibrary({ onTemplateSelect }: TemplateLibraryProps) {
                   <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
                   {template.rating}
                 </span>
+                <span className="text-xs">{template.author}</span>
+              </div>
+              
+              <div className="flex gap-2">
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="flex-1"
+                  onClick={() => onTemplateSelect(template)}
+                >
+                  <Eye className="h-4 w-4 mr-1" />
+                  Preview
+                </Button>
+                <Button size="sm" className="flex-1">
+                  <Download className="h-4 w-4 mr-1" />
+                  Use Template
+                </Button>
               </div>
             </CardContent>
           </Card>
@@ -788,9 +583,9 @@ export function TemplateLibrary({ onTemplateSelect }: TemplateLibraryProps) {
 
       {filteredTemplates.length === 0 && (
         <div className="text-center py-12">
-          <Layout className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+          <Layout className="h-12 w-12 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-medium mb-2">No templates found</h3>
-          <p className="text-muted-foreground">
+          <p className="text-gray-600">
             Try adjusting your search or filter criteria
           </p>
         </div>
