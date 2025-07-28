@@ -358,15 +358,36 @@ export default function WorkspacePage() {
     0.3  // velocity threshold
   )
 
+  // Handle development server errors
+  useEffect(() => {
+    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+      // Suppress fetch errors during development hot reloading
+      if (event.reason?.message?.includes('Failed to fetch') &&
+          (event.reason?.message?.includes('RSC payload') ||
+           event.reason?.message?.includes('_next/static'))) {
+        console.warn('Development server fetch error (suppressed):', event.reason)
+        event.preventDefault()
+        return
+      }
+      console.error('Unhandled promise rejection:', event.reason)
+    }
+
+    window.addEventListener('unhandledrejection', handleUnhandledRejection)
+
+    return () => {
+      window.removeEventListener('unhandledrejection', handleUnhandledRejection)
+    }
+  }, [])
+
   // Render loading state until mounted
   if (!mounted) {
     return (
       <div className="h-screen bg-gradient-to-br from-slate-50 to-blue-50/30 flex items-center justify-center">
         <div className="text-center">
           <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg mx-auto mb-4 animate-pulse">
-            <img 
-              src="/favicon.ico" 
-              alt="MrrKit Logo" 
+            <img
+              src="/favicon.ico"
+              alt="MrrKit Logo"
               className="w-7 h-7 object-contain"
             />
           </div>
