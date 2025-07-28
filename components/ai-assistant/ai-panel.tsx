@@ -103,7 +103,10 @@ export function AIPanel() {
     clearGenerationHistory,
     activeFileId,
     files,
-    updateFile
+    updateFile,
+    addFile,
+    setActiveFile,
+    addOpenFile
   } = useWorkspaceStore()
 
   // Initialize AI service with API key
