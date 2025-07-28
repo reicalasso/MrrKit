@@ -448,6 +448,63 @@ export default function AdminDashboard() {
 export function TemplateLibrary({ onTemplateSelect }: TemplateLibraryProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [installingTemplate, setInstallingTemplate] = useState<string | null>(null);
+
+  const {
+    files,
+    setFiles,
+    addOpenFile,
+    setActiveFile
+  } = useWorkspaceStore();
+
+  const handleTemplateInstall = async (template: StoreItem) => {
+    try {
+      setInstallingTemplate(template.id);
+
+      const fileName = `${template.name.toLowerCase().replace(/\s+/g, '-')}-template.tsx`;
+      const fileId = `template-${Date.now()}`;
+
+      // Create template file with proper structure
+      const templateCode = template.code.includes('export default')
+        ? template.code
+        : `${template.code}\n\nexport default ${template.name.replace(/\s+/g, '')};`;
+
+      const newFile = {
+        id: fileId,
+        name: fileName,
+        type: "file" as const,
+        content: templateCode,
+        language: 'typescript',
+        isDirty: false,
+        parent: undefined,
+        lastModified: Date.now(),
+      };
+
+      // Add to root level for templates
+      const updatedFiles = [...files, newFile];
+      setFiles(updatedFiles);
+
+      // Auto-open the template file
+      addOpenFile(newFile);
+      setActiveFile(fileId);
+
+      toast({
+        title: "Template installed",
+        description: `${template.name} template has been added to your project`,
+        variant: "default"
+      });
+
+    } catch (error) {
+      console.error('Failed to install template:', error);
+      toast({
+        title: "Installation failed",
+        description: "Failed to install template. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setInstallingTemplate(null);
+    }
+  };
 
   const filteredTemplates = templates.filter(template => {
     const matchesSearch = template.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
