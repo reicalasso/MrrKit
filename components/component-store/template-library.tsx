@@ -442,6 +442,358 @@ export default function AdminDashboard() {
   );
 }`,
     dependencies: ['@/components/ui/button', '@/components/ui/card', '@/components/ui/badge', '@/components/ui/avatar', 'lucide-react']
+  },
+  {
+    id: 'ecommerce-product-card',
+    name: 'E-commerce Product Card',
+    description: 'Product card template perfect for online stores with image, pricing, and add to cart functionality',
+    category: 'templates',
+    tags: ['ecommerce', 'product', 'card', 'shopping'],
+    author: 'E-commerce Team',
+    downloads: 6543,
+    likes: 987,
+    rating: 4.7,
+    framework: 'react',
+    new: true,
+    thumbnail: '/templates/ecommerce-card.jpg',
+    createdAt: new Date('2024-02-12'),
+    updatedAt: new Date('2024-02-15'),
+    preview: '',
+    code: `import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Star, ShoppingCart, Heart } from 'lucide-react';
+import { useState } from 'react';
+
+export default function EcommerceProductCard() {
+  const [isLiked, setIsLiked] = useState(false);
+  const [isAddedToCart, setIsAddedToCart] = useState(false);
+
+  const product = {
+    name: 'Premium Wireless Headphones',
+    price: 299.99,
+    originalPrice: 399.99,
+    rating: 4.8,
+    reviews: 1250,
+    image: '/placeholder-product.jpg',
+    description: 'High-quality wireless headphones with noise cancellation and premium sound quality.',
+    features: ['Noise Cancellation', 'Wireless', '30hr Battery', 'Premium Sound'],
+    inStock: true
+  };
+
+  const handleAddToCart = () => {
+    setIsAddedToCart(true);
+    setTimeout(() => setIsAddedToCart(false), 2000);
+  };
+
+  return (
+    <div className="max-w-sm mx-auto bg-white">
+      <Card className="overflow-hidden hover:shadow-lg transition-shadow">
+        <div className="relative">
+          <img
+            src={product.image}
+            alt={product.name}
+            className="w-full h-64 object-cover bg-gray-100"
+          />
+          <Button
+            variant="ghost"
+            size="sm"
+            className={\`absolute top-3 right-3 h-8 w-8 p-0 bg-white/80 hover:bg-white \${isLiked ? 'text-red-500' : 'text-gray-400'}\`}
+            onClick={() => setIsLiked(!isLiked)}
+          >
+            <Heart className={\`h-4 w-4 \${isLiked ? 'fill-current' : ''}\`} />
+          </Button>
+          {product.originalPrice > product.price && (
+            <Badge className="absolute top-3 left-3 bg-red-500">
+              Save \${(product.originalPrice - product.price).toFixed(0)}
+            </Badge>
+          )}
+        </div>
+
+        <CardHeader className="pb-2">
+          <div className="flex items-center gap-1 mb-1">
+            {[...Array(5)].map((_, i) => (
+              <Star
+                key={i}
+                className={\`h-3 w-3 \${i < Math.floor(product.rating) ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}\`}
+              />
+            ))}
+            <span className="text-xs text-gray-600 ml-1">
+              {product.rating} ({product.reviews})
+            </span>
+          </div>
+          <CardTitle className="text-lg">{product.name}</CardTitle>
+          <CardDescription className="text-sm">
+            {product.description}
+          </CardDescription>
+        </CardHeader>
+
+        <CardContent className="pt-0">
+          <div className="flex flex-wrap gap-1 mb-3">
+            {product.features.map((feature) => (
+              <Badge key={feature} variant="outline" className="text-xs">
+                {feature}
+              </Badge>
+            ))}
+          </div>
+
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <span className="text-2xl font-bold text-gray-900">
+                \${product.price}
+              </span>
+              {product.originalPrice > product.price && (
+                <span className="text-sm text-gray-500 line-through">
+                  \${product.originalPrice}
+                </span>
+              )}
+            </div>
+            <Badge variant={product.inStock ? "default" : "destructive"} className="text-xs">
+              {product.inStock ? 'In Stock' : 'Out of Stock'}
+            </Badge>
+          </div>
+
+          <Button
+            className="w-full"
+            onClick={handleAddToCart}
+            disabled={!product.inStock || isAddedToCart}
+          >
+            {isAddedToCart ? (
+              'Added to Cart!'
+            ) : (
+              <>
+                <ShoppingCart className="h-4 w-4 mr-2" />
+                Add to Cart
+              </>
+            )}
+          </Button>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}`,
+    dependencies: ['@/components/ui/button', '@/components/ui/card', '@/components/ui/badge', 'lucide-react']
+  },
+  {
+    id: 'contact-form',
+    name: 'Contact Form',
+    description: 'Complete contact form with validation and modern design',
+    category: 'templates',
+    tags: ['contact', 'form', 'validation', 'ui'],
+    author: 'Form Team',
+    downloads: 4321,
+    likes: 654,
+    rating: 4.6,
+    framework: 'react',
+    thumbnail: '/templates/contact-form.jpg',
+    createdAt: new Date('2024-02-01'),
+    updatedAt: new Date('2024-02-10'),
+    preview: '',
+    code: `import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Mail, Phone, MapPin, Send, CheckCircle } from 'lucide-react';
+import { useState } from 'react';
+
+export default function ContactForm() {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    subject: '',
+    message: ''
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [errors, setErrors] = useState({});
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: '' }));
+    }
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!formData.name.trim()) newErrors.name = 'Name is required';
+    if (!formData.email.trim()) newErrors.email = 'Email is required';
+    else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Email is invalid';
+    if (!formData.message.trim()) newErrors.message = 'Message is required';
+
+    return newErrors;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const newErrors = validateForm();
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    // Simulate form submission
+    setTimeout(() => {
+      setIsSubmitting(false);
+      setIsSubmitted(true);
+      setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
+    }, 2000);
+  };
+
+  const contactInfo = [
+    { icon: Mail, label: 'Email', value: 'hello@company.com' },
+    { icon: Phone, label: 'Phone', value: '+1 (555) 123-4567' },
+    { icon: MapPin, label: 'Address', value: '123 Business St, City, State 12345' }
+  ];
+
+  if (isSubmitted) {
+    return (
+      <div className="max-w-2xl mx-auto p-6">
+        <Card>
+          <CardContent className="p-12 text-center">
+            <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold mb-2">Thank You!</h2>
+            <p className="text-gray-600 mb-6">
+              Your message has been sent successfully. We'll get back to you soon.
+            </p>
+            <Button onClick={() => setIsSubmitted(false)}>
+              Send Another Message
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-4xl mx-auto p-6">
+      <div className="text-center mb-8">
+        <h1 className="text-3xl font-bold mb-2">Get In Touch</h1>
+        <p className="text-gray-600">
+          We'd love to hear from you. Send us a message and we'll respond as soon as possible.
+        </p>
+      </div>
+
+      <div className="grid md:grid-cols-3 gap-6">
+        {/* Contact Info */}
+        <div className="space-y-4">
+          <h2 className="text-xl font-semibold mb-4">Contact Information</h2>
+          {contactInfo.map((info, index) => (
+            <div key={index} className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                <info.icon className="h-5 w-5 text-blue-600" />
+              </div>
+              <div>
+                <div className="font-medium">{info.label}</div>
+                <div className="text-sm text-gray-600">{info.value}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Contact Form */}
+        <Card className="md:col-span-2">
+          <CardHeader>
+            <CardTitle>Send us a message</CardTitle>
+            <CardDescription>
+              Fill out the form below and we'll get back to you as soon as possible.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="name">Name *</Label>
+                  <Input
+                    id="name"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    className={errors.name ? 'border-red-500' : ''}
+                  />
+                  {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
+                </div>
+                <div>
+                  <Label htmlFor="email">Email *</Label>
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    className={errors.email ? 'border-red-500' : ''}
+                  />
+                  {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="phone">Phone</Label>
+                  <Input
+                    id="phone"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="subject">Subject</Label>
+                  <Input
+                    id="subject"
+                    name="subject"
+                    value={formData.subject}
+                    onChange={handleChange}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="message">Message *</Label>
+                <Textarea
+                  id="message"
+                  name="message"
+                  rows={5}
+                  value={formData.message}
+                  onChange={handleChange}
+                  className={errors.message ? 'border-red-500' : ''}
+                />
+                {errors.message && <p className="text-red-500 text-xs mt-1">{errors.message}</p>}
+              </div>
+
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? (
+                  <>
+                    <div className="h-4 w-4 mr-2 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                    Sending...
+                  </>
+                ) : (
+                  <>
+                    <Send className="h-4 w-4 mr-2" />
+                    Send Message
+                  </>
+                )}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}`,
+    dependencies: ['@/components/ui/button', '@/components/ui/card', '@/components/ui/input', '@/components/ui/label', '@/components/ui/textarea', '@/components/ui/alert', 'lucide-react']
   }
 ];
 
