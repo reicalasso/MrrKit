@@ -34,51 +34,56 @@ class AIService {
     }
 
     try {
-      const systemPrompt = this.getSystemPrompt(request)
-      const userPrompt = this.getUserPrompt(request)
-
-      const response = await fetch(`${this.baseUrl}/chat/completions`, {
+      // Use the local API endpoint
+      const response = await fetch('/api/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.apiKey}`,
         },
         body: JSON.stringify({
-          model: 'gpt-4-turbo-preview',
-          messages: [
-            { role: 'system', content: systemPrompt },
-            { role: 'user', content: userPrompt }
-          ],
-          temperature: 0.7,
-          max_tokens: 2000,
+          prompt: this.getUserPrompt(request),
+          framework: request.framework,
+          style: request.style,
+          task: request.task,
+          apiKey: this.apiKey // Send API key to local endpoint
         }),
       })
 
       const data = await response.json()
 
       if (!response.ok) {
-        return { 
-          success: false, 
-          error: data.error?.message || 'API isteği başarısız oldu' 
+        return {
+          success: false,
+          error: data.error || 'API isteği başarısız oldu'
         }
       }
 
-      const result = data.choices[0]?.message?.content
-      
-      if (!result) {
-        return { success: false, error: 'GPT\'den boş yanıt alındı' }
+      if (!data.success) {
+        return { success: false, error: data.error || 'Kod üretimi başarısız oldu' }
       }
 
-      return {
-        success: true,
-        result: this.cleanCodeResult(result),
-        usage: data.usage,
+      // Handle different response formats
+      if (data.type && data.components) {
+        // Advanced response format
+        const mainComponent = data.components[0]
+        return {
+          success: true,
+          result: mainComponent?.code || '',
+          explanation: data.instructions,
+          suggestions: data.features,
+        }
+      } else {
+        // Simple response format
+        return {
+          success: true,
+          result: data.result || data.code || '',
+        }
       }
     } catch (error) {
       console.error('AI Service Error:', error)
-      return { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Beklenmeyen hata oluştu' 
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Beklenmeyen hata oluştu'
       }
     }
   }
