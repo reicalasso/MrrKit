@@ -72,7 +72,10 @@ export default function WorkspacePage() {
   const [leftPanelCollapsed, setLeftPanelCollapsed] = useState(false)
   const [aiPanelHeight, setAiPanelHeight] = useState(300)
   const [rightPanelVisible, setRightPanelVisible] = useState(false)
-  
+  const [isLoadingFile, setIsLoadingFile] = useState(false)
+  const [isGenerating, setIsGenerating] = useState(false)
+  const [loadingMessage, setLoadingMessage] = useState('')
+
   const sidebarRef = useRef<HTMLDivElement>(null)
   const resizeRef = useRef<HTMLDivElement>(null)
 
