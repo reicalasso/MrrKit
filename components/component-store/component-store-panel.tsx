@@ -81,15 +81,33 @@ export function ComponentStorePanel() {
     { id: 'blocks', label: 'Blocks', icon: Zap }
   ];
 
-  const filteredItems = componentStoreData.filter(item => {
-    const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         item.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         item.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
-    
-    const matchesCategory = selectedCategory === 'all' || item.category === selectedCategory;
-    
-    return matchesSearch && matchesCategory;
-  });
+  const filteredItems = componentStoreData
+    .filter(item => {
+      const matchesSearch = searchQuery === '' ||
+        item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        item.author.toLowerCase().includes(searchQuery.toLowerCase());
+
+      const matchesCategory = selectedCategory === 'all' || item.category === selectedCategory;
+      const matchesFramework = selectedFramework === 'all' || item.framework === selectedFramework;
+
+      return matchesSearch && matchesCategory && matchesFramework;
+    })
+    .sort((a, b) => {
+      switch (sortBy) {
+        case 'popularity':
+          return b.downloads - a.downloads;
+        case 'newest':
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        case 'rating':
+          return b.rating - a.rating;
+        case 'name':
+          return a.name.localeCompare(b.name);
+        default:
+          return 0;
+      }
+    });
 
   const handleItemSelect = useCallback((item: StoreItem) => {
     setSelectedItem(item);
