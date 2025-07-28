@@ -238,13 +238,13 @@ export function AIPanel() {
 
         {/* API Key Setup */}
         {!aiAssistant.apiKey && (
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
-            <div className="flex items-center gap-2 mb-2">
-              <Key className="w-4 h-4 text-yellow-600" />
-              <span className="text-sm font-medium text-yellow-800">API Anahtarı Gerekli</span>
+          <div className="bg-yellow-50/80 border border-yellow-200/60 rounded-lg p-2.5 mb-3">
+            <div className="flex items-center gap-2 mb-1.5">
+              <Key className="w-3.5 h-3.5 text-yellow-600" />
+              <span className="text-xs font-medium text-yellow-800">API Key Required</span>
             </div>
-            <p className="text-xs text-yellow-700 mb-3">
-              AI özelliklerini kullanmak için OpenAI API anahtarınızı girin.
+            <p className="text-xs text-yellow-700 mb-2 leading-relaxed">
+              Enter your OpenAI API key to enable AI features.
             </p>
             {showApiKeyInput ? (
               <div className="space-y-2">
@@ -253,38 +253,38 @@ export function AIPanel() {
                   placeholder="sk-..."
                   value={tempApiKey}
                   onChange={(e) => setTempApiKey(e.target.value)}
-                  className="text-xs"
+                  className="text-xs h-7"
                 />
                 <div className="flex gap-2">
-                  <Button size="sm" onClick={handleSaveApiKey} className="text-xs">
-                    Kaydet
+                  <Button size="sm" onClick={handleSaveApiKey} className="text-xs h-6">
+                    Save
                   </Button>
-                  <Button size="sm" variant="ghost" onClick={() => setShowApiKeyInput(false)} className="text-xs">
-                    İptal
+                  <Button size="sm" variant="ghost" onClick={() => setShowApiKeyInput(false)} className="text-xs h-6">
+                    Cancel
                   </Button>
                 </div>
               </div>
             ) : (
-              <Button size="sm" onClick={() => setShowApiKeyInput(true)} className="text-xs">
-                API Anahtarı Ekle
+              <Button size="sm" onClick={() => setShowApiKeyInput(true)} className="text-xs h-6">
+                Add API Key
               </Button>
             )}
           </div>
         )}
 
         {aiAssistant.apiKey && (
-          <div className="flex items-center gap-2 mb-4">
-            <Badge variant="secondary" className="bg-green-100 text-green-700 border-green-200">
-              <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-              AI Aktif
+          <div className="flex items-center gap-2 mb-3">
+            <Badge variant="secondary" className="bg-green-100/80 text-green-700 border-green-200/60 text-xs">
+              <div className="w-1.5 h-1.5 bg-green-500 rounded-full mr-1.5"></div>
+              AI Active
             </Badge>
             <Button
               size="sm"
               variant="ghost"
               onClick={() => setShowApiKeyInput(true)}
-              className="h-6 w-6 p-0"
+              className="h-5 w-5 p-0 hover:bg-gray-200/60"
             >
-              <Settings className="w-3 w-3" />
+              <Settings className="w-3 h-3" />
             </Button>
           </div>
         )}
