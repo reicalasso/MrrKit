@@ -192,12 +192,20 @@ export default function WorkspacePage() {
     updateFile(fileId, { content, isDirty: true })
   }, [updateFile])
 
-  const handleFileSelect = useCallback((file: any) => {
+  const handleFileSelect = useCallback(async (file: any) => {
+    setIsLoadingFile(true)
+    setLoadingMessage(`Opening ${file.name}...`)
+
+    // Simulate file loading time for better UX
+    await new Promise(resolve => setTimeout(resolve, 300))
+
     setActiveFile(file.id)
     addOpenFile(file)
     if (isMobile) {
       setSidebarOpen(false)
     }
+
+    setIsLoadingFile(false)
   }, [setActiveFile, addOpenFile, isMobile, setSidebarOpen])
 
   const handleFileClose = useCallback((fileId: string) => {
