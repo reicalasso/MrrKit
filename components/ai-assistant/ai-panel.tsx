@@ -309,35 +309,35 @@ export function AIPanel() {
           </TabsList>
 
           {/* Generate Tab */}
-          <TabsContent value="generate" className="flex-1 flex flex-col p-4 space-y-4">
+          <TabsContent value="generate" className="flex-1 flex flex-col p-3 space-y-3">
             {/* Quick Prompts */}
             <div>
-              <h3 className="text-sm font-semibold text-gray-700 mb-3">🚀 Quick Start</h3>
-              <div className="grid grid-cols-2 gap-2">
+              <h3 className="text-xs font-semibold text-gray-700 mb-2">🚀 Quick Start</h3>
+              <div className="grid grid-cols-2 gap-1.5">
                 {quickPrompts.slice(0, 4).map((prompt) => (
                   <Button
                     key={prompt.id}
                     variant="outline"
                     size="sm"
                     onClick={() => handleQuickPrompt(prompt)}
-                    className="h-auto p-3 flex flex-col items-start text-left hover:bg-white/80"
+                    className="h-auto p-2 flex flex-col items-start text-left hover:bg-white/80 border-gray-200/60"
                   >
-                    <div className="flex items-center gap-2 mb-1">
-                      {prompt.icon}
-                      <span className="text-xs font-medium">{prompt.title}</span>
+                    <div className="flex items-center gap-1.5 mb-0.5">
+                      <div className="scale-75">{prompt.icon}</div>
+                      <span className="text-xs font-medium leading-none">{prompt.title}</span>
                     </div>
-                    <span className="text-xs text-gray-500">{prompt.description}</span>
+                    <span className="text-xs text-gray-500 leading-tight line-clamp-2">{prompt.description}</span>
                   </Button>
                 ))}
               </div>
             </div>
 
             {/* Settings */}
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-2">
               <div>
                 <label className="text-xs font-medium text-gray-600 mb-1 block">Task</label>
                 <Select value={selectedTask} onValueChange={(value: any) => setSelectedTask(value)}>
-                  <SelectTrigger className="h-8 text-xs">
+                  <SelectTrigger className="h-7 text-xs">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -352,7 +352,7 @@ export function AIPanel() {
               <div>
                 <label className="text-xs font-medium text-gray-600 mb-1 block">Framework</label>
                 <Select value={selectedFramework} onValueChange={setSelectedFramework}>
-                  <SelectTrigger className="h-8 text-xs">
+                  <SelectTrigger className="h-7 text-xs">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -366,33 +366,33 @@ export function AIPanel() {
             </div>
 
             {/* Prompt Input */}
-            <div className="flex-1 flex flex-col">
-              <label className="text-sm font-medium text-gray-700 mb-2">
-                💭 Prompt
+            <div className="flex-1 flex flex-col min-h-0">
+              <label className="text-xs font-medium text-gray-700 mb-1.5">
+                💭 Describe what you want to build
               </label>
               <Textarea
                 ref={textareaRef}
-                placeholder="Örnek: Modern bir todo liste komponenti oluştur..."
+                placeholder="Example: Create a modern todo list component with dark mode support..."
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
-                className="flex-1 min-h-[100px] text-sm border-gray-200/60 bg-white/70 backdrop-blur-sm resize-none focus:border-purple-300 focus:ring-2 focus:ring-purple-200/50 rounded-xl shadow-sm transition-all duration-200"
+                className="flex-1 min-h-[80px] text-xs border-gray-200/60 bg-white/70 backdrop-blur-sm resize-none focus:border-purple-300 focus:ring-1 focus:ring-purple-200/50 rounded-lg shadow-sm transition-all duration-200"
               />
             </div>
 
             {/* Generate Button */}
-            <Button 
+            <Button
               onClick={handleGenerate}
               disabled={!prompt.trim() || isGenerating || !aiAssistant.apiKey}
-              className="w-full h-12 text-sm bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 border-0 shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl font-semibold"
+              className="w-full h-9 text-xs bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 border-0 shadow-md hover:shadow-lg transition-all duration-300 rounded-lg font-semibold"
             >
               {isGenerating ? (
                 <>
-                  <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                  <RefreshCw className="mr-1.5 h-3 w-3 animate-spin" />
                   Generating...
                 </>
               ) : (
                 <>
-                  <Sparkles className="mr-2 h-4 w-4" />
+                  <Sparkles className="mr-1.5 h-3 w-3" />
                   Generate Code
                 </>
               )}
