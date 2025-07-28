@@ -223,16 +223,16 @@ export function AIPanel() {
   }
 
   return (
-    <div className="h-full flex flex-col bg-gradient-to-br from-purple-50/70 to-pink-50/70">
+    <div className="h-full flex flex-col bg-gradient-to-br from-purple-50/40 to-pink-50/40">
       {/* Header */}
-      <div className="p-4 border-b border-gray-200/50">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg">
-            <Bot className="w-5 h-5 text-white" />
+      <div className="p-3 border-b border-gray-200/50">
+        <div className="flex items-center gap-2 mb-3">
+          <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center shadow-md">
+            <Bot className="w-4 h-4 text-white" />
           </div>
-          <div>
-            <h2 className="text-lg font-bold text-gray-900">AI Assistant</h2>
-            <p className="text-sm text-gray-600">GPT-4 powered code generation</p>
+          <div className="min-w-0 flex-1">
+            <h2 className="text-sm font-bold text-gray-900">AI Assistant</h2>
+            <p className="text-xs text-gray-600 truncate">GPT-4 powered code generation</p>
           </div>
         </div>
 
