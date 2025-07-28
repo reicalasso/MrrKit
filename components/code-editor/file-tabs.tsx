@@ -149,74 +149,88 @@ export const FileTabs: React.FC<FileTabsProps> = ({
   }
 
   return (
-    <div className={`flex items-center bg-white border-b border-gray-200 ${className}`}>
+    <div className={`flex items-center bg-white/95 backdrop-blur-sm border-b border-gray-200/60 ${className}`}>
       {/* Scroll Left Button */}
       {canScrollLeft && (
         <Button
           size="sm"
           variant="ghost"
           onClick={() => scrollTabs('left')}
-          className="h-8 w-8 p-0 flex-shrink-0 border-r border-gray-200"
+          className="h-full w-8 p-0 flex-shrink-0 border-r border-gray-200/60 rounded-none hover:bg-gray-100/80"
         >
-          <ChevronLeft className="w-4 h-4" />
+          <ChevronLeft className="w-3.5 h-3.5" />
         </Button>
       )}
 
       {/* Tabs Container */}
-      <div 
+      <div
         ref={tabsContainerRef}
         className="flex-1 flex overflow-x-auto scrollbar-none"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
-        <div className="flex">
-          {openFiles.map((file) => (
-            <div
-              key={file.id}
-              draggable
-              onDragStart={(e) => handleTabDragStart(e, file.id)}
-              onDragOver={handleTabDragOver}
-              onDrop={(e) => handleTabDrop(e, file.id)}
-              onMouseDown={(e) => handleMiddleClick(e, file.id)}
-              className={`
-                group flex items-center gap-2 px-3 py-2 border-r border-gray-200 cursor-pointer
-                min-w-0 max-w-48 flex-shrink-0 transition-all duration-200
-                ${activeFileId === file.id 
-                  ? 'bg-white border-b-2 border-blue-500 text-blue-700' 
-                  : 'bg-gray-50 hover:bg-gray-100 text-gray-700'
-                }
-                ${draggedTabId === file.id ? 'opacity-50' : ''}
-              `}
-              onClick={() => onFileSelect(file)}
-            >
-              {/* File Icon */}
-              <div className="flex-shrink-0">
-                {getFileIcon(file)}
-              </div>
-              
-              {/* File Name */}
-              <span className="text-sm font-medium truncate min-w-0">
-                {getTruncatedFileName(file.name)}
-              </span>
-              
-              {/* Dirty Indicator */}
-              {file.isDirty && (
-                <div className="w-2 h-2 bg-orange-500 rounded-full flex-shrink-0" />
-              )}
-              
-              {/* Close Button */}
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  onFileClose(file.id)
-                }}
-                className="h-4 w-4 p-0 opacity-0 group-hover:opacity-100 hover:bg-gray-200 rounded flex-shrink-0 transition-opacity duration-200"
-              >
-                <X className="w-3 h-3" />
-              </Button>
+        <div className="flex h-full">
+          {openFiles.length === 0 ? (
+            <div className="flex items-center justify-center px-6 py-2 text-gray-500 text-sm">
+              No files open
             </div>
-          ))}
+          ) : (
+            openFiles.map((file, index) => (
+              <div
+                key={file.id}
+                draggable
+                onDragStart={(e) => handleTabDragStart(e, file.id)}
+                onDragOver={handleTabDragOver}
+                onDrop={(e) => handleTabDrop(e, file.id)}
+                onMouseDown={(e) => handleMiddleClick(e, file.id)}
+                className={`
+                  group relative flex items-center gap-2 px-3 py-2.5 cursor-pointer
+                  min-w-0 max-w-44 flex-shrink-0 transition-all duration-200 h-full
+                  ${activeFileId === file.id
+                    ? 'bg-white text-blue-700 shadow-sm'
+                    : 'bg-transparent hover:bg-gray-100/60 text-gray-700'
+                  }
+                  ${draggedTabId === file.id ? 'opacity-50' : ''}
+                  ${index > 0 ? 'border-l border-gray-200/60' : ''}
+                `}
+                onClick={() => onFileSelect(file)}
+              >
+                {/* Active Tab Indicator */}
+                {activeFileId === file.id && (
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-500 to-purple-500"></div>
+                )}
+
+                {/* File Icon */}
+                <div className="flex-shrink-0">
+                  {getFileIcon(file)}
+                </div>
+
+                {/* File Name */}
+                <span className="text-xs font-medium truncate min-w-0 select-none">
+                  {getTruncatedFileName(file.name, 16)}
+                </span>
+
+                {/* Dirty Indicator & Close Button Container */}
+                <div className="flex items-center gap-1 flex-shrink-0">
+                  {file.isDirty && (
+                    <div className="w-1.5 h-1.5 bg-orange-500 rounded-full" />
+                  )}
+
+                  {/* Close Button */}
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      onFileClose(file.id)
+                    }}
+                    className="h-4 w-4 p-0 opacity-0 group-hover:opacity-100 hover:bg-red-100 hover:text-red-600 rounded transition-all duration-200"
+                  >
+                    <X className="w-2.5 h-2.5" />
+                  </Button>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </div>
 
@@ -226,57 +240,65 @@ export const FileTabs: React.FC<FileTabsProps> = ({
           size="sm"
           variant="ghost"
           onClick={() => scrollTabs('right')}
-          className="h-8 w-8 p-0 flex-shrink-0 border-l border-gray-200"
+          className="h-full w-8 p-0 flex-shrink-0 border-l border-gray-200/60 rounded-none hover:bg-gray-100/80"
         >
-          <ChevronRight className="w-4 h-4" />
+          <ChevronRight className="w-3.5 h-3.5" />
         </Button>
       )}
 
       {/* Tab Actions */}
-      <div className="flex items-center border-l border-gray-200">
+      <div className="flex items-center border-l border-gray-200/60 h-full">
         <Button
           size="sm"
           variant="ghost"
           onClick={() => onFileCreate('untitled.js', 'file')}
-          className="h-8 w-8 p-0"
-          title="New file"
+          className="h-full w-9 p-0 rounded-none hover:bg-gray-100/80"
+          title="New file (Ctrl+N)"
         >
-          <Plus className="w-4 h-4" />
+          <Plus className="w-3.5 h-3.5" />
         </Button>
-        
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              size="sm"
-              variant="ghost"
-              className="h-8 w-8 p-0"
-            >
-              <MoreHorizontal className="w-4 h-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem
-              onClick={() => activeFileId && onFileSave?.(activeFileId)}
-              disabled={!activeFileId}
-            >
-              <Save className="w-4 h-4 mr-2" />
-              Save Active File
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={() => activeFileId && onCloseOthers(activeFileId)}
-              disabled={!activeFileId || openFiles.length <= 1}
-            >
-              Close Others
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={onCloseAll}
-              disabled={openFiles.length === 0}
-            >
-              Close All
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+
+        {openFiles.length > 0 && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-full w-8 p-0 rounded-none hover:bg-gray-100/80"
+                title="More options"
+              >
+                <MoreHorizontal className="w-3.5 h-3.5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuItem
+                onClick={() => activeFileId && onFileSave?.(activeFileId)}
+                disabled={!activeFileId}
+                className="text-sm"
+              >
+                <Save className="w-4 h-4 mr-2" />
+                Save Active File
+                <span className="ml-auto text-xs text-gray-400">Ctrl+S</span>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={() => activeFileId && onCloseOthers(activeFileId)}
+                disabled={!activeFileId || openFiles.length <= 1}
+                className="text-sm"
+              >
+                Close Others
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={onCloseAll}
+                disabled={openFiles.length === 0}
+                className="text-sm"
+              >
+                Close All
+                <span className="ml-auto text-xs text-gray-400">Ctrl+Shift+W</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
       </div>
     </div>
   )
