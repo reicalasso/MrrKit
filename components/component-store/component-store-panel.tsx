@@ -87,22 +87,62 @@ export function ComponentStorePanel() {
   }, []);
 
   const handleInstallComponent = useCallback((item: StoreItem) => {
-    if (currentProject) {
+    try {
       const fileName = `${item.name.toLowerCase().replace(/\s+/g, '-')}.tsx`;
+      const fileId = `component-${Date.now()}`;
+
+      // Create the component file with proper imports and structure
+      const componentCode = item.code.includes('import')
+        ? item.code
+        : `import React from 'react';\n${item.dependencies?.map(dep => `import { } from '${dep}';`).join('\n') || ''}\n\n${item.code}`;
+
       const newFile = {
-        id: Date.now().toString(),
+        id: fileId,
         name: fileName,
         type: "file" as const,
-        content: item.code,
+        content: componentCode,
         language: 'typescript',
         isDirty: false,
-        parent: undefined,
+        parent: 'components',
+        lastModified: Date.now(),
       };
-      addFile(newFile);
-      // Show success notification
-      console.log(`Installed: ${item.name}`);
+
+      // Add to components folder or root if components doesn't exist
+      let targetFiles = [...files];
+      const componentsFolder = targetFiles.find(f => f.name === 'components' && f.type === 'folder');
+
+      if (componentsFolder && componentsFolder.children) {
+        // Add to components folder
+        componentsFolder.children.push(newFile);
+        newFile.parent = componentsFolder.id;
+      } else {
+        // Create components folder if it doesn't exist
+        const componentsFolderId = 'components-folder';
+        const newComponentsFolder = {
+          id: componentsFolderId,
+          name: 'components',
+          type: 'folder' as const,
+          children: [newFile],
+          parent: undefined
+        };
+        newFile.parent = componentsFolderId;
+        targetFiles.push(newComponentsFolder);
+      }
+
+      setFiles(targetFiles);
+
+      // Auto-open the file
+      addOpenFile(newFile);
+      setActiveFile(fileId);
+
+      // Success notification will be handled by ComponentPreview
+      console.log(`Installed: ${item.name} as ${fileName}`);
+
+    } catch (error) {
+      console.error('Failed to install component:', error);
+      throw error; // Re-throw for ComponentPreview error handling
     }
-  }, [currentProject, addFile]);
+  }, [files, setFiles, addOpenFile, setActiveFile]);
 
   const handlePreviewClose = useCallback(() => {
     setIsPreviewOpen(false);
