@@ -293,16 +293,16 @@ export function AIPanel() {
       {/* Main Content */}
       <div className="flex-1 overflow-hidden">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
-          <TabsList className="grid w-full grid-cols-3 mx-4 mt-4">
-            <TabsTrigger value="generate" className="text-xs">
+          <TabsList className="grid w-full grid-cols-3 mx-3 mt-2 h-8">
+            <TabsTrigger value="generate" className="text-xs h-7 px-2">
               <Wand2 className="w-3 h-3 mr-1" />
               Generate
             </TabsTrigger>
-            <TabsTrigger value="assist" className="text-xs">
+            <TabsTrigger value="assist" className="text-xs h-7 px-2">
               <MessageSquare className="w-3 h-3 mr-1" />
               Assist
             </TabsTrigger>
-            <TabsTrigger value="history" className="text-xs">
+            <TabsTrigger value="history" className="text-xs h-7 px-2">
               <History className="w-3 h-3 mr-1" />
               History
             </TabsTrigger>
