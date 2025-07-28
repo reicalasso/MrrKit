@@ -49,7 +49,12 @@ function generateImports(elements: CanvasElement[]): string {
   
   if (uiComponents.length > 0) {
     const uniqueComponents = [...new Set(uiComponents)].sort();
-    imports.push(`import { ${uniqueComponents.join(', ')} } from '@/components/ui';`);
+    // Import UI components individually
+    const uiImports = uniqueComponents.map(component => {
+      const componentName = component.toLowerCase().replace(/([A-Z])/g, '-$1').toLowerCase();
+      return `import { ${component} } from '@/components/ui/${componentName}';`;
+    });
+    imports.push(...uiImports);
   }
   
   return imports.join('\n');
