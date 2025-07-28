@@ -474,7 +474,11 @@ export default function WorkspacePage() {
       {/* Main Workspace */}
       <div
         className="flex-1 flex relative overflow-hidden"
-        {...(isMobile ? swipeHandlers : {})}
+        {...(isMobile ? {
+          onTouchStart: swipeHandlers.onTouchStart,
+          onTouchMove: swipeHandlers.onTouchMove,
+          onTouchEnd: swipeHandlers.onTouchEnd
+        } : {})}
       >
         {/* Left Sidebar */}
         <div 
