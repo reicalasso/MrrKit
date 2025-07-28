@@ -460,7 +460,10 @@ export default function WorkspacePage() {
       </header>
 
       {/* Main Workspace */}
-      <div className="flex-1 flex relative overflow-hidden">
+      <div
+        className="flex-1 flex relative overflow-hidden"
+        {...(isMobile ? swipeHandlers : {})}
+      >
         {/* Left Sidebar */}
         <div 
           ref={sidebarRef}
