@@ -49,12 +49,30 @@ function generateImports(elements: CanvasElement[]): string {
   
   if (uiComponents.length > 0) {
     const uniqueComponents = [...new Set(uiComponents)].sort();
-    // Import UI components individually
-    const uiImports = uniqueComponents.map(component => {
-      const componentName = component.toLowerCase().replace(/([A-Z])/g, '-$1').toLowerCase();
-      return `import { ${component} } from '@/components/ui/${componentName}';`;
+
+    // Group components by their likely files
+    const componentGroups: Record<string, string[]> = {
+      button: ['Button'],
+      input: ['Input'],
+      textarea: ['Textarea'],
+      label: ['Label'],
+      card: ['Card', 'CardContent', 'CardDescription', 'CardHeader', 'CardTitle'],
+      badge: ['Badge'],
+      avatar: ['Avatar', 'AvatarFallback'],
+      separator: ['Separator']
+    };
+
+    const addedImports = new Set<string>();
+
+    uniqueComponents.forEach(component => {
+      for (const [file, components] of Object.entries(componentGroups)) {
+        if (components.includes(component) && !addedImports.has(file)) {
+          const componentsForFile = components.filter(c => uniqueComponents.includes(c));
+          imports.push(`import { ${componentsForFile.join(', ')} } from '@/components/ui/${file}';`);
+          addedImports.add(file);
+        }
+      }
     });
-    imports.push(...uiImports);
   }
   
   return imports.join('\n');
