@@ -666,21 +666,24 @@ function generateAdvancedMockCode(prompt: string): any {
 
 export async function POST(req: NextRequest) {
   try {
-    const { prompt } = await req.json()
-    
+    const { prompt, apiKey } = await req.json()
+
     if (!prompt?.trim()) {
       return NextResponse.json({ error: 'Prompt gerekli' }, { status: 400 })
     }
 
-    // OpenAI API ile gelişmiş kod üretimi
-    if (process.env.OPENAI_API_KEY) {
+    // OpenAI API ile gelişmiş kod üretimi (user provided API key or env)
+    const useApiKey = apiKey || process.env.OPENAI_API_KEY
+
+    if (useApiKey) {
       try {
-        const generatedCode = await tryOpenAIGeneration(prompt)
-        
+        // Update the tryOpenAIGeneration to accept API key parameter
+        const generatedCode = await tryOpenAIGenerationWithKey(prompt, useApiKey)
+
         // Try to parse as JSON first (advanced format)
         try {
           const parsedResponse = JSON.parse(generatedCode)
-          return NextResponse.json({ 
+          return NextResponse.json({
             ...parsedResponse,
             success: true,
             source: 'openai'
@@ -690,7 +693,7 @@ export async function POST(req: NextRequest) {
           const codeMatch = generatedCode.match(/```(?:jsx|javascript|js|tsx|typescript)?\s*\n([\s\S]*?)\n```/)
           const finalCode = codeMatch ? codeMatch[1] : generatedCode
 
-          return NextResponse.json({ 
+          return NextResponse.json({
             type: "SINGLE_COMPONENT",
             components: [{
               name: "GeneratedComponent",
@@ -710,8 +713,8 @@ export async function POST(req: NextRequest) {
     // Gelişmiş mock response
     const mockResponse = generateAdvancedMockCode(prompt)
     await new Promise(resolve => setTimeout(resolve, 1500))
-    
-    return NextResponse.json({ 
+
+    return NextResponse.json({
       ...mockResponse,
       success: true,
       source: 'mock'
@@ -719,7 +722,7 @@ export async function POST(req: NextRequest) {
 
   } catch (error) {
     console.error('Kod üretim hatası:', error)
-    return NextResponse.json({ 
+    return NextResponse.json({
       error: 'Kod üretilirken hata oluştu',
       details: error instanceof Error ? error.message : 'Bilinmeyen hata'
     }, { status: 500 })
