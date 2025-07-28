@@ -185,43 +185,110 @@ export function ComponentStorePanel() {
       {/* Main Store Content */}
       <div className="flex-1 flex flex-col">
         {/* Header */}
-        <div className="h-16 border-b bg-background/50 flex items-center justify-between px-6">
-          <div className="flex items-center gap-4">
+        <div className="border-b bg-background/50">
+          <div className="h-16 flex items-center justify-between px-6">
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <Package className="h-5 w-5 text-primary" />
+                <h2 className="text-lg font-semibold">Component Store</h2>
+              </div>
+              <Badge variant="secondary" className="text-xs">
+                {filteredItems.length} of {componentStoreData.length} items
+              </Badge>
+            </div>
+
             <div className="flex items-center gap-2">
-              <Package className="h-5 w-5 text-primary" />
-              <h2 className="text-lg font-semibold">Component Store</h2>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search components, tags, or authors..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-9 w-72"
+                />
+              </div>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowFilters(!showFilters)}
+              >
+                <Filter className="h-4 w-4 mr-1" />
+                Filters
+              </Button>
+
+              <Button
+                variant={viewMode === 'grid' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setViewMode('grid')}
+                title="Grid View"
+              >
+                <Grid3X3 className="h-4 w-4" />
+              </Button>
+              <Button
+                variant={viewMode === 'list' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setViewMode('list')}
+                title="List View"
+              >
+                <List className="h-4 w-4" />
+              </Button>
             </div>
-            <Badge variant="secondary" className="text-xs">
-              {componentStoreData.length} items
-            </Badge>
           </div>
-          
-          <div className="flex items-center gap-2">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search components..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 w-64"
-              />
+
+          {/* Advanced Filters */}
+          {showFilters && (
+            <div className="border-t bg-gray-50/50 px-6 py-4">
+              <div className="flex flex-wrap items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <label className="text-sm font-medium text-gray-600">Framework:</label>
+                  <Select value={selectedFramework} onValueChange={setSelectedFramework}>
+                    <SelectTrigger className="w-32">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All</SelectItem>
+                      <SelectItem value="react">React</SelectItem>
+                      <SelectItem value="vue">Vue</SelectItem>
+                      <SelectItem value="svelte">Svelte</SelectItem>
+                      <SelectItem value="vanilla">Vanilla</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <label className="text-sm font-medium text-gray-600">Sort by:</label>
+                  <Select value={sortBy} onValueChange={(value: 'popularity' | 'newest' | 'rating' | 'name') => setSortBy(value)}>
+                    <SelectTrigger className="w-36">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="popularity">Popularity</SelectItem>
+                      <SelectItem value="newest">Newest</SelectItem>
+                      <SelectItem value="rating">Rating</SelectItem>
+                      <SelectItem value="name">Name</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {(searchQuery || selectedCategory !== 'all' || selectedFramework !== 'all' || sortBy !== 'popularity') && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setSearchQuery('');
+                      setSelectedCategory('all');
+                      setSelectedFramework('all');
+                      setSortBy('popularity');
+                    }}
+                    className="text-gray-600 hover:text-gray-900"
+                  >
+                    Clear all filters
+                  </Button>
+                )}
+              </div>
             </div>
-            
-            <Button
-              variant={viewMode === 'grid' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setViewMode('grid')}
-            >
-              <Grid3X3 className="h-4 w-4" />
-            </Button>
-            <Button
-              variant={viewMode === 'list' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setViewMode('list')}
-            >
-              <List className="h-4 w-4" />
-            </Button>
-          </div>
+          )}
         </div>
 
         {/* Categories */}
