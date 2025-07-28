@@ -56,9 +56,12 @@ export interface StoreItem {
 export function ComponentStorePanel() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedFramework, setSelectedFramework] = useState<string>('all');
+  const [sortBy, setSortBy] = useState<'popularity' | 'newest' | 'rating' | 'name'>('popularity');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [selectedItem, setSelectedItem] = useState<StoreItem | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
   
   const {
     files,
