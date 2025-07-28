@@ -22,6 +22,8 @@ import {
   Calendar
 } from 'lucide-react';
 import { StoreItem } from './component-store-panel';
+import { useWorkspaceStore } from '@/lib/stores/workspace-store';
+import { toast } from '@/lib/hooks/use-toast';
 
 interface TemplateLibraryProps {
   onTemplateSelect: (template: StoreItem) => void;
