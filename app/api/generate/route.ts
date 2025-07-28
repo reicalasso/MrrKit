@@ -51,9 +51,7 @@ const AVAILABLE_MODELS = [
   'gpt-4'
 ]
 
-async function tryOpenAIGeneration(prompt: string) {
-  const apiKey = process.env.OPENAI_API_KEY
-  
+async function tryOpenAIGenerationWithKey(prompt: string, apiKey: string) {
   if (!apiKey) {
     throw new Error('OpenAI API key not found')
   }
@@ -424,7 +422,7 @@ function generateAdvancedMockCode(prompt: string): any {
 
   const recentOrders = [
     { id: '001', customer: 'Ahmet Yılmaz', amount: '₺1,250', status: 'Tamamlandı', date: '2 saat önce' },
-    { id: '002', customer: 'Ayşe Kaya', amount: '₺890', status: 'Beklemede', date: '4 saat önce' },
+    { id: '002', customer: 'Ayşe Kaya', amount: '���890', status: 'Beklemede', date: '4 saat önce' },
     { id: '003', customer: 'Mehmet Özkan', amount: '₺2,100', status: 'İptal', date: '6 saat önce' }
   ]
 
