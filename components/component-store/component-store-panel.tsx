@@ -60,7 +60,14 @@ export function ComponentStorePanel() {
   const [selectedItem, setSelectedItem] = useState<StoreItem | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   
-  const { addFile, currentProject } = useWorkspaceStore();
+  const {
+    files,
+    addFile,
+    currentProject,
+    setFiles,
+    addOpenFile,
+    setActiveFile
+  } = useWorkspaceStore();
 
   const categories = [
     { id: 'all', label: 'All', icon: Grid3X3 },
