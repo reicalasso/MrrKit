@@ -1,15 +1,9 @@
 'use client';
 
-import { useState, useRef, DragEvent, MouseEvent } from 'react';
+import { DragEvent, useCallback, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Separator } from '@/components/ui/separator';
-import { Trash2, Move } from 'lucide-react';
+import { Trash2, Copy, Move } from 'lucide-react';
 import { CanvasElement } from './ui-builder-panel';
 
 interface DesignCanvasProps {
@@ -31,289 +25,275 @@ export function DesignCanvas({
   onElementUpdate,
   onElementDelete
 }: DesignCanvasProps) {
-  const [isDragOver, setIsDragOver] = useState(false);
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
-  const [isDragging, setIsDragging] = useState(false);
-  const canvasRef = useRef<HTMLDivElement>(null);
+  const [draggedElement, setDraggedElement] = useState<string | null>(null);
 
-  const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
+  const handleDragOver = useCallback((e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'copy';
-    setIsDragOver(true);
-  };
+  }, []);
 
-  const handleDragLeave = (e: DragEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    if (
-      e.clientX < rect.left ||
-      e.clientX >= rect.right ||
-      e.clientY < rect.top ||
-      e.clientY >= rect.bottom
-    ) {
-      setIsDragOver(false);
-    }
-  };
-
-  const handleDrop = (e: DragEvent<HTMLDivElement>) => {
+  const handleDrop = useCallback((e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
-    setIsDragOver(false);
-
     const componentType = e.dataTransfer.getData('application/component-type');
-    if (!componentType) return;
-
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-
-    onDrop(componentType, x, y);
-  };
-
-  const handleElementMouseDown = (e: MouseEvent<HTMLDivElement>, element: CanvasElement) => {
-    if (isPreviewMode) return;
     
+    if (componentType) {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      onDrop(componentType, x, y);
+    }
+  }, [onDrop]);
+
+  const handleElementDragStart = useCallback((e: DragEvent<HTMLDivElement>, elementId: string) => {
     e.stopPropagation();
-    onElementSelect(element);
+    setDraggedElement(elementId);
+    e.dataTransfer.effectAllowed = 'move';
+  }, []);
 
-    const rect = e.currentTarget.getBoundingClientRect();
-    setDragOffset({
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top
-    });
-    setIsDragging(true);
+  const handleElementDragEnd = useCallback(() => {
+    setDraggedElement(null);
+  }, []);
 
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!canvasRef.current) return;
-      
-      const canvasRect = canvasRef.current.getBoundingClientRect();
-      const newX = e.clientX - canvasRect.left - dragOffset.x;
-      const newY = e.clientY - canvasRect.top - dragOffset.y;
-
-      onElementUpdate(element.id, {
-        x: Math.max(0, newX),
-        y: Math.max(0, newY)
-      });
-    };
-
-    const handleMouseUp = () => {
-      setIsDragging(false);
-      document.removeEventListener('mousemove', handleMouseMove as any);
-      document.removeEventListener('mouseup', handleMouseUp);
-    };
-
-    document.addEventListener('mousemove', handleMouseMove as any);
-    document.addEventListener('mouseup', handleMouseUp);
-  };
-
-  const renderElement = (element: CanvasElement) => {
-    const isSelected = selectedElement?.id === element.id;
+  const handleElementDrop = useCallback((e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
     
-    let Component;
+    if (draggedElement) {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      
+      onElementUpdate(draggedElement, { x, y });
+      setDraggedElement(null);
+    }
+  }, [draggedElement, onElementUpdate]);
+
+  const renderElement = useCallback((element: CanvasElement) => {
+    const isSelected = selectedElement?.id === element.id;
+    const isDragging = draggedElement === element.id;
+    
+    let content = '';
+    
     switch (element.type) {
       case 'button':
-        Component = (
-          <Button 
-            variant={element.properties.variant || 'default'}
-            size={element.properties.size || 'default'}
-          >
-            {element.properties.children || 'Button'}
-          </Button>
-        );
+        content = element.properties.children || 'Button';
         break;
       case 'input':
-        Component = (
-          <Input
-            type={element.properties.type || 'text'}
-            placeholder={element.properties.placeholder || ''}
-            value={element.properties.value || ''}
-            readOnly={isPreviewMode}
-          />
-        );
+        content = element.properties.placeholder || 'Input field';
         break;
       case 'textarea':
-        Component = (
-          <Textarea
-            placeholder={element.properties.placeholder || ''}
-            rows={element.properties.rows || 3}
-            value={element.properties.value || ''}
-            readOnly={isPreviewMode}
-          />
-        );
+        content = element.properties.placeholder || 'Textarea';
         break;
       case 'label':
-        Component = (
-          <Label>{element.properties.children || 'Label'}</Label>
-        );
+        content = element.properties.children || 'Label';
         break;
       case 'heading':
-        const HeadingTag = element.properties.level || 'h2';
-        Component = (
-          <HeadingTag className="font-semibold">
-            {element.properties.children || 'Heading'}
-          </HeadingTag>
-        );
+        content = element.properties.children || 'Heading';
         break;
       case 'text':
-        Component = (
-          <p>{element.properties.children || 'Text content'}</p>
-        );
+        content = element.properties.children || 'Text content';
         break;
       case 'image':
-        Component = (
-          <img
-            src={element.properties.src || '/placeholder.svg'}
-            alt={element.properties.alt || 'Image'}
-            className="max-w-full h-auto"
-          />
-        );
+        content = '🖼️ Image';
         break;
       case 'link':
-        Component = (
-          <a 
-            href={element.properties.href || '#'}
-            className="text-primary hover:underline"
-            onClick={(e) => isPreviewMode ? undefined : e.preventDefault()}
-          >
-            {element.properties.children || 'Link'}
-          </a>
-        );
+        content = element.properties.children || 'Link';
         break;
       case 'div':
-        Component = (
-          <div className={element.properties.className || 'p-4 border rounded'}>
-            {element.properties.children || 'Container'}
-          </div>
-        );
+        content = 'Container';
         break;
       case 'card':
-        Component = (
-          <Card>
-            <CardHeader>
-              <CardTitle>{element.properties.title || 'Card Title'}</CardTitle>
-              <CardDescription>
-                {element.properties.description || 'Card description'}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {element.properties.content || 'Card content goes here.'}
-            </CardContent>
-          </Card>
-        );
+        content = element.properties.title || 'Card';
         break;
       case 'badge':
-        Component = (
-          <Badge variant={element.properties.variant || 'default'}>
-            {element.properties.children || 'Badge'}
-          </Badge>
-        );
+        content = element.properties.children || 'Badge';
         break;
       case 'avatar':
-        Component = (
-          <Avatar>
-            <AvatarFallback>
-              {element.properties.fallback || 'AB'}
-            </AvatarFallback>
-          </Avatar>
-        );
+        content = element.properties.fallback || 'AV';
         break;
       case 'separator':
-        Component = (
-          <Separator orientation={element.properties.orientation || 'horizontal'} />
-        );
+        content = '—';
         break;
       default:
-        Component = <div>Unknown component</div>;
+        content = element.label;
     }
 
     return (
       <div
         key={element.id}
-        className={`absolute cursor-pointer transition-all duration-200 ${
-          isSelected && !isPreviewMode 
-            ? 'ring-2 ring-primary ring-offset-2 ring-offset-background' 
-            : ''
-        } ${!isPreviewMode ? 'hover:ring-1 hover:ring-muted-foreground' : ''}`}
+        draggable={!isPreviewMode}
+        onDragStart={(e) => handleElementDragStart(e, element.id)}
+        onDragEnd={handleElementDragEnd}
+        onClick={(e) => {
+          e.stopPropagation();
+          onElementSelect(element);
+        }}
+        className={`
+          absolute border-2 transition-all duration-200 cursor-pointer select-none
+          ${isSelected 
+            ? 'border-blue-500 shadow-lg ring-2 ring-blue-200' 
+            : 'border-transparent hover:border-gray-300'
+          }
+          ${isDragging ? 'opacity-50' : ''}
+          ${isPreviewMode ? '' : 'hover:shadow-md'}
+        `}
         style={{
           left: element.x,
           top: element.y,
           width: element.width,
-          minHeight: element.height
+          minHeight: element.height,
+          zIndex: isSelected ? 10 : 1
         }}
-        onMouseDown={(e) => handleElementMouseDown(e, element)}
       >
-        {!isPreviewMode && isSelected && (
-          <div className="absolute -top-8 -right-8 flex gap-1 z-10">
-            <Button
-              size="sm"
-              variant="outline"
-              className="h-6 w-6 p-0"
-              onClick={(e) => {
-                e.stopPropagation();
-                onElementDelete(element.id);
-              }}
-            >
-              <Trash2 className="h-3 w-3" />
-            </Button>
-          </div>
-        )}
-        
-        {!isPreviewMode && isSelected && (
-          <div className="absolute -top-6 left-0 text-xs bg-primary text-primary-foreground px-2 py-1 rounded">
-            {element.label}
-          </div>
-        )}
-        
-        <div className="w-full h-full">
-          {Component}
+        {/* Element Content */}
+        <div className={`
+          w-full h-full p-2 rounded flex items-center justify-center text-sm
+          ${getElementStyles(element.type)}
+        `}>
+          {content}
         </div>
+
+        {/* Selection Controls */}
+        {isSelected && !isPreviewMode && (
+          <>
+            {/* Resize Handle */}
+            <div 
+              className="absolute bottom-0 right-0 w-3 h-3 bg-blue-500 cursor-se-resize"
+              onMouseDown={(e) => handleResizeStart(e, element)}
+            />
+            
+            {/* Element Label */}
+            <div className="absolute -top-6 left-0 bg-blue-500 text-white text-xs px-2 py-1 rounded text-nowrap">
+              {element.label}
+            </div>
+            
+            {/* Action Buttons */}
+            <div className="absolute -top-6 right-0 flex gap-1">
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-6 w-6 p-0 bg-white border"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  // Duplicate element
+                  const newElement = {
+                    ...element,
+                    id: `${element.type}-${Date.now()}`,
+                    x: element.x + 20,
+                    y: element.y + 20
+                  };
+                  // This would need to be handled by parent
+                  console.log('Duplicate element:', newElement);
+                }}
+              >
+                <Copy className="h-3 w-3" />
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-6 w-6 p-0 bg-white border text-red-600 hover:text-red-700"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onElementDelete(element.id);
+                }}
+              >
+                <Trash2 className="h-3 w-3" />
+              </Button>
+            </div>
+          </>
+        )}
       </div>
     );
-  };
+  }, [selectedElement, draggedElement, isPreviewMode, onElementSelect, onElementDelete]);
+
+  const handleResizeStart = useCallback((e: React.MouseEvent, element: CanvasElement) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const startX = e.clientX;
+    const startY = e.clientY;
+    const startWidth = element.width;
+    const startHeight = element.height;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const deltaX = e.clientX - startX;
+      const deltaY = e.clientY - startY;
+      
+      onElementUpdate(element.id, {
+        width: Math.max(50, startWidth + deltaX),
+        height: Math.max(20, startHeight + deltaY)
+      });
+    };
+
+    const handleMouseUp = () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+  }, [onElementUpdate]);
 
   return (
-    <div
-      ref={canvasRef}
-      className={`w-full h-full relative overflow-hidden transition-all duration-200 ${
-        isDragOver ? 'bg-accent/20 border-2 border-dashed border-primary' : ''
-      } ${isPreviewMode ? 'bg-background' : 'bg-muted/20'}`}
+    <div 
+      className="w-full h-full relative bg-white overflow-auto"
       onDragOver={handleDragOver}
-      onDragLeave={handleDragLeave}
-      onDrop={handleDrop}
-      onClick={() => !isPreviewMode && onElementSelect(null as any)}
+      onDrop={isPreviewMode ? undefined : handleElementDrop}
+      onClick={() => onElementSelect(null as any)}
     >
-      {/* Grid background for design mode */}
+      {/* Grid Background */}
       {!isPreviewMode && (
         <div 
-          className="absolute inset-0 opacity-[0.02]"
+          className="absolute inset-0 opacity-30"
           style={{
             backgroundImage: `
-              linear-gradient(to right, currentColor 1px, transparent 1px),
-              linear-gradient(to bottom, currentColor 1px, transparent 1px)
+              linear-gradient(rgba(0,0,0,.1) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(0,0,0,.1) 1px, transparent 1px)
             `,
             backgroundSize: '20px 20px'
           }}
         />
       )}
 
-      {/* Drop zone hint */}
-      {elements.length === 0 && !isPreviewMode && (
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="text-center text-muted-foreground">
-            <div className="text-4xl mb-4">🎨</div>
-            <h3 className="text-lg font-medium">Start Building</h3>
-            <p className="text-sm">Drag components from the palette to begin</p>
+      {/* Canvas Content */}
+      <div className="relative w-full min-h-full">
+        {elements.map(renderElement)}
+        
+        {/* Empty State */}
+        {elements.length === 0 && !isPreviewMode && (
+          <div className="absolute inset-0 flex items-center justify-center text-gray-500">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Move className="h-8 w-8" />
+              </div>
+              <h3 className="text-lg font-medium mb-2">Design Canvas</h3>
+              <p className="text-sm max-w-sm">
+                Drag components from the palette to start building your interface
+              </p>
+            </div>
           </div>
-        </div>
-      )}
-
-      {/* Render all elements */}
-      {elements.map(renderElement)}
-
-      {/* Preview mode indicator */}
-      {isPreviewMode && elements.length > 0 && (
-        <div className="absolute top-4 right-4 bg-green-500 text-white px-3 py-1 rounded-full text-xs font-medium">
-          Preview Mode
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
+}
+
+function getElementStyles(type: string): string {
+  const styles: Record<string, string> = {
+    'button': 'bg-blue-500 text-white rounded hover:bg-blue-600',
+    'input': 'bg-white border border-gray-300 rounded px-3 py-2',
+    'textarea': 'bg-white border border-gray-300 rounded px-3 py-2 resize-none',
+    'label': 'text-gray-700 font-medium',
+    'heading': 'font-bold text-gray-900',
+    'text': 'text-gray-700',
+    'image': 'bg-gray-100 border-2 border-dashed border-gray-300 text-gray-500',
+    'link': 'text-blue-600 underline',
+    'div': 'border-2 border-dashed border-gray-300 bg-gray-50',
+    'card': 'bg-white border border-gray-200 rounded-lg shadow-sm',
+    'badge': 'bg-gray-100 text-gray-800 rounded-full px-2 py-1 text-xs',
+    'avatar': 'bg-gray-300 text-white rounded-full flex items-center justify-center font-bold',
+    'separator': 'border-t border-gray-300 w-full h-px flex items-center justify-center'
+  };
+  
+  return styles[type] || 'bg-gray-100 border border-gray-300';
 }
