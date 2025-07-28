@@ -573,7 +573,12 @@ export default function WorkspacePage() {
         )}
 
         {/* Main Editor Area */}
-        <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+        <LoadingOverlay
+          isLoading={isLoadingFile}
+          message={loadingMessage}
+          className="flex-1 flex flex-col min-w-0 overflow-hidden"
+        >
+          <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
           {/* File Tabs */}
           <div className="h-11 border-b border-gray-200/60 bg-white/90 backdrop-blur-sm flex-shrink-0">
             <ErrorBoundary>
@@ -826,7 +831,8 @@ export default function WorkspacePage() {
               </div>
             </div>
           )}
-        </div>
+          </div>
+        </LoadingOverlay>
       </div>
 
       {/* Panels */}
