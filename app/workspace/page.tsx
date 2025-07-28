@@ -319,6 +319,33 @@ export default function WorkspacePage() {
     }
   }, [isMobile, sidebarOpen, leftPanelCollapsed, setSidebarOpen])
 
+  // Swipe gestures for mobile
+  const swipeHandlers = useSwipe(
+    useCallback(({ direction, distance, velocity }) => {
+      if (!isMobile) return
+
+      if (direction === 'right' && distance > 100 && velocity > 0.5) {
+        // Swipe right to open sidebar
+        if (!sidebarOpen) {
+          setSidebarOpen(true)
+        }
+      } else if (direction === 'left' && distance > 100 && velocity > 0.5) {
+        // Swipe left to close sidebar
+        if (sidebarOpen) {
+          setSidebarOpen(false)
+        }
+      } else if (direction === 'up' && distance > 80 && velocity > 0.4) {
+        // Swipe up to show terminal
+        setShowTerminal(true)
+      } else if (direction === 'down' && distance > 80 && velocity > 0.4) {
+        // Swipe down to hide terminal
+        setShowTerminal(false)
+      }
+    }, [isMobile, sidebarOpen, setSidebarOpen, setShowTerminal]),
+    100, // threshold
+    0.3  // velocity threshold
+  )
+
   // Render loading state until mounted
   if (!mounted) {
     return (
