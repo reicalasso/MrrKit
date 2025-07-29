@@ -117,8 +117,8 @@ export function FileExplorer({
     <div key={file.id} className="select-none">
       <div
         className={cn(
-          "flex items-center justify-between group hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 rounded-lg mx-1 px-3 py-2 cursor-pointer transition-all duration-200",
-          activeFileId === file.id && "bg-gradient-to-r from-blue-100 to-indigo-100 border-l-4 border-blue-500 shadow-sm",
+          "flex items-center justify-between group hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 rounded-xl mx-1 px-3 py-2.5 cursor-pointer transition-all duration-200",
+          activeFileId === file.id && "bg-gradient-to-r from-blue-100 to-indigo-100 border-l-4 border-blue-500 shadow-sm workspace-card",
           `ml-${depth * 4}`
         )}
         onClick={() => {
@@ -157,13 +157,13 @@ export function FileExplorer({
             <Button
               variant="ghost"
               size="sm"
-              className="h-7 w-7 p-0 opacity-0 group-hover:opacity-100 hover:bg-white/80 rounded-lg transition-all duration-200"
+              className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 hover:bg-white/80 rounded-xl transition-all duration-200 workspace-button"
               onClick={(e) => e.stopPropagation()}
             >
               <MoreHorizontal className="h-4 w-4 text-gray-500" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
+          <DropdownMenuContent align="end" className="workspace-card">
             <DropdownMenuItem onClick={(e) => {
               e.stopPropagation()
               setEditingFile(file.id)
@@ -212,7 +212,7 @@ export function FileExplorer({
       </div>
       
       {file.type === 'folder' && expandedFolders.has(file.id) && file.children && (
-        <div className="ml-4">
+        <div className="ml-4 animate-fade-in-up">
           {file.children.map(child => renderFileNode(child, depth + 1))}
         </div>
       )}
@@ -221,19 +221,19 @@ export function FileExplorer({
 
   return (
     <div className="h-full flex flex-col">
-      <div className="p-4 border-b border-gray-200/50 bg-gradient-to-r from-white to-gray-50/50">
+      <div className="p-4 border-b border-gray-200/50 bg-gradient-to-r from-white to-blue-50/30">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
-            <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-lg flex items-center justify-center">
+          <h3 className="text-base font-semibold text-gray-900 flex items-center gap-2">
+            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-xl flex items-center justify-center shadow-md">
               <Folder className="h-3 w-3 text-white" />
             </div>
-            Dosyalar
+            Project Files
           </h3>
           <div className="flex gap-1">
             <Button
               size="sm"
               variant="ghost"
-              className="h-7 w-7 p-0 hover:bg-blue-100 rounded-lg transition-all duration-200"
+              className="h-8 w-8 p-0 hover:bg-blue-100 rounded-xl transition-all duration-200 workspace-button"
               onClick={() => onFileCreate('new-file.js', 'file')}
               title="Yeni dosya"
             >
@@ -242,7 +242,7 @@ export function FileExplorer({
             <Button
               size="sm"
               variant="ghost"
-              className="h-7 w-7 p-0 hover:bg-blue-100 rounded-lg transition-all duration-200"
+              className="h-8 w-8 p-0 hover:bg-blue-100 rounded-xl transition-all duration-200 workspace-button"
               onClick={() => onFileCreate('new-folder', 'folder')}
               title="Yeni klasör"
             >
@@ -252,7 +252,7 @@ export function FileExplorer({
         </div>
       </div>
       
-      <div className="flex-1 p-2 overflow-auto">
+      <div className="flex-1 p-3 overflow-auto workspace-scroll">
         {files.map(file => renderFileNode(file))}
       </div>
     </div>

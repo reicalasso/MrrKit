@@ -7,46 +7,46 @@ import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Input } from '@/components/ui/input'
 import {
-  Split,
+  Wand2,
   Play,
   Code,
   Eye,
-  Download,
-  Share,
   Settings,
-  Wand2,
-  FileText,
-  Folder,
-  Plus,
-  Save,
-  RefreshCw,
-  Sparkles,
+  Share,
   Menu,
   X,
   Smartphone,
   Monitor,
   Terminal as TerminalIcon,
-  Upload,
-  GitBranch,
+  Sparkles,
+  FileText,
+  Folder,
+  Plus,
   Search,
-  Palette,
-  Package,
   ChevronLeft,
   ChevronRight,
   Maximize2,
   Minimize2,
   PanelLeftClose,
   PanelLeftOpen,
-  GripVertical
+  Palette,
+  Package,
+  Zap,
+  RefreshCw,
+  Download,
+  Upload,
+  GitBranch,
+  Users,
+  Heart,
+  Star
 } from 'lucide-react'
 import { MonacoEditor } from '@/components/code-editor/monaco-editor'
 import { LivePreview } from '@/components/code-editor/live-preview'
 import { FileExplorer, type FileNode } from '@/components/code-editor/file-explorer'
 import { FileTabs } from '@/components/code-editor/file-tabs'
 import { EnhancedTerminal } from '@/components/terminal/enhanced-terminal'
-import { Input } from '@/components/ui/input'
 import { ErrorBoundary } from '@/components/error-boundary'
 import { useWorkspaceStore } from '@/lib/stores/workspace-store'
 import { LoadingOverlay, LoadingSpinner, AnimatedHeight } from '@/components/ui/loading'
@@ -56,25 +56,21 @@ import { ThemeSettings } from '@/components/theme/theme-settings'
 import { UIBuilderPanel } from '@/components/ui-builder/ui-builder-panel'
 import { ComponentStorePanel } from '@/components/component-store/component-store-panel'
 
-const SIDEBAR_MIN_WIDTH = 240
+const SIDEBAR_MIN_WIDTH = 280
 const SIDEBAR_MAX_WIDTH = 480
-const SIDEBAR_DEFAULT_WIDTH = 320
+const SIDEBAR_DEFAULT_WIDTH = 350
 
 export default function WorkspacePage() {
-  const [searchTerm, setSearchTerm] = useState('')
   const [mounted, setMounted] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
-  const [terminalHeight, setTerminalHeight] = useState(200)
   const [showSharingPanel, setShowSharingPanel] = useState(false)
   const [showThemeSettings, setShowThemeSettings] = useState(false)
   const [sidebarWidth, setSidebarWidth] = useState(SIDEBAR_DEFAULT_WIDTH)
   const [isResizing, setIsResizing] = useState(false)
   const [leftPanelCollapsed, setLeftPanelCollapsed] = useState(false)
-  const [aiPanelHeight, setAiPanelHeight] = useState(300)
-  const [rightPanelVisible, setRightPanelVisible] = useState(false)
   const [isLoadingFile, setIsLoadingFile] = useState(false)
-  const [isGenerating, setIsGenerating] = useState(false)
   const [loadingMessage, setLoadingMessage] = useState('')
+  const [searchTerm, setSearchTerm] = useState('')
 
   const sidebarRef = useRef<HTMLDivElement>(null)
   const resizeRef = useRef<HTMLDivElement>(null)
@@ -121,7 +117,6 @@ export default function WorkspacePage() {
       if (mobile) {
         setSidebarOpen(false)
         setLeftPanelCollapsed(false)
-        setRightPanelVisible(false)
       }
     }
     checkMobile()
@@ -158,16 +153,6 @@ export default function WorkspacePage() {
       document.removeEventListener('mouseup', handleMouseUp)
     }
   }, [isResizing])
-
-  // Handle initial prompt
-  useEffect(() => {
-    if (mounted && typeof window !== 'undefined') {
-      const initialPrompt = localStorage.getItem('initialPrompt')
-      if (initialPrompt) {
-        localStorage.removeItem('initialPrompt')
-      }
-    }
-  }, [mounted])
 
   // Mobile view mode handling
   useEffect(() => {
@@ -342,64 +327,40 @@ export default function WorkspacePage() {
         if (!isMobile) return
 
         if (direction === 'right' && distance > 100 && velocity > 0.5) {
-          // Swipe right to open sidebar
           if (!sidebarOpen) {
             setSidebarOpen(true)
           }
         } else if (direction === 'left' && distance > 100 && velocity > 0.5) {
-          // Swipe left to close sidebar
           if (sidebarOpen) {
             setSidebarOpen(false)
           }
         } else if (direction === 'up' && distance > 80 && velocity > 0.4) {
-          // Swipe up to show terminal
           setShowTerminal(true)
         } else if (direction === 'down' && distance > 80 && velocity > 0.4) {
-          // Swipe down to hide terminal
           setShowTerminal(false)
         }
       },
       [isMobile, sidebarOpen, setSidebarOpen, setShowTerminal]
     ),
-    100, // threshold
-    0.3  // velocity threshold
+    100,
+    0.3
   )
-
-  // Handle development server errors
-  useEffect(() => {
-    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
-      // Suppress fetch errors during development hot reloading
-      if (event.reason?.message?.includes('Failed to fetch') &&
-          (event.reason?.message?.includes('RSC payload') ||
-           event.reason?.message?.includes('_next/static'))) {
-        console.warn('Development server fetch error (suppressed):', event.reason)
-        event.preventDefault()
-        return
-      }
-      console.error('Unhandled promise rejection:', event.reason)
-    }
-
-    window.addEventListener('unhandledrejection', handleUnhandledRejection)
-
-    return () => {
-      window.removeEventListener('unhandledrejection', handleUnhandledRejection)
-    }
-  }, [])
 
   // Render loading state until mounted
   if (!mounted) {
     return (
       <div className="h-screen bg-gradient-to-br from-slate-50 to-blue-50/30 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg mx-auto mb-4 animate-pulse">
+          <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-xl mx-auto mb-6 animate-pulse">
             <img
               src="/favicon.ico"
               alt="MrrKit Logo"
-              className="w-7 h-7 object-contain"
+              className="w-8 h-8 object-contain"
             />
           </div>
-          <p className="text-gray-600 font-medium">Loading workspace...</p>
-          <div className="mt-4 w-32 h-1 bg-gray-200 rounded-full mx-auto overflow-hidden">
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">MrrKit Workspace</h2>
+          <p className="text-gray-600 font-medium mb-6">Loading your development environment...</p>
+          <div className="w-48 h-2 bg-gray-200 rounded-full mx-auto overflow-hidden">
             <div className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full animate-pulse"></div>
           </div>
         </div>
@@ -409,35 +370,35 @@ export default function WorkspacePage() {
 
   return (
     <div className="h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-purple-50/10 flex flex-col overflow-hidden">
-      {/* Enhanced Header */}
-      <header className="h-14 bg-white/95 backdrop-blur-xl border-b border-gray-200/60 shadow-sm flex items-center justify-between px-4 flex-shrink-0 z-50 relative">
-        <div className="flex items-center gap-3">
+      {/* Modern Header */}
+      <header className="h-16 bg-white/95 backdrop-blur-xl border-b border-gray-200/60 shadow-sm flex items-center justify-between px-6 flex-shrink-0 z-50 relative">
+        <div className="flex items-center gap-4">
           <Button
             onClick={toggleSidebar}
             variant="ghost"
             size="sm"
-            className="h-8 w-8 p-0 hover:bg-gray-100/80 rounded-lg transition-all duration-200"
+            className="h-10 w-10 p-0 hover:bg-gray-100/80 rounded-xl transition-all duration-200"
           >
             {(isMobile ? sidebarOpen : !leftPanelCollapsed) ? 
-              <PanelLeftClose className="h-4 w-4" /> : 
-              <PanelLeftOpen className="h-4 w-4" />
+              <PanelLeftClose className="h-5 w-5" /> : 
+              <PanelLeftOpen className="h-5 w-5" />
             }
           </Button>
           
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
               <img
                 src="/favicon.ico"
                 alt="MrrKit Logo"
-                className="w-5 h-5 object-contain"
+                className="w-6 h-6 object-contain"
               />
             </div>
             <div className="hidden sm:block">
-              <h1 className="text-sm font-bold bg-gradient-to-r from-gray-900 to-purple-600 bg-clip-text text-transparent">
-                MrrKit
+              <h1 className="text-lg font-bold bg-gradient-to-r from-gray-900 to-purple-600 bg-clip-text text-transparent">
+                MrrKit Workspace
               </h1>
               <p className="text-xs text-gray-500 -mt-1">
-                {currentProject?.name || 'Workspace'}
+                {currentProject?.name || 'AI-Powered Development'}
               </p>
             </div>
           </div>
@@ -446,28 +407,28 @@ export default function WorkspacePage() {
         {/* Center - Active File Breadcrumb */}
         <div className="flex-1 flex items-center justify-center max-w-md mx-4">
           {activeFile && (
-            <div className="flex items-center gap-2 bg-gray-100/60 rounded-lg px-3 py-1.5 text-sm">
-              <FileText className="h-3 w-3 text-gray-500" />
+            <div className="flex items-center gap-2 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl px-4 py-2 text-sm border border-blue-200/50">
+              <FileText className="h-4 w-4 text-blue-600" />
               <span className="text-gray-700 font-medium truncate">
                 {activeFile.name}
               </span>
               {activeFile.isDirty && (
-                <div className="w-1.5 h-1.5 bg-orange-500 rounded-full"></div>
+                <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>
               )}
             </div>
           )}
         </div>
         
         {/* Right Side Controls */}
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-2">
           {!isMobile && (
-            <div className="relative mr-2">
-              <Search className="absolute left-2.5 top-1/2 transform -translate-y-1/2 h-3.5 w-3.5 text-gray-400" />
+            <div className="relative mr-3">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
                 placeholder="Search files..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-8 h-8 w-40 bg-white/80 backdrop-blur-sm border-gray-200/60 rounded-lg shadow-sm text-sm focus:w-48 transition-all duration-200"
+                className="pl-10 h-10 w-48 bg-white/80 backdrop-blur-sm border-gray-200/60 rounded-xl shadow-sm text-sm focus:w-56 transition-all duration-200"
               />
             </div>
           )}
@@ -475,26 +436,26 @@ export default function WorkspacePage() {
           <Button
             size="sm"
             variant="ghost"
-            className="h-8 w-8 p-0 hover:bg-gray-100/80 rounded-lg transition-all duration-200"
+            className="h-10 w-10 p-0 hover:bg-gray-100/80 rounded-xl transition-all duration-200"
             onClick={() => setShowSharingPanel(true)}
             title="Share code"
           >
-            <Share className="h-3.5 w-3.5 text-gray-600" />
+            <Share className="h-4 w-4 text-gray-600" />
           </Button>
           
-          <Badge variant="secondary" className="bg-gradient-to-r from-emerald-100 to-green-100 text-emerald-700 border-emerald-200/50 text-xs px-2 py-1 rounded-md shadow-sm hidden sm:flex">
-            <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full mr-1.5 animate-pulse"></div>
+          <Badge variant="secondary" className="bg-gradient-to-r from-emerald-100 to-green-100 text-emerald-700 border-emerald-200/50 text-xs px-3 py-1.5 rounded-xl shadow-sm hidden sm:flex">
+            <div className="w-2 h-2 bg-emerald-500 rounded-full mr-2 animate-pulse"></div>
             Online
           </Badge>
           
           <Button
             size="sm"
             variant="ghost"
-            className="h-8 w-8 p-0 hover:bg-gray-100/80 rounded-lg transition-all duration-200"
+            className="h-10 w-10 p-0 hover:bg-gray-100/80 rounded-xl transition-all duration-200"
             onClick={() => setShowThemeSettings(true)}
             title="Settings"
           >
-            <Settings className="h-3.5 w-3.5 text-gray-600" />
+            <Settings className="h-4 w-4 text-gray-600" />
           </Button>
         </div>
       </header>
@@ -528,43 +489,11 @@ export default function WorkspacePage() {
         >
           {!leftPanelCollapsed && (
             <>
-              {/* AI Assistant Panel - Resizable */}
-              <div 
-                className="border-b border-gray-200/60 flex-shrink-0 relative"
-                style={{ height: aiPanelHeight }}
-              >
+              {/* AI Assistant Panel */}
+              <div className="h-80 border-b border-gray-200/60 flex-shrink-0">
                 <ErrorBoundary>
                   <AIPanel />
                 </ErrorBoundary>
-                
-                {/* AI Panel Resize Handle */}
-                {!isMobile && (
-                  <div 
-                    className="absolute bottom-0 left-0 right-0 h-1 bg-gray-200/60 hover:bg-blue-400 cursor-row-resize transition-colors duration-200 group"
-                    onMouseDown={(e) => {
-                      e.preventDefault()
-                      const startY = e.clientY
-                      const startHeight = aiPanelHeight
-                      
-                      const handleMouseMove = (e: MouseEvent) => {
-                        const newHeight = startHeight + (e.clientY - startY)
-                        if (newHeight >= 200 && newHeight <= 500) {
-                          setAiPanelHeight(newHeight)
-                        }
-                      }
-                      
-                      const handleMouseUp = () => {
-                        document.removeEventListener('mousemove', handleMouseMove)
-                        document.removeEventListener('mouseup', handleMouseUp)
-                      }
-                      
-                      document.addEventListener('mousemove', handleMouseMove)
-                      document.addEventListener('mouseup', handleMouseUp)
-                    }}
-                  >
-                    <div className="absolute inset-x-0 bottom-0 h-0.5 bg-blue-400 scale-x-0 group-hover:scale-x-100 transition-transform duration-200"></div>
-                  </div>
-                )}
               </div>
 
               {/* File Explorer */}
@@ -591,7 +520,7 @@ export default function WorkspacePage() {
               className="absolute top-0 right-0 w-1 h-full bg-transparent hover:bg-blue-400 cursor-col-resize transition-colors duration-200 z-10 group"
               onMouseDown={handleStartResize}
             >
-              <div className="absolute right-0 top-1/2 transform -translate-y-1/2 w-0.5 h-8 bg-blue-400 scale-x-0 group-hover:scale-x-100 transition-transform duration-200"></div>
+              <div className="absolute right-0 top-1/2 transform -translate-y-1/2 w-0.5 h-12 bg-blue-400 scale-x-0 group-hover:scale-x-100 transition-transform duration-200"></div>
             </div>
           )}
         </div>
@@ -611,258 +540,232 @@ export default function WorkspacePage() {
           className="flex-1 flex flex-col min-w-0 overflow-hidden"
         >
           <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-          {/* File Tabs */}
-          <div className="h-11 border-b border-gray-200/60 bg-white/90 backdrop-blur-sm flex-shrink-0">
-            <ErrorBoundary>
-              <FileTabs
-                openFiles={openFiles}
-                activeFileId={activeFile?.id || null}
-                onFileSelect={handleFileSelect}
-                onFileClose={handleFileClose}
-                onFileCreate={createFile}
-                onCloseAll={handleCloseAll}
-                onCloseOthers={handleCloseOthers}
-                className="h-full"
-              />
-            </ErrorBoundary>
-          </div>
-
-          {/* Enhanced View Mode Controls */}
-          <div className="h-10 bg-white/95 backdrop-blur-sm border-b border-gray-200/60 flex items-center justify-between px-4 flex-shrink-0">
-            <div className="flex items-center gap-1">
-              {/* Terminal Toggle */}
-              <Button
-                size="sm"
-                variant={showTerminal ? "default" : "ghost"}
-                onClick={() => setShowTerminal(!showTerminal)}
-                className="h-7 px-2 text-xs"
-              >
-                <TerminalIcon className="h-3 w-3 mr-1" />
-                Terminal
-              </Button>
-              
-              <div className="w-px h-4 bg-gray-300 mx-1"></div>
-              
-              {/* View Mode Buttons */}
-              {!isMobile && (
-                <Button
-                  size="sm"
-                  variant={viewMode === 'split' ? 'default' : 'ghost'}
-                  onClick={() => setViewMode('split')}
-                  className="h-7 px-2 text-xs"
-                  title="Split View"
-                >
-                  <Split className="h-3 w-3 mr-1" />
-                  Split
-                </Button>
-              )}
-              <Button
-                size="sm"
-                variant={viewMode === 'code' ? 'default' : 'ghost'}
-                onClick={() => setViewMode('code')}
-                className="h-7 px-2 text-xs"
-                title="Code Editor"
-              >
-                <Code className="h-3 w-3 mr-1" />
-                Code
-              </Button>
-              <Button
-                size="sm"
-                variant={viewMode === 'preview' ? 'default' : 'ghost'}
-                onClick={() => setViewMode('preview')}
-                className="h-7 px-2 text-xs"
-                title="Live Preview"
-              >
-                <Eye className="h-3 w-3 mr-1" />
-                Preview
-              </Button>
-              <Button
-                size="sm"
-                variant={viewMode === 'builder' ? 'default' : 'ghost'}
-                onClick={() => setViewMode('builder')}
-                className="h-7 px-2 text-xs"
-                title="UI Builder"
-              >
-                <Palette className="h-3 w-3 mr-1" />
-                Builder
-              </Button>
-              <Button
-                size="sm"
-                variant={viewMode === 'store' ? 'default' : 'ghost'}
-                onClick={() => setViewMode('store')}
-                className="h-7 px-2 text-xs"
-                title="Component Store"
-              >
-                <Package className="h-3 w-3 mr-1" />
-                Store
-              </Button>
-            </div>
-            
-            {/* Right Panel Toggle */}
-            <div className="flex items-center gap-1">
-              {activeFile && (
-                <Badge variant="outline" className="text-xs bg-white/80">
-                  {activeFile.language}
-                </Badge>
-              )}
-            </div>
-          </div>
-          
-          {/* Editor Content */}
-          <div className="flex-1 flex overflow-hidden">
-            {viewMode === 'builder' ? (
-              <div className="w-full h-full">
-                <ErrorBoundary>
-                  <UIBuilderPanel />
-                </ErrorBoundary>
-              </div>
-            ) : viewMode === 'store' ? (
-              <div className="w-full h-full">
-                <ErrorBoundary>
-                  <ComponentStorePanel />
-                </ErrorBoundary>
-              </div>
-            ) : (
-              <>
-                {/* Code Editor */}
-                {(viewMode === 'code' || (viewMode === 'split' && !isMobile)) && (
-                  <div className={`${viewMode === 'split' && !isMobile ? 'w-1/2' : 'w-full'} border-r border-gray-200/60 overflow-hidden bg-white`}>
-                    {activeFile ? (
-                      <div className="h-full">
-                        <ErrorBoundary>
-                          <MonacoEditor
-                            key={activeFile.id}
-                            value={activeFile.content || ''}
-                            onChange={(value) => updateFileContent(activeFile.id, value)}
-                            language={
-                              activeFile.name.endsWith('.tsx') || activeFile.name.endsWith('.ts')
-                                ? 'typescript'
-                                : activeFile.name.endsWith('.css')
-                                ? 'css'
-                                : activeFile.name.endsWith('.html')
-                                ? 'html'
-                                : activeFile.name.endsWith('.json')
-                                ? 'json'
-                                : 'javascript'
-                            }
-                            onSave={() => {
-                              console.log('File saved:', activeFile.name)
-                            }}
-                            options={{
-                              minimap: { enabled: !isMobile },
-                              fontSize: isMobile ? 12 : 14,
-                              wordWrap: isMobile ? 'on' : 'off',
-                              lineNumbers: 'on',
-                              scrollBeyondLastLine: false,
-                              automaticLayout: true,
-                              tabSize: 2,
-                              insertSpaces: true,
-                            }}
-                          />
-                        </ErrorBoundary>
-                      </div>
-                    ) : (
-                      <div className="h-full flex items-center justify-center text-gray-500 bg-gradient-to-br from-gray-50/50 to-white">
-                        <div className="text-center p-8 max-w-md">
-                          <div className="w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                            <FileText className="h-8 w-8 text-gray-400" />
-                          </div>
-                          <h3 className="text-lg font-semibold mb-2 text-gray-700">Code Editor</h3>
-                          <p className="text-gray-500 mb-4 text-sm">Select a file from the sidebar or create a new one to start coding</p>
-                          <Button
-                            onClick={() => createFile('component.jsx', 'file')}
-                            className="bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white px-4 py-2 rounded-lg shadow-md transition-all duration-200"
-                          >
-                            <Plus className="w-4 h-4 mr-2" />
-                            New File
-                          </Button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* Live Preview */}
-                {(viewMode === 'preview' || (viewMode === 'split' && !isMobile)) && (
-                  <div className={`${viewMode === 'split' && !isMobile ? 'w-1/2' : 'w-full'} bg-white overflow-hidden`}>
-                    {activeFile?.content ? (
-                      <div className="h-full">
-                        <ErrorBoundary>
-                          <LivePreview
-                            code={activeFile.content}
-                            language={
-                              activeFile.name.endsWith('.html') ? 'html' : 'javascript'
-                            }
-                            onError={(error) => {
-                              if (error) {
-                                console.error('Preview error:', error)
-                              }
-                            }}
-                          />
-                        </ErrorBoundary>
-                      </div>
-                    ) : (
-                      <div className="h-full flex items-center justify-center text-gray-500 bg-gradient-to-br from-white to-gray-50/30">
-                        <div className="text-center p-8 max-w-md">
-                          <div className="w-16 h-16 bg-gradient-to-br from-purple-100 to-pink-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                            <Eye className="h-8 w-8 text-purple-500" />
-                          </div>
-                          <h3 className="text-lg font-semibold mb-2 text-gray-700">Live Preview</h3>
-                          <p className="text-gray-500 mb-4 text-sm">Write code or generate components with AI to see live preview</p>
-                          <div className="flex items-center justify-center gap-2 text-sm text-gray-400">
-                            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                            Ready to preview
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </>
-            )}
-          </div>
-
-          {/* Enhanced Terminal */}
-          {showTerminal && (
-            <div 
-              className="border-t border-gray-200/60 flex-shrink-0 bg-gray-900 relative"
-              style={{ height: terminalHeight }}
-            >
+            {/* File Tabs */}
+            <div className="h-12 border-b border-gray-200/60 bg-white/90 backdrop-blur-sm flex-shrink-0">
               <ErrorBoundary>
-                <EnhancedTerminal
-                  onClose={() => setShowTerminal(false)}
-                  onMinimize={() => setShowTerminal(false)}
+                <FileTabs
+                  openFiles={openFiles}
+                  activeFileId={activeFile?.id || null}
+                  onFileSelect={handleFileSelect}
+                  onFileClose={handleFileClose}
+                  onFileCreate={createFile}
+                  onCloseAll={handleCloseAll}
+                  onCloseOthers={handleCloseOthers}
+                  className="h-full"
                 />
               </ErrorBoundary>
+            </div>
+
+            {/* View Mode Controls */}
+            <div className="h-12 bg-white/95 backdrop-blur-sm border-b border-gray-200/60 flex items-center justify-between px-6 flex-shrink-0">
+              <div className="flex items-center gap-2">
+                {/* Terminal Toggle */}
+                <Button
+                  size="sm"
+                  variant={showTerminal ? "default" : "ghost"}
+                  onClick={() => setShowTerminal(!showTerminal)}
+                  className="h-8 px-3 text-xs rounded-lg"
+                >
+                  <TerminalIcon className="h-3 w-3 mr-1" />
+                  Terminal
+                </Button>
+                
+                <div className="w-px h-5 bg-gray-300 mx-1"></div>
+                
+                {/* View Mode Buttons */}
+                {!isMobile && (
+                  <Button
+                    size="sm"
+                    variant={viewMode === 'split' ? 'default' : 'ghost'}
+                    onClick={() => setViewMode('split')}
+                    className="h-8 px-3 text-xs rounded-lg"
+                    title="Split View"
+                  >
+                    <Code className="h-3 w-3 mr-1" />
+                    Split
+                  </Button>
+                )}
+                <Button
+                  size="sm"
+                  variant={viewMode === 'code' ? 'default' : 'ghost'}
+                  onClick={() => setViewMode('code')}
+                  className="h-8 px-3 text-xs rounded-lg"
+                  title="Code Editor"
+                >
+                  <Code className="h-3 w-3 mr-1" />
+                  Code
+                </Button>
+                <Button
+                  size="sm"
+                  variant={viewMode === 'preview' ? 'default' : 'ghost'}
+                  onClick={() => setViewMode('preview')}
+                  className="h-8 px-3 text-xs rounded-lg"
+                  title="Live Preview"
+                >
+                  <Eye className="h-3 w-3 mr-1" />
+                  Preview
+                </Button>
+                <Button
+                  size="sm"
+                  variant={viewMode === 'builder' ? 'default' : 'ghost'}
+                  onClick={() => setViewMode('builder')}
+                  className="h-8 px-3 text-xs rounded-lg"
+                  title="UI Builder"
+                >
+                  <Palette className="h-3 w-3 mr-1" />
+                  Builder
+                </Button>
+                <Button
+                  size="sm"
+                  variant={viewMode === 'store' ? 'default' : 'ghost'}
+                  onClick={() => setViewMode('store')}
+                  className="h-8 px-3 text-xs rounded-lg"
+                  title="Component Store"
+                >
+                  <Package className="h-3 w-3 mr-1" />
+                  Store
+                </Button>
+              </div>
               
-              {/* Terminal Resize Handle */}
-              <div 
-                className="absolute top-0 left-0 right-0 h-1 bg-gray-700 hover:bg-blue-400 cursor-row-resize transition-colors duration-200 group"
-                onMouseDown={(e) => {
-                  e.preventDefault()
-                  const startY = e.clientY
-                  const startHeight = terminalHeight
-                  
-                  const handleMouseMove = (e: MouseEvent) => {
-                    const newHeight = startHeight - (e.clientY - startY)
-                    if (newHeight >= 150 && newHeight <= 400) {
-                      setTerminalHeight(newHeight)
-                    }
-                  }
-                  
-                  const handleMouseUp = () => {
-                    document.removeEventListener('mousemove', handleMouseMove)
-                    document.removeEventListener('mouseup', handleMouseUp)
-                  }
-                  
-                  document.addEventListener('mousemove', handleMouseMove)
-                  document.addEventListener('mouseup', handleMouseUp)
-                }}
-              >
-                <div className="absolute inset-x-0 top-0 h-0.5 bg-blue-400 scale-x-0 group-hover:scale-x-100 transition-transform duration-200"></div>
+              {/* Right Panel Info */}
+              <div className="flex items-center gap-2">
+                {activeFile && (
+                  <Badge variant="outline" className="text-xs bg-white/80 rounded-lg">
+                    {activeFile.language}
+                  </Badge>
+                )}
               </div>
             </div>
-          )}
+            
+            {/* Editor Content */}
+            <div className="flex-1 flex overflow-hidden">
+              {viewMode === 'builder' ? (
+                <div className="w-full h-full">
+                  <ErrorBoundary>
+                    <UIBuilderPanel />
+                  </ErrorBoundary>
+                </div>
+              ) : viewMode === 'store' ? (
+                <div className="w-full h-full">
+                  <ErrorBoundary>
+                    <ComponentStorePanel />
+                  </ErrorBoundary>
+                </div>
+              ) : (
+                <>
+                  {/* Code Editor */}
+                  {(viewMode === 'code' || (viewMode === 'split' && !isMobile)) && (
+                    <div className={`${viewMode === 'split' && !isMobile ? 'w-1/2' : 'w-full'} border-r border-gray-200/60 overflow-hidden bg-white`}>
+                      {activeFile ? (
+                        <div className="h-full">
+                          <ErrorBoundary>
+                            <MonacoEditor
+                              key={activeFile.id}
+                              value={activeFile.content || ''}
+                              onChange={(value) => updateFileContent(activeFile.id, value)}
+                              language={
+                                activeFile.name.endsWith('.tsx') || activeFile.name.endsWith('.ts')
+                                  ? 'typescript'
+                                  : activeFile.name.endsWith('.css')
+                                  ? 'css'
+                                  : activeFile.name.endsWith('.html')
+                                  ? 'html'
+                                  : activeFile.name.endsWith('.json')
+                                  ? 'json'
+                                  : 'javascript'
+                              }
+                              onSave={() => {
+                                console.log('File saved:', activeFile.name)
+                              }}
+                              options={{
+                                minimap: { enabled: !isMobile },
+                                fontSize: isMobile ? 12 : 14,
+                                wordWrap: isMobile ? 'on' : 'off',
+                                lineNumbers: 'on',
+                                scrollBeyondLastLine: false,
+                                automaticLayout: true,
+                                tabSize: 2,
+                                insertSpaces: true,
+                              }}
+                            />
+                          </ErrorBoundary>
+                        </div>
+                      ) : (
+                        <div className="h-full flex items-center justify-center text-gray-500 bg-gradient-to-br from-gray-50/50 to-white">
+                          <div className="text-center p-8 max-w-md">
+                            <div className="w-20 h-20 bg-gradient-to-br from-blue-100 to-purple-100 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                              <Code className="h-10 w-10 text-blue-600" />
+                            </div>
+                            <h3 className="text-xl font-semibold mb-3 text-gray-700">Welcome to MrrKit</h3>
+                            <p className="text-gray-500 mb-6 text-sm leading-relaxed">
+                              Select a file from the sidebar or create a new one to start coding with AI assistance
+                            </p>
+                            <Button
+                              onClick={() => createFile('component.jsx', 'file')}
+                              className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white px-6 py-3 rounded-xl shadow-lg transition-all duration-200 hover:shadow-xl"
+                            >
+                              <Plus className="w-4 h-4 mr-2" />
+                              Create New File
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Live Preview */}
+                  {(viewMode === 'preview' || (viewMode === 'split' && !isMobile)) && (
+                    <div className={`${viewMode === 'split' && !isMobile ? 'w-1/2' : 'w-full'} bg-white overflow-hidden`}>
+                      {activeFile?.content ? (
+                        <div className="h-full">
+                          <ErrorBoundary>
+                            <LivePreview
+                              code={activeFile.content}
+                              language={
+                                activeFile.name.endsWith('.html') ? 'html' : 'javascript'
+                              }
+                              onError={(error) => {
+                                if (error) {
+                                  console.error('Preview error:', error)
+                                }
+                              }}
+                            />
+                          </ErrorBoundary>
+                        </div>
+                      ) : (
+                        <div className="h-full flex items-center justify-center text-gray-500 bg-gradient-to-br from-white to-purple-50/30">
+                          <div className="text-center p-8 max-w-md">
+                            <div className="w-20 h-20 bg-gradient-to-br from-purple-100 to-pink-100 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                              <Eye className="h-10 w-10 text-purple-600" />
+                            </div>
+                            <h3 className="text-xl font-semibold mb-3 text-gray-700">Live Preview</h3>
+                            <p className="text-gray-500 mb-6 text-sm leading-relaxed">
+                              Write code or generate components with AI to see live preview
+                            </p>
+                            <div className="flex items-center justify-center gap-2 text-sm text-gray-400">
+                              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                              Ready to preview
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+
+            {/* Enhanced Terminal */}
+            {showTerminal && (
+              <div className="h-48 border-t border-gray-200/60 flex-shrink-0 bg-gray-900 relative">
+                <ErrorBoundary>
+                  <EnhancedTerminal
+                    onClose={() => setShowTerminal(false)}
+                    onMinimize={() => setShowTerminal(false)}
+                  />
+                </ErrorBoundary>
+              </div>
+            )}
           </div>
         </LoadingOverlay>
       </div>

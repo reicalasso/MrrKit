@@ -149,14 +149,14 @@ export const FileTabs: React.FC<FileTabsProps> = ({
   }
 
   return (
-    <div className={`flex items-center bg-white/95 backdrop-blur-sm border-b border-gray-200/60 ${className}`}>
+    <div className={`flex items-center bg-white/95 backdrop-blur-xl border-b border-gray-200/60 workspace-header ${className}`}>
       {/* Scroll Left Button */}
       {canScrollLeft && (
         <Button
           size="sm"
           variant="ghost"
           onClick={() => scrollTabs('left')}
-          className="h-full w-8 p-0 flex-shrink-0 border-r border-gray-200/60 rounded-none hover:bg-gray-100/80"
+          className="h-full w-10 p-0 flex-shrink-0 border-r border-gray-200/60 rounded-none hover:bg-gray-100/80 workspace-button"
         >
           <ChevronLeft className="w-3.5 h-3.5" />
         </Button>
@@ -170,7 +170,7 @@ export const FileTabs: React.FC<FileTabsProps> = ({
       >
         <div className="flex h-full">
           {openFiles.length === 0 ? (
-            <div className="flex items-center justify-center px-6 py-2 text-gray-500 text-sm">
+            <div className="flex items-center justify-center px-6 py-3 text-gray-500 text-sm">
               No files open
             </div>
           ) : (
@@ -183,10 +183,10 @@ export const FileTabs: React.FC<FileTabsProps> = ({
                 onDrop={(e) => handleTabDrop(e, file.id)}
                 onMouseDown={(e) => handleMiddleClick(e, file.id)}
                 className={`
-                  group relative flex items-center gap-2 px-3 py-2.5 cursor-pointer
+                  group relative flex items-center gap-2 px-4 py-3 cursor-pointer
                   min-w-0 max-w-44 flex-shrink-0 transition-all duration-200 h-full
                   ${activeFileId === file.id
-                    ? 'bg-white text-blue-700 shadow-sm'
+                    ? 'bg-white text-blue-700 shadow-sm workspace-tab active'
                     : 'bg-transparent hover:bg-gray-100/60 text-gray-700'
                   }
                   ${draggedTabId === file.id ? 'opacity-50' : ''}
@@ -196,7 +196,7 @@ export const FileTabs: React.FC<FileTabsProps> = ({
               >
                 {/* Active Tab Indicator */}
                 {activeFileId === file.id && (
-                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-500 to-purple-500"></div>
+                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-purple-500 rounded-t-sm"></div>
                 )}
 
                 {/* File Icon */}
@@ -205,14 +205,14 @@ export const FileTabs: React.FC<FileTabsProps> = ({
                 </div>
 
                 {/* File Name */}
-                <span className="text-xs font-medium truncate min-w-0 select-none">
+                <span className="text-sm font-medium truncate min-w-0 select-none">
                   {getTruncatedFileName(file.name, 16)}
                 </span>
 
                 {/* Dirty Indicator & Close Button Container */}
                 <div className="flex items-center gap-1 flex-shrink-0">
                   {file.isDirty && (
-                    <div className="w-1.5 h-1.5 bg-orange-500 rounded-full" />
+                    <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse" />
                   )}
 
                   {/* Close Button */}
@@ -223,9 +223,9 @@ export const FileTabs: React.FC<FileTabsProps> = ({
                       e.stopPropagation()
                       onFileClose(file.id)
                     }}
-                    className="h-4 w-4 p-0 opacity-0 group-hover:opacity-100 hover:bg-red-100 hover:text-red-600 rounded transition-all duration-200"
+                    className="h-5 w-5 p-0 opacity-0 group-hover:opacity-100 hover:bg-red-100 hover:text-red-600 rounded-lg transition-all duration-200 workspace-button"
                   >
-                    <X className="w-2.5 h-2.5" />
+                    <X className="w-3 h-3" />
                   </Button>
                 </div>
               </div>
@@ -240,7 +240,7 @@ export const FileTabs: React.FC<FileTabsProps> = ({
           size="sm"
           variant="ghost"
           onClick={() => scrollTabs('right')}
-          className="h-full w-8 p-0 flex-shrink-0 border-l border-gray-200/60 rounded-none hover:bg-gray-100/80"
+          className="h-full w-10 p-0 flex-shrink-0 border-l border-gray-200/60 rounded-none hover:bg-gray-100/80 workspace-button"
         >
           <ChevronRight className="w-3.5 h-3.5" />
         </Button>
@@ -252,7 +252,7 @@ export const FileTabs: React.FC<FileTabsProps> = ({
           size="sm"
           variant="ghost"
           onClick={() => onFileCreate('untitled.js', 'file')}
-          className="h-full w-9 p-0 rounded-none hover:bg-gray-100/80"
+          className="h-full w-10 p-0 rounded-none hover:bg-gray-100/80 workspace-button"
           title="New file (Ctrl+N)"
         >
           <Plus className="w-3.5 h-3.5" />
@@ -264,13 +264,13 @@ export const FileTabs: React.FC<FileTabsProps> = ({
               <Button
                 size="sm"
                 variant="ghost"
-                className="h-full w-8 p-0 rounded-none hover:bg-gray-100/80"
+                className="h-full w-10 p-0 rounded-none hover:bg-gray-100/80 workspace-button"
                 title="More options"
               >
                 <MoreHorizontal className="w-3.5 h-3.5" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuContent align="end" className="w-48 workspace-card">
               <DropdownMenuItem
                 onClick={() => activeFileId && onFileSave?.(activeFileId)}
                 disabled={!activeFileId}

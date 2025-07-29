@@ -367,18 +367,23 @@ export function EnhancedTerminal({ onClose, onMinimize, className = '' }: Enhanc
   }
 
   return (
-    <div className={`bg-gray-900 text-gray-100 font-mono text-sm flex flex-col h-full ${className}`}>
+    <div className={`bg-gradient-to-br from-gray-900 to-gray-800 text-gray-100 font-mono text-sm flex flex-col h-full ${className}`}>
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-2 bg-gray-800 border-b border-gray-700 flex-shrink-0">
+      <div className="flex items-center justify-between px-4 py-3 bg-gray-800/90 backdrop-blur-sm border-b border-gray-700/60 flex-shrink-0">
         <div className="flex items-center gap-2">
-          <TerminalIcon className="h-4 w-4 text-blue-400" />
-          <span className="text-sm font-medium text-gray-200">Enhanced Terminal</span>
+          <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center">
+            <TerminalIcon className="h-3 w-3 text-white" />
+          </div>
+          <span className="text-sm font-medium text-gray-200">MrrKit Terminal</span>
+          <Badge variant="outline" className="text-xs border-gray-600 text-gray-400">
+            Enhanced
+          </Badge>
         </div>
         <div className="flex items-center gap-1">
           <Button 
             size="sm" 
             variant="ghost" 
-            className="h-6 w-6 p-0 text-gray-400 hover:text-white hover:bg-gray-700"
+            className="h-7 w-7 p-0 text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg workspace-button"
             onClick={onMinimize}
           >
             <Minimize className="h-3 w-3" />
@@ -386,7 +391,7 @@ export function EnhancedTerminal({ onClose, onMinimize, className = '' }: Enhanc
           <Button 
             size="sm" 
             variant="ghost" 
-            className="h-6 w-6 p-0 text-gray-400 hover:text-white hover:bg-red-600"
+            className="h-7 w-7 p-0 text-gray-400 hover:text-white hover:bg-red-600 rounded-lg workspace-button"
             onClick={onClose}
           >
             <X className="h-3 w-3" />
@@ -396,16 +401,16 @@ export function EnhancedTerminal({ onClose, onMinimize, className = '' }: Enhanc
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
-        <TabsList className="grid w-full grid-cols-3 bg-gray-800 border-b border-gray-700">
-          <TabsTrigger value="terminal" className="data-[state=active]:bg-gray-700 data-[state=active]:text-white">
+        <TabsList className="grid w-full grid-cols-3 bg-gray-800/80 backdrop-blur-sm border-b border-gray-700/60">
+          <TabsTrigger value="terminal" className="data-[state=active]:bg-gray-700 data-[state=active]:text-white workspace-tab">
             <TerminalIcon className="w-4 h-4 mr-2" />
             Terminal
           </TabsTrigger>
-          <TabsTrigger value="packages" className="data-[state=active]:bg-gray-700 data-[state=active]:text-white">
+          <TabsTrigger value="packages" className="data-[state=active]:bg-gray-700 data-[state=active]:text-white workspace-tab">
             <Package className="w-4 h-4 mr-2" />
             Packages
           </TabsTrigger>
-          <TabsTrigger value="console" className="data-[state=active]:bg-gray-700 data-[state=active]:text-white">
+          <TabsTrigger value="console" className="data-[state=active]:bg-gray-700 data-[state=active]:text-white workspace-tab">
             <Play className="w-4 h-4 mr-2" />
             Console
           </TabsTrigger>
@@ -415,7 +420,7 @@ export function EnhancedTerminal({ onClose, onMinimize, className = '' }: Enhanc
         <TabsContent value="terminal" className="flex-1 flex flex-col p-0 m-0">
           <div 
             ref={terminalRef}
-            className="flex-1 p-4 overflow-auto bg-gray-900 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800"
+            className="flex-1 p-4 overflow-auto bg-gradient-to-br from-gray-900 to-gray-800 workspace-scroll"
           >
             {messages.map((message) => (
               <div key={message.id} className="flex items-start gap-2 mb-2">
@@ -433,21 +438,21 @@ export function EnhancedTerminal({ onClose, onMinimize, className = '' }: Enhanc
           </div>
           
           {/* Command Input */}
-          <div className="flex items-center p-4 bg-gray-800 border-t border-gray-700">
+          <div className="flex items-center p-4 bg-gray-800/90 backdrop-blur-sm border-t border-gray-700/60">
             <span className="text-green-400 mr-2 select-none">$</span>
             <Input
               ref={inputRef}
               value={command}
               onChange={(e) => setCommand(e.target.value)}
               onKeyDown={handleKeyDown}
-              className="flex-1 bg-transparent border-none text-green-400 p-0 focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0 shadow-none"
+              className="flex-1 bg-transparent border-none text-green-400 p-0 focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0 shadow-none text-sm"
               placeholder="Type a command..."
             />
           </div>
         </TabsContent>
 
         {/* Packages Tab */}
-        <TabsContent value="packages" className="flex-1 flex flex-col p-4 m-0">
+        <TabsContent value="packages" className="flex-1 flex flex-col p-4 m-0 workspace-scroll">
           <div className="space-y-4">
             {/* Search */}
             <div className="space-y-2">
@@ -460,7 +465,7 @@ export function EnhancedTerminal({ onClose, onMinimize, className = '' }: Enhanc
                     setPackageSearch(e.target.value)
                     searchPackages(e.target.value)
                   }}
-                  className="bg-gray-800 border-gray-600 text-gray-100"
+                  className="bg-gray-800 border-gray-600 text-gray-100 workspace-input"
                 />
               </div>
               
@@ -476,9 +481,9 @@ export function EnhancedTerminal({ onClose, onMinimize, className = '' }: Enhanc
             {searchResults.length > 0 && (
               <div className="space-y-2">
                 <h3 className="text-sm font-medium text-gray-300">Search Results</h3>
-                <div className="space-y-2 max-h-48 overflow-auto">
+                <div className="space-y-2 max-h-48 overflow-auto workspace-scroll">
                   {searchResults.map((pkg) => (
-                    <div key={pkg.name} className="flex items-center justify-between p-3 bg-gray-800 rounded-lg">
+                    <div key={pkg.name} className="flex items-center justify-between p-3 bg-gray-800 rounded-xl workspace-card">
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
                           <span className="font-medium text-gray-200">{pkg.name}</span>
@@ -493,7 +498,7 @@ export function EnhancedTerminal({ onClose, onMinimize, className = '' }: Enhanc
                         size="sm"
                         onClick={() => installPackage(pkg)}
                         disabled={pkg.installed}
-                        className="bg-blue-600 hover:bg-blue-700"
+                        className="bg-blue-600 hover:bg-blue-700 workspace-button"
                       >
                         <Download className="w-3 h-3 mr-1" />
                         {pkg.installed ? 'Installed' : 'Install'}
@@ -508,14 +513,14 @@ export function EnhancedTerminal({ onClose, onMinimize, className = '' }: Enhanc
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-medium text-gray-300">Installed Packages</h3>
-                <Badge variant="outline" className="text-xs">
+                <Badge variant="outline" className="text-xs border-gray-600">
                   {packages.filter(p => p.installed).length} packages
                 </Badge>
               </div>
               
-              <div className="space-y-2 max-h-64 overflow-auto">
+              <div className="space-y-2 max-h-64 overflow-auto workspace-scroll">
                 {packages.filter(p => p.installed).map((pkg) => (
-                  <div key={pkg.name} className="flex items-center justify-between p-3 bg-gray-800 rounded-lg">
+                  <div key={pkg.name} className="flex items-center justify-between p-3 bg-gray-800 rounded-xl workspace-card">
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
                         <span className="font-medium text-gray-200">{pkg.name}</span>
@@ -530,7 +535,7 @@ export function EnhancedTerminal({ onClose, onMinimize, className = '' }: Enhanc
                       size="sm"
                       variant="ghost"
                       onClick={() => uninstallPackage(pkg.name)}
-                      className="text-red-400 hover:text-red-300 hover:bg-red-900/20"
+                      className="text-red-400 hover:text-red-300 hover:bg-red-900/20 workspace-button"
                     >
                       <Trash2 className="w-3 h-3" />
                     </Button>
@@ -542,20 +547,20 @@ export function EnhancedTerminal({ onClose, onMinimize, className = '' }: Enhanc
         </TabsContent>
 
         {/* Console Tab */}
-        <TabsContent value="console" className="flex-1 flex flex-col p-4 m-0">
+        <TabsContent value="console" className="flex-1 flex flex-col p-4 m-0 workspace-scroll">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-medium text-gray-300">Live Console Output</h3>
             <Button
               size="sm"
               variant="ghost"
               onClick={clearMessages}
-              className="text-gray-400 hover:text-white"
+              className="text-gray-400 hover:text-white workspace-button"
             >
               Clear
             </Button>
           </div>
           
-          <div className="flex-1 bg-gray-800 rounded-lg p-4 overflow-auto">
+          <div className="flex-1 bg-gray-800 rounded-xl p-4 overflow-auto workspace-card">
             <div className="text-center text-gray-500 py-8">
               <Play className="w-12 h-12 mx-auto mb-4 opacity-30" />
               <p>Live console output from your preview will appear here</p>

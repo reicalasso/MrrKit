@@ -223,27 +223,27 @@ export function AIPanel() {
   }
 
   return (
-    <div className="h-full flex flex-col bg-gradient-to-br from-purple-50/40 to-pink-50/40">
+    <div className="h-full flex flex-col bg-gradient-to-br from-purple-50/60 to-pink-50/60 workspace-card">
       {/* Header */}
-      <div className="p-3 border-b border-gray-200/50">
+      <div className="p-4 border-b border-gray-200/50">
         <div className="flex items-center gap-2 mb-3">
-          <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center shadow-md">
+          <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300">
             <Bot className="w-4 h-4 text-white" />
           </div>
           <div className="min-w-0 flex-1">
-            <h2 className="text-sm font-bold text-gray-900">AI Assistant</h2>
-            <p className="text-xs text-gray-600 truncate">GPT-4 powered code generation</p>
+            <h2 className="text-base font-bold text-gray-900">AI Assistant</h2>
+            <p className="text-xs text-gray-600 truncate">Powered by GPT-4 • Generate, fix, optimize</p>
           </div>
         </div>
 
         {/* API Key Setup */}
         {!aiAssistant.apiKey && (
-          <div className="bg-yellow-50/80 border border-yellow-200/60 rounded-lg p-2.5 mb-3">
+          <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200/60 rounded-xl p-3 mb-3">
             <div className="flex items-center gap-2 mb-1.5">
               <Key className="w-3.5 h-3.5 text-yellow-600" />
               <span className="text-xs font-medium text-yellow-800">API Key Required</span>
             </div>
-            <p className="text-xs text-yellow-700 mb-2 leading-relaxed">
+            <p className="text-xs text-yellow-700 mb-3 leading-relaxed">
               Enter your OpenAI API key to enable AI features.
             </p>
             {showApiKeyInput ? (
@@ -253,19 +253,19 @@ export function AIPanel() {
                   placeholder="sk-..."
                   value={tempApiKey}
                   onChange={(e) => setTempApiKey(e.target.value)}
-                  className="text-xs h-7"
+                  className="text-xs h-8 workspace-input"
                 />
                 <div className="flex gap-2">
-                  <Button size="sm" onClick={handleSaveApiKey} className="text-xs h-6">
+                  <Button size="sm" onClick={handleSaveApiKey} className="text-xs h-7 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600">
                     Save
                   </Button>
-                  <Button size="sm" variant="ghost" onClick={() => setShowApiKeyInput(false)} className="text-xs h-6">
+                  <Button size="sm" variant="ghost" onClick={() => setShowApiKeyInput(false)} className="text-xs h-7">
                     Cancel
                   </Button>
                 </div>
               </div>
             ) : (
-              <Button size="sm" onClick={() => setShowApiKeyInput(true)} className="text-xs h-6">
+              <Button size="sm" onClick={() => setShowApiKeyInput(true)} className="text-xs h-7 workspace-button">
                 Add API Key
               </Button>
             )}
@@ -274,7 +274,7 @@ export function AIPanel() {
 
         {aiAssistant.apiKey && (
           <div className="flex items-center gap-2 mb-3">
-            <Badge variant="secondary" className="bg-green-100/80 text-green-700 border-green-200/60 text-xs">
+            <Badge variant="secondary" className="bg-gradient-to-r from-green-100 to-emerald-100 text-green-700 border-green-200/60 text-xs px-3 py-1 rounded-lg">
               <div className="w-1.5 h-1.5 bg-green-500 rounded-full mr-1.5"></div>
               AI Active
             </Badge>
@@ -282,7 +282,7 @@ export function AIPanel() {
               size="sm"
               variant="ghost"
               onClick={() => setShowApiKeyInput(true)}
-              className="h-5 w-5 p-0 hover:bg-gray-200/60"
+              className="h-6 w-6 p-0 hover:bg-gray-200/60 rounded-lg"
             >
               <Settings className="w-3 h-3" />
             </Button>
@@ -292,35 +292,38 @@ export function AIPanel() {
 
       {/* Main Content */}
       <div className="flex-1 overflow-hidden">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
-          <TabsList className="grid w-full grid-cols-3 mx-3 mt-2 h-8">
-            <TabsTrigger value="generate" className="text-xs h-7 px-2">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col p-4">
+          <TabsList className="grid w-full grid-cols-3 h-9 bg-white/80 backdrop-blur-sm">
+            <TabsTrigger value="generate" className="text-xs h-8 px-3 workspace-tab">
               <Wand2 className="w-3 h-3 mr-1" />
               Generate
             </TabsTrigger>
-            <TabsTrigger value="assist" className="text-xs h-7 px-2">
+            <TabsTrigger value="assist" className="text-xs h-8 px-3 workspace-tab">
               <MessageSquare className="w-3 h-3 mr-1" />
               Assist
             </TabsTrigger>
-            <TabsTrigger value="history" className="text-xs h-7 px-2">
+            <TabsTrigger value="history" className="text-xs h-8 px-3 workspace-tab">
               <History className="w-3 h-3 mr-1" />
               History
             </TabsTrigger>
           </TabsList>
 
           {/* Generate Tab */}
-          <TabsContent value="generate" className="flex-1 flex flex-col p-3 space-y-3">
+          <TabsContent value="generate" className="flex-1 flex flex-col space-y-4 mt-4">
             {/* Quick Prompts */}
             <div>
-              <h3 className="text-xs font-semibold text-gray-700 mb-2">🚀 Quick Start</h3>
-              <div className="grid grid-cols-2 gap-1.5">
+              <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-purple-500" />
+                Quick Start
+              </h3>
+              <div className="grid grid-cols-2 gap-2">
                 {quickPrompts.slice(0, 4).map((prompt) => (
                   <Button
                     key={prompt.id}
                     variant="outline"
                     size="sm"
                     onClick={() => handleQuickPrompt(prompt)}
-                    className="h-auto p-2 flex flex-col items-start text-left hover:bg-white/80 border-gray-200/60"
+                    className="h-auto p-3 flex flex-col items-start text-left hover:bg-white/80 border-gray-200/60 rounded-xl workspace-button"
                   >
                     <div className="flex items-center gap-1.5 mb-0.5">
                       <div className="scale-75">{prompt.icon}</div>
@@ -333,11 +336,11 @@ export function AIPanel() {
             </div>
 
             {/* Settings */}
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-xs font-medium text-gray-600 mb-1 block">Task</label>
+                <label className="text-xs font-medium text-gray-700 mb-2 block">Task</label>
                 <Select value={selectedTask} onValueChange={(value: any) => setSelectedTask(value)}>
-                  <SelectTrigger className="h-7 text-xs">
+                  <SelectTrigger className="h-8 text-xs workspace-input">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -350,9 +353,9 @@ export function AIPanel() {
                 </Select>
               </div>
               <div>
-                <label className="text-xs font-medium text-gray-600 mb-1 block">Framework</label>
+                <label className="text-xs font-medium text-gray-700 mb-2 block">Framework</label>
                 <Select value={selectedFramework} onValueChange={setSelectedFramework}>
-                  <SelectTrigger className="h-7 text-xs">
+                  <SelectTrigger className="h-8 text-xs workspace-input">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -367,15 +370,16 @@ export function AIPanel() {
 
             {/* Prompt Input */}
             <div className="flex-1 flex flex-col min-h-0">
-              <label className="text-xs font-medium text-gray-700 mb-1.5">
-                💭 Describe what you want to build
+              <label className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+                <Wand2 className="w-4 h-4 text-purple-500" />
+                Describe what you want to build
               </label>
               <Textarea
                 ref={textareaRef}
                 placeholder="Example: Create a modern todo list component with dark mode support..."
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
-                className="flex-1 min-h-[80px] text-xs border-gray-200/60 bg-white/70 backdrop-blur-sm resize-none focus:border-purple-300 focus:ring-1 focus:ring-purple-200/50 rounded-lg shadow-sm transition-all duration-200"
+                className="flex-1 min-h-[100px] text-sm workspace-input resize-none focus:border-purple-300 focus:ring-1 focus:ring-purple-200/50 rounded-xl shadow-sm transition-all duration-200"
               />
             </div>
 
@@ -383,16 +387,16 @@ export function AIPanel() {
             <Button
               onClick={handleGenerate}
               disabled={!prompt.trim() || isGenerating || !aiAssistant.apiKey}
-              className="w-full h-9 text-xs bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 border-0 shadow-md hover:shadow-lg transition-all duration-300 rounded-lg font-semibold"
+              className="w-full h-11 text-sm bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 border-0 shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl font-semibold workspace-button"
             >
               {isGenerating ? (
                 <>
-                  <RefreshCw className="mr-1.5 h-3 w-3 animate-spin" />
+                  <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
                   Generating...
                 </>
               ) : (
                 <>
-                  <Sparkles className="mr-1.5 h-3 w-3" />
+                  <Sparkles className="mr-2 h-4 w-4" />
                   Generate Code
                 </>
               )}
@@ -400,7 +404,7 @@ export function AIPanel() {
           </TabsContent>
 
           {/* Assist Tab */}
-          <TabsContent value="assist" className="flex-1 p-4 space-y-4">
+          <TabsContent value="assist" className="flex-1 space-y-4 mt-4">
             <div className="text-center text-gray-500 py-8">
               <Lightbulb className="w-12 h-12 mx-auto mb-4 opacity-30" />
               <p>Code assistance features</p>
@@ -409,7 +413,7 @@ export function AIPanel() {
           </TabsContent>
 
           {/* History Tab */}
-          <TabsContent value="history" className="flex-1 p-4">
+          <TabsContent value="history" className="flex-1 mt-4">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-sm font-semibold text-gray-700">Generation History</h3>
               {generationHistory.length > 0 && (
@@ -417,7 +421,7 @@ export function AIPanel() {
                   size="sm"
                   variant="ghost"
                   onClick={clearGenerationHistory}
-                  className="text-xs"
+                  className="text-xs workspace-button"
                 >
                   Clear
                 </Button>
@@ -432,14 +436,14 @@ export function AIPanel() {
                 </div>
               ) : (
                 generationHistory.slice(-10).reverse().map((item) => (
-                  <div key={item.id} className="bg-white rounded-lg p-3 border border-gray-200 shadow-sm">
+                  <div key={item.id} className="workspace-card rounded-xl p-3 border border-gray-200 shadow-sm">
                     <div className="flex items-start justify-between mb-2">
                       <p className="text-xs text-gray-600 flex-1">{item.prompt}</p>
                       <Button
                         size="sm"
                         variant="ghost"
                         onClick={() => copyToClipboard(item.result)}
-                        className="h-6 w-6 p-0 ml-2"
+                        className="h-6 w-6 p-0 ml-2 workspace-button"
                       >
                         <Copy className="w-3 h-3" />
                       </Button>
