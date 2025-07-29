@@ -369,7 +369,10 @@ export default function WorkspacePage() {
   }
 
   return (
-    <div className="h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-purple-50/10 flex flex-col overflow-hidden">
+    <div
+      className="min-h-screen h-screen w-full flex flex-col overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50/20 to-purple-50/10"
+      // .workspace-layout kaldırıldı, modern görünüm için doğrudan ana div'e arka plan ve overflow verildi
+    >
       {/* Modern Header */}
       <header className="h-16 bg-white/95 backdrop-blur-xl border-b border-gray-200/60 shadow-sm flex items-center justify-between px-6 flex-shrink-0 z-50 relative">
         <div className="flex items-center gap-4">

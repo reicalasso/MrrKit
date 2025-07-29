@@ -11,7 +11,7 @@ export default function WorkspaceLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="workspace-layout">
+    <div>
       {children}
     </div>
   )

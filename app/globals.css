@@ -75,18 +75,6 @@
   }
 }
 
-/* VSCode-like layout fixes for workspace only */
-.workspace-layout {
-  height: 100vh;
-  overflow: hidden;
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-}
-
-.workspace-layout > div {
-  height: 100vh;
-  overflow: hidden;
-}
-
 /* Monaco Editor specific fixes */
 .monaco-editor {
   height: 100% !important;

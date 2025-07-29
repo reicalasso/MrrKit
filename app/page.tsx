@@ -31,35 +31,37 @@ import {
   Tablet
 } from 'lucide-react'
 
+
 export default function Home() {
   const [hoveredFeature, setHoveredFeature] = useState<number | null>(null)
 
   const features = [
-    {
-      icon: Wand2,
-      title: "AI-Powered Generation",
-      description: "Transform natural language into production-ready code with advanced AI",
-      color: "from-purple-500 to-pink-500"
-    },
-    {
-      icon: Eye,
-      title: "Live Preview",
-      description: "See your changes instantly with real-time preview and hot reload",
-      color: "from-blue-500 to-cyan-500"
-    },
-    {
-      icon: Code,
-      title: "Modern Stack",
-      description: "Built with React, TypeScript, Tailwind CSS and latest web technologies",
-      color: "from-green-500 to-emerald-500"
-    },
-    {
-      icon: Zap,
-      title: "Lightning Fast",
-      description: "Optimized for speed with instant code generation and deployment",
-      color: "from-yellow-500 to-orange-500"
-    }
-  ]
+  {
+    icon: Wand2,
+    title: "AI Code Wizardry",
+    description: "Convert natural language into clean, production-ready code with powerful AI.",
+    color: "from-indigo-500 to-fuchsia-500",
+  },
+  {
+    icon: Eye,
+    title: "Live Code Preview",
+    description: "Instantly see what you build with real-time rendering and hot reload.",
+    color: "from-sky-500 to-teal-400",
+  },
+  {
+    icon: Code,
+    title: "Modern Web Stack",
+    description: "Built on React, TypeScript, and Tailwind — battle-tested and scalable.",
+    color: "from-emerald-500 to-lime-400",
+  },
+  {
+    icon: Zap,
+    title: "Blazing Fast Output",
+    description: "Lightning-speed code generation and deployment in under two seconds.",
+    color: "from-amber-400 to-orange-500",
+  },
+];
+
 
   const useCases = [
     {
@@ -504,7 +506,7 @@ export default function Home() {
           
           <div className="border-t border-gray-200 mt-12 pt-8 flex flex-col md:flex-row items-center justify-between">
             <p className="text-gray-600 text-sm">
-              © 2024 MrrKit. All rights reserved.
+              © 2025 MrrKit. All rights reserved.
             </p>
             <div className="flex items-center gap-6 mt-4 md:mt-0">
               <a href="#" className="text-gray-600 hover:text-gray-900 text-sm transition-colors">Privacy</a>

@@ -114,6 +114,27 @@ export const LivePreview: React.FC<LivePreviewProps> = ({
     }
 
     // For React/JavaScript code
+    // --- BAŞLANGIÇ: Kodun sonuna window.Component ataması ekle ---
+    let transformedCode = code;
+    // export default function ... => window.Component = function ...
+    transformedCode = transformedCode.replace(
+      /export\s+default\s+function\s+([A-Za-z0-9_]+)/,
+      'function $1'
+    );
+    // export default ... => window.Component = ...
+    transformedCode = transformedCode.replace(
+      /export\s+default\s+([A-Za-z0-9_]+)/,
+      'window.Component = $1'
+    );
+    // Eğer hala window.Component yoksa ve bir fonksiyon tanımı varsa, onu ata
+    if (!/window\.Component\s*=/.test(transformedCode)) {
+      const match = transformedCode.match(/function\s+([A-Z][A-Za-z0-9_]*)/);
+      if (match) {
+        transformedCode += `\nwindow.Component = ${match[1]};`;
+      }
+    }
+    // --- SON: Kodun sonuna window.Component ataması ekle ---
+
     return `
       <!DOCTYPE html>
       <html lang="en">
@@ -185,7 +206,7 @@ export const LivePreview: React.FC<LivePreviewProps> = ({
 
           try {
             // User code
-            ${code}
+            ${transformedCode}
             
             // If there's a default export, render it
             if (typeof Component !== 'undefined') {
