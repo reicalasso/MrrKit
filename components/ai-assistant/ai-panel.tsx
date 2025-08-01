@@ -5,25 +5,21 @@ import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { 
   Wand2, 
   RefreshCw, 
   Sparkles, 
-  MessageSquare, 
   Code, 
-  Lightbulb,
-  Settings,
-  History,
-  Copy,
-  Download,
-  Heart,
-  Zap,
-  Brush,
-  Settings2,
   Key,
-  Bot
+  Bot,
+  X,
+  Minimize2,
+  Maximize2,
+  Copy,
+  Settings2,
+  Brush,
+  Zap
 } from 'lucide-react'
 import { useWorkspaceStore } from '@/lib/stores/workspace-store'
 import { aiService, type AIRequest } from '@/lib/services/ai-service'
@@ -87,13 +83,16 @@ const quickPrompts: QuickPrompt[] = [
 export function AIPanel() {
   const [prompt, setPrompt] = useState('')
   const [isGenerating, setIsGenerating] = useState(false)
-  const [activeTab, setActiveTab] = useState('generate')
   const [selectedTask, setSelectedTask] = useState<AIRequest['task']>('generate')
   const [selectedFramework, setSelectedFramework] = useState<string>('react')
   const [showApiKeyInput, setShowApiKeyInput] = useState(false)
   const [tempApiKey, setTempApiKey] = useState('')
+  const [isOpen, setIsOpen] = useState(false)
+  const [isMinimized, setIsMinimized] = useState(false)
+  const [position, setPosition] = useState<{ x: number, y: number } | null>(null)
   
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const panelRef = useRef<HTMLDivElement>(null)
   
   const {
     aiAssistant,
@@ -115,6 +114,31 @@ export function AIPanel() {
       aiService.setApiKey(aiAssistant.apiKey)
     }
   }, [aiAssistant.apiKey])
+
+  // Auto-focus textarea when panel opens
+  useEffect(() => {
+    if (isOpen && !isMinimized && textareaRef.current) {
+      textareaRef.current.focus()
+    }
+  }, [isOpen, isMinimized])
+
+  // Save panel position in localStorage
+  useEffect(() => {
+    const savedPosition = localStorage.getItem('aiPanelPosition')
+    if (savedPosition) {
+      try {
+        setPosition(JSON.parse(savedPosition))
+      } catch (e) {
+        console.error('Failed to parse saved position')
+      }
+    }
+  }, [])
+
+  useEffect(() => {
+    if (position) {
+      localStorage.setItem('aiPanelPosition', JSON.stringify(position))
+    }
+  }, [position])
 
   const findActiveFile = () => {
     const findFile = (fileList: any[]): any => {
@@ -222,241 +246,263 @@ export function AIPanel() {
     navigator.clipboard.writeText(text)
   }
 
-  return (
-    <div className="h-full flex flex-col bg-gradient-to-br from-purple-50/60 to-pink-50/60 workspace-card">
-      {/* Header */}
-      <div className="p-4 border-b border-gray-200/50">
-        <div className="flex items-center gap-2 mb-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300">
-            <Bot className="w-4 h-4 text-white" />
-          </div>
-          <div className="min-w-0 flex-1">
-            <h2 className="text-base font-bold text-gray-900">AI Assistant</h2>
-            <p className="text-xs text-gray-600 truncate">Powered by GPT-4 • Generate, fix, optimize</p>
-          </div>
-        </div>
+  // Handle dragging the panel
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!panelRef.current) return;
+    
+    const startX = e.clientX;
+    const startY = e.clientY;
+    
+    const panelRect = panelRef.current.getBoundingClientRect();
+    const offsetX = startX - panelRect.left;
+    const offsetY = startY - panelRect.top;
+    
+    const handleMouseMove = (e: MouseEvent) => {
+      const newX = e.clientX - offsetX;
+      const newY = e.clientY - offsetY;
+      
+      // Ensure panel stays within viewport
+      const maxX = window.innerWidth - panelRect.width;
+      const maxY = window.innerHeight - panelRect.height;
+      
+      setPosition({
+        x: Math.max(0, Math.min(newX, maxX)),
+        y: Math.max(0, Math.min(newY, maxY))
+      });
+    };
+    
+    const handleMouseUp = () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+    
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+  };
 
-        {/* API Key Setup */}
-        {!aiAssistant.apiKey && (
-          <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200/60 rounded-xl p-3 mb-3">
-            <div className="flex items-center gap-2 mb-1.5">
-              <Key className="w-3.5 h-3.5 text-yellow-600" />
-              <span className="text-xs font-medium text-yellow-800">API Key Required</span>
+  // Floating action button when panel is closed
+  if (!isOpen) {
+    return (
+      <div className="fixed bottom-6 right-6 z-50">
+        <Button
+          onClick={() => setIsOpen(true)}
+          className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all duration-200 border-0"
+        >
+          <Bot className="w-5 h-5 text-white" />
+        </Button>
+      </div>
+    )
+  }
+
+  // Panel styles based on state
+  const panelStyles = isMinimized
+    ? "w-64 h-10"
+    : "w-80 h-[450px]";
+
+  const positionStyles = position
+    ? { top: `${position.y}px`, left: `${position.x}px` }
+    : { bottom: '6rem', right: '1.5rem' };
+
+  return (
+    <div 
+      ref={panelRef}
+      className={`fixed z-50 transition-all duration-200 ${panelStyles}`}
+      style={positionStyles}
+    >
+      <div className="h-full flex flex-col bg-white rounded-lg shadow-xl border border-gray-200/50 overflow-hidden">
+        {/* Draggable Header */}
+        <div 
+          className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200 px-3 py-2 flex items-center justify-between cursor-move"
+          onMouseDown={handleMouseDown}
+        >
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-md flex items-center justify-center">
+              <Bot className="w-3.5 h-3.5 text-white" />
             </div>
-            <p className="text-xs text-yellow-700 mb-3 leading-relaxed">
-              Enter your OpenAI API key to enable AI features.
-            </p>
-            {showApiKeyInput ? (
-              <div className="space-y-2">
-                <Input
-                  type="password"
-                  placeholder="sk-..."
-                  value={tempApiKey}
-                  onChange={(e) => setTempApiKey(e.target.value)}
-                  className="text-xs h-8 workspace-input"
-                />
-                <div className="flex gap-2">
-                  <Button size="sm" onClick={handleSaveApiKey} className="text-xs h-7 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600">
-                    Save
-                  </Button>
-                  <Button size="sm" variant="ghost" onClick={() => setShowApiKeyInput(false)} className="text-xs h-7">
-                    Cancel
-                  </Button>
-                </div>
-              </div>
+            <h2 className="text-xs font-medium text-gray-700">AI Copilot</h2>
+          </div>
+          
+          <div className="flex items-center gap-1">
+            {isMinimized ? (
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setIsMinimized(false)}
+                className="h-6 w-6 p-0 rounded-md"
+              >
+                <Maximize2 className="w-3 h-3" />
+              </Button>
             ) : (
-              <Button size="sm" onClick={() => setShowApiKeyInput(true)} className="text-xs h-7 workspace-button">
-                Add API Key
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setIsMinimized(true)}
+                className="h-6 w-6 p-0 rounded-md"
+              >
+                <Minimize2 className="w-3 h-3" />
               </Button>
             )}
-          </div>
-        )}
-
-        {aiAssistant.apiKey && (
-          <div className="flex items-center gap-2 mb-3">
-            <Badge variant="secondary" className="bg-gradient-to-r from-green-100 to-emerald-100 text-green-700 border-green-200/60 text-xs px-3 py-1 rounded-lg">
-              <div className="w-1.5 h-1.5 bg-green-500 rounded-full mr-1.5"></div>
-              AI Active
-            </Badge>
             <Button
               size="sm"
               variant="ghost"
-              onClick={() => setShowApiKeyInput(true)}
-              className="h-6 w-6 p-0 hover:bg-gray-200/60 rounded-lg"
+              onClick={() => setIsOpen(false)}
+              className="h-6 w-6 p-0 rounded-md"
             >
-              <Settings className="w-3 h-3" />
+              <X className="w-3 h-3" />
             </Button>
           </div>
-        )}
-      </div>
-
-      {/* Main Content */}
-      <div className="flex-1 overflow-hidden">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col p-4">
-          <TabsList className="grid w-full grid-cols-3 h-9 bg-white/80 backdrop-blur-sm">
-            <TabsTrigger value="generate" className="text-xs h-8 px-3 workspace-tab">
-              <Wand2 className="w-3 h-3 mr-1" />
-              Generate
-            </TabsTrigger>
-            <TabsTrigger value="assist" className="text-xs h-8 px-3 workspace-tab">
-              <MessageSquare className="w-3 h-3 mr-1" />
-              Assist
-            </TabsTrigger>
-            <TabsTrigger value="history" className="text-xs h-8 px-3 workspace-tab">
-              <History className="w-3 h-3 mr-1" />
-              History
-            </TabsTrigger>
-          </TabsList>
-
-          {/* Generate Tab */}
-          <TabsContent value="generate" className="flex-1 flex flex-col space-y-4 mt-4">
-            {/* Quick Prompts */}
-            <div>
-              <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-purple-500" />
-                Quick Start
-              </h3>
+        </div>
+        
+        {/* Content area - show only when not minimized */}
+        {!isMinimized && (
+          <div className="flex-1 overflow-hidden flex flex-col">
+            {/* API Key notice if needed */}
+            {!aiAssistant.apiKey && (
+              <div className="px-3 py-2 bg-amber-50 border-b border-amber-100">
+                <div className="flex items-center gap-1.5 mb-1">
+                  <Key className="w-3 h-3 text-amber-500" />
+                  <span className="text-xs font-medium text-amber-700">API Key Required</span>
+                </div>
+                
+                {showApiKeyInput ? (
+                  <div className="mt-2 space-y-1.5">
+                    <Input
+                      type="password"
+                      placeholder="sk-..."
+                      value={tempApiKey}
+                      onChange={(e) => setTempApiKey(e.target.value)}
+                      className="text-xs h-7 bg-white"
+                    />
+                    <div className="flex gap-1.5">
+                      <Button size="sm" onClick={handleSaveApiKey} className="text-xs h-6 px-2 bg-indigo-500 hover:bg-indigo-600">
+                        Save
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={() => setShowApiKeyInput(false)} className="text-xs h-6 px-2">
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <Button size="sm" variant="outline" onClick={() => setShowApiKeyInput(true)} className="text-xs h-6 px-2 mt-1">
+                    Add API Key
+                  </Button>
+                )}
+              </div>
+            )}
+            
+            {/* Main panel content */}
+            <div className="p-3 flex-1 flex flex-col space-y-2.5 overflow-y-auto">
+              {/* Task & Framework Selector */}
               <div className="grid grid-cols-2 gap-2">
-                {quickPrompts.slice(0, 4).map((prompt) => (
+                <div>
+                  <Select value={selectedTask} onValueChange={(value: any) => setSelectedTask(value)}>
+                    <SelectTrigger className="h-7 text-xs">
+                      <SelectValue placeholder="Task" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="generate">Generate</SelectItem>
+                      <SelectItem value="explain">Explain</SelectItem>
+                      <SelectItem value="fix">Fix</SelectItem>
+                      <SelectItem value="optimize">Optimize</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Select value={selectedFramework} onValueChange={setSelectedFramework}>
+                    <SelectTrigger className="h-7 text-xs">
+                      <SelectValue placeholder="Framework" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="react">React</SelectItem>
+                      <SelectItem value="vue">Vue</SelectItem>
+                      <SelectItem value="vanilla">Vanilla</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              
+              {/* Quick prompts */}
+              <div className="grid grid-cols-2 gap-1.5">
+                {quickPrompts.slice(0, 2).map((prompt) => (
                   <Button
                     key={prompt.id}
                     variant="outline"
                     size="sm"
                     onClick={() => handleQuickPrompt(prompt)}
-                    className="h-auto p-3 flex flex-col items-start text-left hover:bg-white/80 border-gray-200/60 rounded-xl workspace-button"
+                    className="h-auto py-1.5 px-2 flex items-center gap-1 text-left justify-start bg-gray-50 hover:bg-gray-100 border-gray-200 rounded-md"
                   >
-                    <div className="flex items-center gap-1.5 mb-0.5">
-                      <div className="scale-75">{prompt.icon}</div>
-                      <span className="text-xs font-medium leading-none">{prompt.title}</span>
-                    </div>
-                    <span className="text-xs text-gray-500 leading-tight line-clamp-2">{prompt.description}</span>
+                    <div className="flex-shrink-0">{prompt.icon}</div>
+                    <span className="text-xs truncate">{prompt.title}</span>
                   </Button>
                 ))}
               </div>
-            </div>
-
-            {/* Settings */}
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="text-xs font-medium text-gray-700 mb-2 block">Task</label>
-                <Select value={selectedTask} onValueChange={(value: any) => setSelectedTask(value)}>
-                  <SelectTrigger className="h-8 text-xs workspace-input">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="generate">Generate</SelectItem>
-                    <SelectItem value="explain">Explain</SelectItem>
-                    <SelectItem value="fix">Fix</SelectItem>
-                    <SelectItem value="optimize">Optimize</SelectItem>
-                    <SelectItem value="complete">Complete</SelectItem>
-                  </SelectContent>
-                </Select>
+              
+              {/* Prompt textarea */}
+              <div className="flex-1 min-h-0">
+                <Textarea
+                  ref={textareaRef}
+                  placeholder="Ask AI to generate, explain, or fix code..."
+                  value={prompt}
+                  onChange={(e) => setPrompt(e.target.value)}
+                  className="h-full min-h-[120px] text-xs resize-none border-gray-200 rounded-md focus:border-indigo-300 focus:ring-1 focus:ring-indigo-200"
+                />
               </div>
-              <div>
-                <label className="text-xs font-medium text-gray-700 mb-2 block">Framework</label>
-                <Select value={selectedFramework} onValueChange={setSelectedFramework}>
-                  <SelectTrigger className="h-8 text-xs workspace-input">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="react">React</SelectItem>
-                    <SelectItem value="vue">Vue</SelectItem>
-                    <SelectItem value="svelte">Svelte</SelectItem>
-                    <SelectItem value="vanilla">Vanilla JS</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            {/* Prompt Input */}
-            <div className="flex-1 flex flex-col min-h-0">
-              <label className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
-                <Wand2 className="w-4 h-4 text-purple-500" />
-                Describe what you want to build
-              </label>
-              <Textarea
-                ref={textareaRef}
-                placeholder="Example: Create a modern todo list component with dark mode support..."
-                value={prompt}
-                onChange={(e) => setPrompt(e.target.value)}
-                className="flex-1 min-h-[100px] text-sm workspace-input resize-none focus:border-purple-300 focus:ring-1 focus:ring-purple-200/50 rounded-xl shadow-sm transition-all duration-200"
-              />
-            </div>
-
-            {/* Generate Button */}
-            <Button
-              onClick={handleGenerate}
-              disabled={!prompt.trim() || isGenerating || !aiAssistant.apiKey}
-              className="w-full h-11 text-sm bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 border-0 shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl font-semibold workspace-button"
-            >
-              {isGenerating ? (
-                <>
-                  <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                  Generating...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="mr-2 h-4 w-4" />
-                  Generate Code
-                </>
-              )}
-            </Button>
-          </TabsContent>
-
-          {/* Assist Tab */}
-          <TabsContent value="assist" className="flex-1 space-y-4 mt-4">
-            <div className="text-center text-gray-500 py-8">
-              <Lightbulb className="w-12 h-12 mx-auto mb-4 opacity-30" />
-              <p>Code assistance features</p>
-              <p className="text-sm">Select code to get AI suggestions</p>
-            </div>
-          </TabsContent>
-
-          {/* History Tab */}
-          <TabsContent value="history" className="flex-1 mt-4">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-semibold text-gray-700">Generation History</h3>
-              {generationHistory.length > 0 && (
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={clearGenerationHistory}
-                  className="text-xs workspace-button"
-                >
-                  Clear
-                </Button>
-              )}
+              
+              {/* Generate button */}
+              <Button
+                onClick={handleGenerate}
+                disabled={!prompt.trim() || isGenerating || !aiAssistant.apiKey}
+                className="w-full h-8 text-xs bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 border-0 shadow-md hover:shadow-lg transition-all duration-200 rounded-md"
+              >
+                {isGenerating ? (
+                  <>
+                    <RefreshCw className="mr-1.5 h-3 w-3 animate-spin" />
+                    Generating...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="mr-1.5 h-3 w-3" />
+                    Generate
+                  </>
+                )}
+              </Button>
             </div>
             
-            <div className="space-y-3">
-              {generationHistory.length === 0 ? (
-                <div className="text-center text-gray-500 py-8">
-                  <History className="w-12 h-12 mx-auto mb-4 opacity-30" />
-                  <p>No generation history yet</p>
+            {/* History panel */}
+            {generationHistory.length > 0 && (
+              <div className="px-3 py-2 border-t border-gray-200 bg-gray-50 max-h-32 overflow-y-auto">
+                <div className="flex items-center justify-between mb-1.5">
+                  <h3 className="text-xs font-medium text-gray-700">Recent</h3>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={clearGenerationHistory}
+                    className="h-5 text-[10px] text-gray-500 hover:text-gray-700"
+                  >
+                    Clear
+                  </Button>
                 </div>
-              ) : (
-                generationHistory.slice(-10).reverse().map((item) => (
-                  <div key={item.id} className="workspace-card rounded-xl p-3 border border-gray-200 shadow-sm">
-                    <div className="flex items-start justify-between mb-2">
-                      <p className="text-xs text-gray-600 flex-1">{item.prompt}</p>
+                
+                <div className="space-y-1.5">
+                  {generationHistory.slice(-3).reverse().map((item) => (
+                    <div key={item.id} className="flex items-center justify-between p-1.5 bg-white rounded-md border border-gray-200">
+                      <p className="text-xs text-gray-600 truncate flex-1">{item.prompt}</p>
                       <Button
                         size="sm"
                         variant="ghost"
                         onClick={() => copyToClipboard(item.result)}
-                        className="h-6 w-6 p-0 ml-2 workspace-button"
+                        className="h-5 w-5 p-0 ml-1"
+                        title="Copy code"
                       >
-                        <Copy className="w-3 h-3" />
+                        <Copy className="w-2.5 h-2.5" />
                       </Button>
                     </div>
-                    <div className="text-xs text-gray-400">
-                      {new Date(item.timestamp).toLocaleString('tr-TR')}
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          </TabsContent>
-        </Tabs>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   )

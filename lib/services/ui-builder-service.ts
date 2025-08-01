@@ -1,11 +1,8 @@
 import { CanvasElement } from '@/components/ui-builder/ui-builder-panel';
 
 export function generateComponentCode(componentName: string, elements: CanvasElement[]): string {
-  // Sort elements by z-index (render order)
-  const sortedElements = [...elements].sort((a, b) => a.y - b.y || a.x - b.x);
-  
   const imports = generateImports(elements);
-  const componentCode = generateComponentJSX(componentName, sortedElements);
+  const componentCode = generateComponentBody(componentName, elements);
   
   return `${imports}
 
@@ -13,172 +10,163 @@ ${componentCode}`;
 }
 
 function generateImports(elements: CanvasElement[]): string {
-  const componentTypes = new Set(elements.map(el => el.type));
-  const imports: string[] = ["import React from 'react';"];
+  const usedTypes = new Set<string>();
   
-  const uiComponents: string[] = [];
-  
-  componentTypes.forEach(type => {
-    switch (type) {
+  elements.forEach(element => {
+    switch (element.type) {
       case 'button':
-        uiComponents.push('Button');
+        usedTypes.add('Button');
         break;
       case 'input':
-        uiComponents.push('Input');
+        usedTypes.add('Input');
         break;
       case 'textarea':
-        uiComponents.push('Textarea');
-        break;
-      case 'label':
-        uiComponents.push('Label');
+        usedTypes.add('Textarea');
         break;
       case 'card':
-        uiComponents.push('Card', 'CardContent', 'CardDescription', 'CardHeader', 'CardTitle');
+        usedTypes.add('Card');
+        usedTypes.add('CardHeader');
+        usedTypes.add('CardTitle');
+        usedTypes.add('CardDescription');
+        usedTypes.add('CardContent');
         break;
       case 'badge':
-        uiComponents.push('Badge');
+        usedTypes.add('Badge');
         break;
       case 'avatar':
-        uiComponents.push('Avatar', 'AvatarFallback');
+        usedTypes.add('Avatar');
+        usedTypes.add('AvatarFallback');
         break;
       case 'separator':
-        uiComponents.push('Separator');
+        usedTypes.add('Separator');
+        break;
+      case 'label':
+        usedTypes.add('Label');
         break;
     }
   });
+
+  const imports = [];
   
-  if (uiComponents.length > 0) {
-    const uniqueComponents = [...new Set(uiComponents)].sort();
-
-    // Group components by their likely files
-    const componentGroups: Record<string, string[]> = {
-      button: ['Button'],
-      input: ['Input'],
-      textarea: ['Textarea'],
-      label: ['Label'],
-      card: ['Card', 'CardContent', 'CardDescription', 'CardHeader', 'CardTitle'],
-      badge: ['Badge'],
-      avatar: ['Avatar', 'AvatarFallback'],
-      separator: ['Separator']
-    };
-
-    const addedImports = new Set<string>();
-
-    uniqueComponents.forEach(component => {
-      for (const [file, components] of Object.entries(componentGroups)) {
-        if (components.includes(component) && !addedImports.has(file)) {
-          const componentsForFile = components.filter(c => uniqueComponents.includes(c));
-          imports.push(`import { ${componentsForFile.join(', ')} } from '@/components/ui/${file}';`);
-          addedImports.add(file);
-        }
-      }
-    });
+  if (usedTypes.has('Button')) {
+    imports.push(`import { Button } from '@/components/ui/button';`);
   }
-  
+  if (usedTypes.has('Input')) {
+    imports.push(`import { Input } from '@/components/ui/input';`);
+  }
+  if (usedTypes.has('Textarea')) {
+    imports.push(`import { Textarea } from '@/components/ui/textarea';`);
+  }
+  if (usedTypes.has('Label')) {
+    imports.push(`import { Label } from '@/components/ui/label';`);
+  }
+  if (usedTypes.has('Badge')) {
+    imports.push(`import { Badge } from '@/components/ui/badge';`);
+  }
+  if (usedTypes.has('Separator')) {
+    imports.push(`import { Separator } from '@/components/ui/separator';`);
+  }
+  if (usedTypes.has('Avatar') || usedTypes.has('AvatarFallback')) {
+    imports.push(`import { Avatar, AvatarFallback } from '@/components/ui/avatar';`);
+  }
+  if (usedTypes.has('Card') || usedTypes.has('CardHeader') || usedTypes.has('CardTitle') || usedTypes.has('CardDescription') || usedTypes.has('CardContent')) {
+    imports.push(`import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';`);
+  }
+
   return imports.join('\n');
 }
 
-function generateComponentJSX(componentName: string, elements: CanvasElement[]): string {
-  const jsxElements = elements.map(generateElementJSX).join('\n      ');
+function generateComponentBody(componentName: string, elements: CanvasElement[]): string {
+  const sortedElements = [...elements].sort((a, b) => a.order - b.order);
   
-  return `export default function ${componentName}() {
+  const elementCode = sortedElements.map(element => {
+    return generateElementCode(element);
+  }).join('\n      ');
+
+  return `export function ${componentName}() {
   return (
     <div className="relative w-full h-full">
-      ${jsxElements}
+      ${elementCode}
     </div>
   );
 }`;
 }
 
-function generateElementJSX(element: CanvasElement): string {
-  const style = `{
-    position: 'absolute',
-    left: ${element.x},
-    top: ${element.y},
-    width: ${element.width},
-    minHeight: ${element.height}
-  }`;
-  
-  let jsx = '';
-  
+function generateElementCode(element: CanvasElement): string {
+  const style = {
+    position: 'absolute' as const,
+    left: `${element.x}px`,
+    top: `${element.y}px`,
+    width: `${element.width}px`,
+    height: `${element.height}px`,
+    ...element.style
+  };
+
+  const styleString = Object.entries(style)
+    .map(([key, value]) => `${key}: ${typeof value === 'string' ? `'${value}'` : value}`)
+    .join(', ');
+
   switch (element.type) {
     case 'button':
-      jsx = `<Button 
+      return `<Button
         variant="${element.properties.variant || 'default'}"
         size="${element.properties.size || 'default'}"
-        style=${style}
+        style={{ ${styleString} }}
       >
         ${element.properties.children || 'Button'}
       </Button>`;
-      break;
-      
+
     case 'input':
-      jsx = `<Input
+      return `<Input
         type="${element.properties.type || 'text'}"
         placeholder="${element.properties.placeholder || ''}"
-        defaultValue="${element.properties.value || ''}"
-        style=${style}
+        style={{ ${styleString} }}
       />`;
-      break;
-      
+
     case 'textarea':
-      jsx = `<Textarea
+      return `<Textarea
         placeholder="${element.properties.placeholder || ''}"
         rows={${element.properties.rows || 3}}
-        defaultValue="${element.properties.value || ''}"
-        style=${style}
+        style={{ ${styleString} }}
       />`;
-      break;
-      
-    case 'label':
-      jsx = `<Label style=${style}>
-        ${element.properties.children || 'Label'}
-      </Label>`;
-      break;
-      
+
     case 'heading':
-      const headingTag = element.properties.level || 'h2';
-      jsx = `<${headingTag} className="font-semibold" style=${style}>
+      const tag = element.properties.level || 'h2';
+      return `<${tag} style={{ ${styleString} }}>
         ${element.properties.children || 'Heading'}
-      </${headingTag}>`;
-      break;
-      
+      </${tag}>`;
+
     case 'text':
-      jsx = `<p style=${style}>
-        ${element.properties.children || 'Text content'}
-      </p>`;
-      break;
-      
+      return `<span style={{ ${styleString} }}>
+        ${element.properties.children || 'Text'}
+      </span>`;
+
     case 'image':
-      jsx = `<img
+      return `<img
         src="${element.properties.src || '/placeholder.svg'}"
         alt="${element.properties.alt || 'Image'}"
-        className="max-w-full h-auto"
-        style=${style}
+        style={{ ${styleString} }}
       />`;
-      break;
-      
+
     case 'link':
-      jsx = `<a 
+      return `<a 
         href="${element.properties.href || '#'}"
         className="text-primary hover:underline"
-        style=${style}
+        style={{ ${styleString} }}
       >
         ${element.properties.children || 'Link'}
       </a>`;
-      break;
-      
+
     case 'div':
-      jsx = `<div 
+      return `<div 
         className="${element.properties.className || 'p-4 border rounded'}"
-        style=${style}
+        style={{ ${styleString} }}
       >
         ${element.properties.children || 'Container'}
       </div>`;
-      break;
-      
+
     case 'card':
-      jsx = `<Card style=${style}>
+      return `<Card style={{ ${styleString} }}>
         <CardHeader>
           <CardTitle>${element.properties.title || 'Card Title'}</CardTitle>
           <CardDescription>
@@ -189,37 +177,38 @@ function generateElementJSX(element: CanvasElement): string {
           ${element.properties.content || 'Card content goes here.'}
         </CardContent>
       </Card>`;
-      break;
-      
+
     case 'badge':
-      jsx = `<Badge 
+      return `<Badge 
         variant="${element.properties.variant || 'default'}"
-        style=${style}
+        style={{ ${styleString} }}
       >
         ${element.properties.children || 'Badge'}
       </Badge>`;
-      break;
-      
+
     case 'avatar':
-      jsx = `<Avatar style=${style}>
+      return `<Avatar style={{ ${styleString} }}>
         <AvatarFallback>
           ${element.properties.fallback || 'AB'}
         </AvatarFallback>
       </Avatar>`;
-      break;
-      
+
     case 'separator':
-      jsx = `<Separator 
+      return `<Separator 
         orientation="${element.properties.orientation || 'horizontal'}"
-        style={${style.replace('minHeight', 'height')}}
+        style={{ ${styleString} }}
       />`;
-      break;
-      
+
+    case 'label':
+      return `<Label style={{ ${styleString} }}>
+        ${element.properties.children || 'Label'}
+      </Label>`;
+
     default:
-      jsx = `<div style=${style}>Unknown component</div>`;
+      return `<div style={{ ${styleString} }}>
+        ${element.type}
+      </div>`;
   }
-  
-  return jsx;
 }
 
 export function generateResponsiveCode(componentName: string, elements: CanvasElement[]): string {
@@ -283,39 +272,34 @@ function groupElementsByRows(elements: CanvasElement[]): CanvasElement[][] {
 }
 
 function generateResponsiveElementJSX(element: CanvasElement): string {
-  let jsx = '';
-  
   switch (element.type) {
     case 'button':
-      jsx = `<Button 
+      return `<Button 
         variant="${element.properties.variant || 'default'}"
         size="${element.properties.size || 'default'}"
         className="w-auto"
       >
         ${element.properties.children || 'Button'}
       </Button>`;
-      break;
       
     case 'input':
-      jsx = `<Input
+      return `<Input
         type="${element.properties.type || 'text'}"
         placeholder="${element.properties.placeholder || ''}"
         defaultValue="${element.properties.value || ''}"
         className="flex-1 min-w-[200px]"
       />`;
-      break;
       
     case 'textarea':
-      jsx = `<Textarea
+      return `<Textarea
         placeholder="${element.properties.placeholder || ''}"
         rows={${element.properties.rows || 3}}
         defaultValue="${element.properties.value || ''}"
         className="flex-1 min-w-[300px]"
       />`;
-      break;
       
     case 'card':
-      jsx = `<Card className="flex-1 min-w-[300px]">
+      return `<Card className="flex-1 min-w-[300px]">
         <CardHeader>
           <CardTitle>${element.properties.title || 'Card Title'}</CardTitle>
           <CardDescription>
@@ -326,11 +310,8 @@ function generateResponsiveElementJSX(element: CanvasElement): string {
           ${element.properties.content || 'Card content goes here.'}
         </CardContent>
       </Card>`;
-      break;
       
     default:
-      jsx = generateElementJSX(element);
+      return generateElementCode(element);
   }
-  
-  return jsx;
 }

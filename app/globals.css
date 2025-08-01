@@ -517,6 +517,26 @@
   100% { width: 100%; }
 }
 
+@keyframes gradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.05); opacity: 0.8; }
+}
+
+@keyframes ping {
+  75%, 100% { transform: scale(2); opacity: 0; }
+}
+
 .animate-purr {
   animation: purr 2s ease-in-out infinite;
 }
@@ -652,10 +672,9 @@
 
 /* Responsive workspace adjustments */
 @media (max-width: 768px) {
-  .workspace-layout {
+  /* .workspace-layout {
     background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-  }
-  
+  } */
   .workspace-sidebar {
     background: rgba(255, 255, 255, 0.98);
     backdrop-filter: blur(20px);
