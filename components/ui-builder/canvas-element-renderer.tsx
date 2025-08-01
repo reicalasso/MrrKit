@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import { Label } from '@/components/ui/label';
@@ -54,6 +54,7 @@ export function CanvasElementRenderer({
             size={element.properties.size || 'default'}
             style={baseStyle}
             disabled={!isPreviewMode}
+            onClick={isPreviewMode ? undefined : (e) => e.preventDefault()}
           >
             {element.properties.children || 'Button'}
           </Button>
@@ -64,8 +65,9 @@ export function CanvasElementRenderer({
           <Input
             type={element.properties.type || 'text'}
             placeholder={element.properties.placeholder || 'Enter text...'}
+            value={element.properties.value || ''}
             style={baseStyle}
-            disabled={!isPreviewMode}
+            readOnly={!isPreviewMode}
           />
         );
 
@@ -74,8 +76,9 @@ export function CanvasElementRenderer({
           <Textarea
             placeholder={element.properties.placeholder || 'Enter text...'}
             rows={element.properties.rows || 3}
+            value={element.properties.value || ''}
             style={baseStyle}
-            disabled={!isPreviewMode}
+            readOnly={!isPreviewMode}
           />
         );
 
@@ -155,7 +158,7 @@ export function CanvasElementRenderer({
       case 'image':
         return (
           <img
-            src={element.properties.src || '/placeholder.svg'}
+            src={element.properties.src || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop&crop=face'}
             alt={element.properties.alt || 'Image'}
             style={{ ...baseStyle, objectFit: 'cover' }}
           />
@@ -171,12 +174,17 @@ export function CanvasElementRenderer({
       case 'card':
         return (
           <Card style={baseStyle} className="p-4">
-            <h3 className="font-medium mb-2">
-              {element.properties.title || 'Card Title'}
-            </h3>
-            <p className="text-sm text-gray-600">
-              {element.properties.description || 'Card description'}
-            </p>
+            <CardHeader className="p-0 pb-2">
+              <CardTitle className="text-base">
+                {element.properties.title || 'Card Title'}
+              </CardTitle>
+              <CardDescription className="text-sm">
+                {element.properties.description || 'Card description'}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-0">
+              {element.properties.content || 'Card content goes here.'}
+            </CardContent>
           </Card>
         );
 
@@ -265,7 +273,7 @@ export function CanvasElementRenderer({
               boxShadow: '0 0 20px rgba(0, 255, 136, 0.3), inset 0 0 20px rgba(0, 255, 136, 0.1)',
               outline: 'none',
             }}
-            disabled={!isPreviewMode}
+            readOnly={!isPreviewMode}
           />
         );
 
@@ -281,7 +289,7 @@ export function CanvasElementRenderer({
               fontSize: '12px',
               fontWeight: '600',
               display: 'inline-block',
-              animation: isPreviewMode ? 'none' : 'pulse 2s infinite',
+              animation: isPreviewMode ? 'pulse 2s infinite' : 'none',
             }}
           >
             {element.properties.children || 'Animated'}
@@ -302,7 +310,7 @@ export function CanvasElementRenderer({
                 outline: 'none',
                 background: 'transparent',
               }}
-              disabled={!isPreviewMode}
+              readOnly={!isPreviewMode}
             />
             <label
               style={{
@@ -344,7 +352,7 @@ export function CanvasElementRenderer({
                 color: 'white',
                 fontWeight: 'bold',
                 position: 'relative',
-                animation: isPreviewMode ? 'none' : 'pulse 2s infinite',
+                animation: isPreviewMode ? 'pulse 2s infinite' : 'none',
               }}
             >
               {element.properties.fallback || 'AB'}
@@ -355,7 +363,7 @@ export function CanvasElementRenderer({
                   borderRadius: '50%',
                   background: 'linear-gradient(45deg, #667eea, #764ba2)',
                   opacity: 0.3,
-                  animation: isPreviewMode ? 'none' : 'ping 2s infinite',
+                  animation: isPreviewMode ? 'ping 2s infinite' : 'none',
                 }}
               />
             </div>
@@ -394,7 +402,7 @@ export function CanvasElementRenderer({
               color: 'white',
               position: 'relative',
               overflow: 'hidden',
-              animation: isPreviewMode ? 'none' : 'gradient 4s ease infinite',
+              animation: isPreviewMode ? 'gradient 4s ease infinite' : 'none',
             }}
           >
             <div
@@ -403,7 +411,7 @@ export function CanvasElementRenderer({
                 inset: 0,
                 background: 'linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent)',
                 transform: 'translateX(-100%)',
-                animation: isPreviewMode ? 'none' : 'shimmer 2s infinite',
+                animation: isPreviewMode ? 'shimmer 2s infinite' : 'none',
               }}
             />
             <h3 className="font-bold mb-2">

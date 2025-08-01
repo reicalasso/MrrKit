@@ -9,7 +9,7 @@ export interface DesignCanvasProps {
   selectedElement: CanvasElement | null;
   isPreviewMode: boolean;
   onDrop: (elementType: string, x: number, y: number) => void;
-  onElementSelect: (element: CanvasElement) => void;
+  onElementSelect: (element: CanvasElement | null) => void;
   onElementUpdate: (elementId: string, updates: Partial<CanvasElement>) => void;
   onElementDelete?: (elementId?: string) => void;
 }
@@ -62,7 +62,6 @@ export function DesignCanvas({
     setDragPosition(null);
 
     const componentType = e.dataTransfer.getData('component-type');
-    console.log('Dropped component:', componentType); // Debug log
     
     if (!componentType || !canvasRef.current) return;
 
@@ -76,8 +75,7 @@ export function DesignCanvas({
   const handleCanvasClick = useCallback((e: React.MouseEvent) => {
     if (e.target === canvasRef.current && !isPreviewMode) {
       // Clear selection when clicking empty canvas
-      console.log('Canvas clicked, clearing selection');
-      onElementSelect(null as any);
+      onElementSelect(null);
     }
   }, [isPreviewMode, onElementSelect]);
 
@@ -152,24 +150,4 @@ export function DesignCanvas({
       )}
     </div>
   );
-}
-
-function getElementStyles(type: string): string {
-  const styles: Record<string, string> = {
-    'button': 'bg-blue-500 text-white rounded hover:bg-blue-600',
-    'input': 'bg-white border border-gray-300 rounded px-3 py-2',
-    'textarea': 'bg-white border border-gray-300 rounded px-3 py-2 resize-none',
-    'label': 'text-gray-700 font-medium',
-    'heading': 'font-bold text-gray-900',
-    'text': 'text-gray-700',
-    'image': 'bg-gray-100 border-2 border-dashed border-gray-300 text-gray-500',
-    'link': 'text-blue-600 underline',
-    'div': 'border-2 border-dashed border-gray-300 bg-gray-50',
-    'card': 'bg-white border border-gray-200 rounded-lg shadow-sm',
-    'badge': 'bg-gray-100 text-gray-800 rounded-full px-2 py-1 text-xs',
-    'avatar': 'bg-gray-300 text-white rounded-full flex items-center justify-center font-bold',
-    'separator': 'border-t border-gray-300 w-full h-px flex items-center justify-center'
-  };
-  
-  return styles[type] || 'bg-gray-100 border border-gray-300';
 }

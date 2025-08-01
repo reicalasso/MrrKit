@@ -9,7 +9,7 @@ interface CanvasRendererProps {
   elements: CanvasElement[];
   selectedElement: CanvasElement | null;
   isPreviewMode: boolean;
-  onElementSelect: (element: CanvasElement) => void;
+  onElementSelect: (element: CanvasElement | null) => void;
   onElementUpdate: (elementId: string, updates: Partial<CanvasElement>) => void;
   onElementDelete?: (elementId?: string) => void;
 }
@@ -79,7 +79,7 @@ export function CanvasRenderer({
 
     document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('mouseup', handleMouseUp);
-  }, [isPreviewMode, onElementSelect, onElementUpdate]);
+  }, [isPreviewMode, onElementSelect, onElementUpdate, dragState.isDragging]);
 
   // Sort elements by order for proper rendering
   const sortedElements = [...elements].sort((a, b) => a.order - b.order);

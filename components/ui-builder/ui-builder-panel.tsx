@@ -15,6 +15,7 @@ import { DesignCanvas } from './design-canvas';
 import { PropertyPanel } from './property-panel';
 import { LayerPanel } from './layer-panel';
 import { generateComponentCode } from '@/lib/services/ui-builder-service';
+import { toast } from '@/lib/hooks/use-toast';
 
 export interface UIElement {
   id: string;
@@ -62,11 +63,11 @@ export function UIBuilderPanel() {
     snapToGrid: true,
     gridSize: 10
   });
-  const [history, setHistory] = useState<CanvasElement[][]>([]);
-  const [historyIndex, setHistoryIndex] = useState(-1);
+  const [history, setHistory] = useState<CanvasElement[][]>([[]]);
+  const [historyIndex, setHistoryIndex] = useState(0);
   const [activePanel, setActivePanel] = useState<'layers' | 'components' | 'properties'>('components');
   
-  const { addFile, currentProject } = useWorkspaceStore();
+  const { addFile, setActiveFile, addOpenFile } = useWorkspaceStore();
   const canvasRef = useRef<HTMLDivElement>(null);
 
   // History management
@@ -79,15 +80,17 @@ export function UIBuilderPanel() {
 
   const undo = useCallback(() => {
     if (historyIndex > 0) {
-      setHistoryIndex(historyIndex - 1);
-      setCanvasElements([...history[historyIndex - 1]]);
+      const newIndex = historyIndex - 1;
+      setHistoryIndex(newIndex);
+      setCanvasElements([...history[newIndex]]);
     }
   }, [history, historyIndex]);
 
   const redo = useCallback(() => {
     if (historyIndex < history.length - 1) {
-      setHistoryIndex(historyIndex + 1);
-      setCanvasElements([...history[historyIndex + 1]]);
+      const newIndex = historyIndex + 1;
+      setHistoryIndex(newIndex);
+      setCanvasElements([...history[newIndex]]);
     }
   }, [history, historyIndex]);
 
@@ -114,15 +117,17 @@ export function UIBuilderPanel() {
     setCanvasElements(newElements);
     saveToHistory(newElements);
     setSelectedElements([newElement.id]);
+    setActivePanel('properties');
   }, [canvasElements, canvasState.snapToGrid, canvasState.gridSize, saveToHistory]);
 
-  const handleElementSelect = useCallback((elementIds: string[], additive = false) => {
-    if (additive) {
-      setSelectedElements(prev => [...prev, ...elementIds.filter(id => !prev.includes(id))]);
+  const handleElementSelect = useCallback((element: CanvasElement | null) => {
+    if (element) {
+      setSelectedElements([element.id]);
+      setActivePanel('properties');
     } else {
-      setSelectedElements(elementIds);
+      setSelectedElements([]);
+      setActivePanel('components');
     }
-    setActivePanel('properties');
   }, []);
 
   const handleElementUpdate = useCallback((elementId: string, updates: Partial<CanvasElement>) => {
@@ -197,9 +202,9 @@ export function UIBuilderPanel() {
 
   // Generate code
   const handleGenerateCode = useCallback(() => {
-    const code = generateComponentCode(componentName, canvasElements);
+    try {
+      const code = generateComponentCode(componentName, canvasElements);
 
-    if (currentProject) {
       const fileName = `${componentName}.tsx`;
       const newFile = {
         id: Date.now().toString(),
@@ -210,25 +215,56 @@ export function UIBuilderPanel() {
         isDirty: false,
         parent: undefined,
       };
+      
       addFile(newFile);
+      setActiveFile(newFile.id);
+      addOpenFile(newFile);
+
+      toast({
+        title: "Component Generated",
+        description: `${fileName} has been created and opened`,
+      });
+    } catch (error) {
+      toast({
+        title: "Generation Failed",
+        description: "Failed to generate component code",
+        variant: "destructive",
+      });
     }
-  }, [componentName, canvasElements, currentProject, addFile]);
+  }, [componentName, canvasElements, addFile, setActiveFile, addOpenFile]);
 
   const handleExportCode = useCallback(() => {
-    const code = generateComponentCode(componentName, canvasElements);
-    const blob = new Blob([code], { type: 'text/typescript' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${componentName}.tsx`;
-    a.click();
-    URL.revokeObjectURL(url);
+    try {
+      const code = generateComponentCode(componentName, canvasElements);
+      const blob = new Blob([code], { type: 'text/typescript' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${componentName}.tsx`;
+      a.click();
+      URL.revokeObjectURL(url);
+
+      toast({
+        title: "Code Exported",
+        description: `${componentName}.tsx has been downloaded`,
+      });
+    } catch (error) {
+      toast({
+        title: "Export Failed",
+        description: "Failed to export component code",
+        variant: "destructive",
+      });
+    }
   }, [componentName, canvasElements]);
 
   const handleClearCanvas = useCallback(() => {
     setCanvasElements([]);
     setSelectedElements([]);
     saveToHistory([]);
+    toast({
+      title: "Canvas Cleared",
+      description: "All elements have been removed",
+    });
   }, [saveToHistory]);
 
   // Keyboard shortcuts
@@ -312,7 +348,7 @@ export function UIBuilderPanel() {
             <LayerPanel
               elements={canvasElements}
               selectedElements={selectedElements}
-              onElementSelect={handleElementSelect}
+              onElementSelect={(elementIds) => setSelectedElements(elementIds)}
               onElementUpdate={handleElementUpdate}
               onElementDelete={handleElementDelete}
             />
@@ -346,6 +382,7 @@ export function UIBuilderPanel() {
                 onClick={undo}
                 disabled={historyIndex <= 0}
                 className="h-7 w-7 p-0"
+                title="Undo (Ctrl+Z)"
               >
                 <Undo className="h-3 w-3" />
               </Button>
@@ -355,6 +392,7 @@ export function UIBuilderPanel() {
                 onClick={redo}
                 disabled={historyIndex >= history.length - 1}
                 className="h-7 w-7 p-0"
+                title="Redo (Ctrl+Shift+Z)"
               >
                 <Redo className="h-3 w-3" />
               </Button>
@@ -369,6 +407,7 @@ export function UIBuilderPanel() {
                 variant="ghost"
                 onClick={() => handleZoom(-10)}
                 className="h-7 w-7 p-0"
+                title="Zoom Out"
               >
                 <ZoomOut className="h-3 w-3" />
               </Button>
@@ -378,6 +417,7 @@ export function UIBuilderPanel() {
                 variant="ghost"
                 onClick={() => handleZoom(10)}
                 className="h-7 w-7 p-0"
+                title="Zoom In"
               >
                 <ZoomIn className="h-3 w-3" />
               </Button>
@@ -386,6 +426,7 @@ export function UIBuilderPanel() {
                 variant="ghost"
                 onClick={resetZoom}
                 className="h-7 w-7 p-0"
+                title="Reset Zoom"
               >
                 <RotateCcw className="h-3 w-3" />
               </Button>
@@ -400,6 +441,7 @@ export function UIBuilderPanel() {
                 variant={canvasState.showGrid ? "default" : "ghost"}
                 onClick={() => setCanvasState(prev => ({ ...prev, showGrid: !prev.showGrid }))}
                 className="h-7 px-2 text-xs"
+                title="Toggle Grid"
               >
                 <Grid className="h-3 w-3 mr-1" />
                 Grid
@@ -409,6 +451,7 @@ export function UIBuilderPanel() {
                 variant={canvasState.showRulers ? "default" : "ghost"}
                 onClick={() => setCanvasState(prev => ({ ...prev, showRulers: !prev.showRulers }))}
                 className="h-7 px-2 text-xs"
+                title="Toggle Rulers"
               >
                 <Ruler className="h-3 w-3 mr-1" />
                 Rulers
@@ -433,6 +476,7 @@ export function UIBuilderPanel() {
               size="sm"
               onClick={() => setIsPreviewMode(!isPreviewMode)}
               className="h-7"
+              title="Toggle Preview Mode"
             >
               <Eye className="h-3 w-3 mr-1" />
               Preview
@@ -443,6 +487,7 @@ export function UIBuilderPanel() {
               onClick={handleGenerateCode}
               disabled={canvasElements.length === 0}
               className="h-7"
+              title="Generate React Code"
             >
               <Code className="h-3 w-3 mr-1" />
               Generate
@@ -453,9 +498,21 @@ export function UIBuilderPanel() {
               onClick={handleExportCode}
               disabled={canvasElements.length === 0}
               className="h-7"
+              title="Export Code File"
             >
               <Download className="h-3 w-3 mr-1" />
               Export
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleClearCanvas}
+              disabled={canvasElements.length === 0}
+              className="h-7 text-red-600 hover:text-red-700"
+              title="Clear Canvas"
+            >
+              <Trash2 className="h-3 w-3 mr-1" />
+              Clear
             </Button>
           </div>
         </div>
@@ -469,6 +526,7 @@ export function UIBuilderPanel() {
                 variant="ghost"
                 onClick={handleDuplicate}
                 className="h-7 px-2 text-xs"
+                title="Duplicate (Ctrl+D)"
               >
                 <Copy className="h-3 w-3 mr-1" />
                 Duplicate
@@ -478,6 +536,7 @@ export function UIBuilderPanel() {
                 variant="ghost"
                 onClick={() => handleElementDelete()}
                 className="h-7 px-2 text-xs text-red-600 hover:text-red-700"
+                title="Delete (Del)"
               >
                 <Trash2 className="h-3 w-3 mr-1" />
                 Delete
@@ -490,6 +549,7 @@ export function UIBuilderPanel() {
                 variant="ghost"
                 onClick={handleBringToFront}
                 className="h-7 px-2 text-xs"
+                title="Bring to Front (Ctrl+])"
               >
                 Bring Forward
               </Button>
@@ -498,6 +558,7 @@ export function UIBuilderPanel() {
                 variant="ghost"
                 onClick={handleSendToBack}
                 className="h-7 px-2 text-xs"
+                title="Send to Back (Ctrl+[)"
               >
                 Send Backward
               </Button>
@@ -553,14 +614,7 @@ export function UIBuilderPanel() {
             selectedElement={selectedElements.length === 1 ? canvasElements.find(el => el.id === selectedElements[0]) ?? null : null}
             isPreviewMode={isPreviewMode}
             onDrop={handleDrop}
-            onElementSelect={(element) => {
-              if (element) {
-                handleElementSelect([element.id]);
-              } else {
-                setSelectedElements([]);
-                setActivePanel('components');
-              }
-            }}
+            onElementSelect={handleElementSelect}
             onElementUpdate={handleElementUpdate}
             onElementDelete={handleElementDelete}
           />
@@ -636,7 +690,7 @@ function getDefaultProperties(type: string): Record<string, any> {
     'label': { children: 'Label text' },
     'heading': { level: 'h2', children: 'Heading' },
     'text': { children: 'Text content' },
-    'image': { src: '/placeholder.svg', alt: 'Image' },
+    'image': { src: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop&crop=face', alt: 'Image' },
     'link': { href: '#', children: 'Link text' },
     'div': { className: 'p-4 border rounded' },
     'card': { title: 'Card Title', description: 'Card description' },

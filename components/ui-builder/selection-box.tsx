@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { CanvasElement } from './ui-builder-panel';
-import { X } from 'lucide-react';
+import { X, RotateCcw, Move } from 'lucide-react';
 
 interface SelectionBoxProps {
   element: CanvasElement;
@@ -108,7 +108,7 @@ export function SelectionBox({ element, onUpdate, onDelete }: SelectionBoxProps)
       {resizeHandles.map((handle) => (
         <div
           key={handle.position}
-          className="absolute w-2 h-2 bg-blue-500 border border-white rounded-sm pointer-events-auto hover:bg-blue-600"
+          className="absolute w-2 h-2 bg-blue-500 border border-white rounded-sm pointer-events-auto hover:bg-blue-600 transition-colors"
           style={{
             ...handle.style,
             cursor: handle.cursor
@@ -121,11 +121,23 @@ export function SelectionBox({ element, onUpdate, onDelete }: SelectionBoxProps)
       <div className="absolute -top-8 left-0 flex gap-1 pointer-events-auto">
         <button
           onClick={onDelete}
-          className="w-6 h-6 bg-red-500 text-white rounded flex items-center justify-center hover:bg-red-600"
-          title="Delete"
+          className="w-6 h-6 bg-red-500 text-white rounded flex items-center justify-center hover:bg-red-600 transition-colors"
+          title="Delete Element"
         >
           <X className="w-3 h-3" />
         </button>
+        <button
+          onClick={() => onUpdate({ rotation: (element.rotation || 0) + 90 })}
+          className="w-6 h-6 bg-blue-500 text-white rounded flex items-center justify-center hover:bg-blue-600 transition-colors"
+          title="Rotate 90°"
+        >
+          <RotateCcw className="w-3 h-3" />
+        </button>
+      </div>
+
+      {/* Element Info */}
+      <div className="absolute -top-8 right-0 bg-blue-500 text-white text-xs px-2 py-1 rounded pointer-events-none">
+        {element.width} × {element.height}
       </div>
     </div>
   );

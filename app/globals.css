@@ -571,6 +571,26 @@
   animation: typing 2s steps(40) infinite;
 }
 
+/* UI Builder specific animations */
+@keyframes gradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.animate-gradient {
+  animation: gradient 4s ease infinite;
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+}
+
 /* Enhanced backdrop blur for cat theme */
 .backdrop-blur-sm {
   backdrop-filter: blur(4px) saturate(1.2);
