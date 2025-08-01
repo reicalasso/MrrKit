@@ -1,5 +1,6 @@
 'use client';
 
+import { Badge } from '@/components/ui/badge';
 import { CanvasElement } from './ui-builder-panel';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
