@@ -1,38 +1,74 @@
-'use client'
+'use client';
 
-import React, { useState, useRef, useEffect } from 'react'
-import { Button } from '@/components/ui/button'
-import { Textarea } from '@/components/ui/textarea'
-import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { 
-  Wand2, 
-  RefreshCw, 
-  Sparkles, 
-  Code, 
-  Key,
+import { useState, useRef, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Send,
   Bot,
-  X,
-  Minimize2,
-  Maximize2,
+  User,
+  Code,
+  FileText,
+  Sparkles,
   Copy,
-  Settings2,
+  ThumbsUp,
+  ThumbsDown,
+  RefreshCw,
+  Settings,
+  Zap,
+  Brain,
+  MessageSquare,
+  History,
+  Lightbulb,
+  Wand2,
+  Terminal,
+  Palette,
+  Search,
+  BookOpen,
   Brush,
-  Zap
-} from 'lucide-react'
+  Settings2,
+  Key,
+  X,
+  ChevronRight,
+  Plus,
+  FileCode
+} from 'lucide-react';
 import { useWorkspaceStore } from '@/lib/stores/workspace-store'
 import { aiService, type AIRequest } from '@/lib/services/ai-service'
 
+interface Message {
+  id: string;
+  type: 'user' | 'assistant';
+  content: string;
+  timestamp: Date;
+  isCode?: boolean;
+  language?: string;
+}
+
+interface AITemplate {
+  id: string;
+  title: string;
+  description: string;
+  prompt: string;
+  icon: React.ReactNode;
+  category: 'code' | 'design' | 'analysis' | 'general';
+}
+
 interface QuickPrompt {
-  id: string
-  title: string
-  description: string
-  prompt: string
-  category: 'component' | 'layout' | 'animation' | 'utility'
-  icon: React.ReactNode
-  framework?: string
-  style?: string
+  id: string;
+  title: string;
+  description: string;
+  prompt: string;
+  category: string;
+  icon: React.ReactNode;
+  framework?: string;
+  style?: string;
 }
 
 const quickPrompts: QuickPrompt[] = [
@@ -78,22 +114,35 @@ const quickPrompts: QuickPrompt[] = [
     category: 'utility',
     icon: <Settings2 className="w-4 h-4" />
   },
-]
+];
 
-export function AIPanel() {
-  const [prompt, setPrompt] = useState('')
-  const [isGenerating, setIsGenerating] = useState(false)
-  const [selectedTask, setSelectedTask] = useState<AIRequest['task']>('generate')
-  const [selectedFramework, setSelectedFramework] = useState<string>('react')
-  const [showApiKeyInput, setShowApiKeyInput] = useState(false)
-  const [tempApiKey, setTempApiKey] = useState('')
-  const [isOpen, setIsOpen] = useState(false)
-  const [isMinimized, setIsMinimized] = useState(false)
-  const [position, setPosition] = useState<{ x: number, y: number } | null>(null)
+interface AIPanelProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export function AIPanel({ isOpen, onClose }: AIPanelProps) {
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      id: '1',
+      type: 'assistant',
+      content: "Hello! I'm your AI coding assistant. I can help you with code generation, debugging, optimization, and much more. What would you like to work on today?",
+      timestamp: new Date()
+    }
+  ]);
+  const [input, setInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState('chat');
+  const [selectedTask, setSelectedTask] = useState('generate');
+  const [selectedFramework, setSelectedFramework] = useState('react');
+  const [prompt, setPrompt] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [showApiKeyInput, setShowApiKeyInput] = useState(false);
+  const [tempApiKey, setTempApiKey] = useState('');
   
-  const textareaRef = useRef<HTMLTextAreaElement>(null)
-  const panelRef = useRef<HTMLDivElement>(null)
-  
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
   const {
     aiAssistant,
     updateAIAssistant,
@@ -108,6 +157,57 @@ export function AIPanel() {
     addOpenFile
   } = useWorkspaceStore()
 
+  const templates: AITemplate[] = [
+    {
+      id: 'react-component',
+      title: 'React Component',
+      description: 'Generate a React component with props and TypeScript',
+      prompt: 'Create a React component called',
+      icon: <Code className="h-4 w-4" />,
+      category: 'code'
+    },
+    {
+      id: 'api-endpoint',
+      title: 'API Endpoint',
+      description: 'Generate REST API endpoint with validation',
+      prompt: 'Create an API endpoint for',
+      icon: <Terminal className="h-4 w-4" />,
+      category: 'code'
+    },
+    {
+      id: 'ui-design',
+      title: 'UI Component',
+      description: 'Design a beautiful UI component with Tailwind',
+      prompt: 'Design a modern UI component for',
+      icon: <Palette className="h-4 w-4" />,
+      category: 'design'
+    },
+    {
+      id: 'debug-code',
+      title: 'Debug Code',
+      description: 'Find and fix bugs in your code',
+      prompt: 'Help me debug this code:',
+      icon: <Search className="h-4 w-4" />,
+      category: 'analysis'
+    },
+    {
+      id: 'optimize',
+      title: 'Optimize Performance',
+      description: 'Improve code performance and efficiency',
+      prompt: 'Optimize this code for better performance:',
+      icon: <Zap className="h-4 w-4" />,
+      category: 'analysis'
+    },
+    {
+      id: 'documentation',
+      title: 'Write Documentation',
+      description: 'Generate comprehensive documentation',
+      prompt: 'Write documentation for this code:',
+      icon: <BookOpen className="h-4 w-4" />,
+      category: 'general'
+    }
+  ];
+
   // Initialize AI service with API key
   useEffect(() => {
     if (aiAssistant.apiKey) {
@@ -115,30 +215,32 @@ export function AIPanel() {
     }
   }, [aiAssistant.apiKey])
 
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages]);
+
   // Auto-focus textarea when panel opens
   useEffect(() => {
-    if (isOpen && !isMinimized && textareaRef.current) {
-      textareaRef.current.focus()
+    if (isOpen && textareaRef.current) {
+      textareaRef.current.focus();
     }
-  }, [isOpen, isMinimized])
+  }, [isOpen]);
 
-  // Save panel position in localStorage
+  // Handle ESC key to close panel
   useEffect(() => {
-    const savedPosition = localStorage.getItem('aiPanelPosition')
-    if (savedPosition) {
-      try {
-        setPosition(JSON.parse(savedPosition))
-      } catch (e) {
-        console.error('Failed to parse saved position')
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        onClose();
       }
-    }
-  }, [])
+    };
 
-  useEffect(() => {
-    if (position) {
-      localStorage.setItem('aiPanelPosition', JSON.stringify(position))
+    if (isOpen) {
+      document.addEventListener('keydown', handleKeyDown);
+      return () => document.removeEventListener('keydown', handleKeyDown);
     }
-  }, [position])
+  }, [isOpen, onClose]);
 
   const findActiveFile = () => {
     const findFile = (fileList: any[]): any => {
@@ -154,364 +256,507 @@ export function AIPanel() {
     return findFile(files)
   }
 
-  const handleGenerate = async () => {
-    if (!prompt.trim()) return
-    
-    if (!aiAssistant.apiKey) {
-      setShowApiKeyInput(true)
-      return
-    }
+  const handleSend = async () => {
+    if (!input.trim() || isLoading) return;
 
-    setIsGenerating(true)
-    
-    try {
-      const request: AIRequest = {
-        prompt: prompt.trim(),
-        task: selectedTask,
-        framework: selectedFramework as any,
-        style: 'tailwind',
-        ...(selectedTask !== 'generate' && { 
-          code: findActiveFile()?.content || '',
-          language: findActiveFile()?.language || 'javascript'
-        })
-      }
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      type: 'user',
+      content: input,
+      timestamp: new Date()
+    };
 
-      const response = await aiService.generateCode(request)
-      
-      if (response.success && response.result) {
-        // Add to history
-        addGenerationHistory({
-          prompt: prompt.trim(),
-          result: response.result,
-          model: aiAssistant.model
-        })
+    setMessages(prev => [...prev, userMessage]);
+    setInput('');
+    setIsLoading(true);
 
-        // If generating new code and we have an active file, update it
-        if (selectedTask === 'generate' && activeFileId) {
-          updateFile(activeFileId, {
-            content: response.result,
-            isDirty: true
-          })
-        } else if (selectedTask === 'generate') {
-          // Create new file if no active file
-          const newFileName = `generated-${Date.now()}.${selectedFramework === 'react' ? 'jsx' : 'js'}`
-          const newFile = {
-            id: Date.now().toString(),
-            name: newFileName,
-            type: 'file' as const,
-            content: response.result,
-            language: selectedFramework === 'react' ? 'javascript' : 'javascript',
-            isDirty: false
-          }
+    // Simulate AI response
+    setTimeout(() => {
+      const assistantMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        type: 'assistant',
+        content: generateAIResponse(input),
+        timestamp: new Date(),
+        isCode: input.toLowerCase().includes('code') || input.toLowerCase().includes('component'),
+        language: 'typescript'
+      };
 
-          // Add the file to the workspace
-          addFile(newFile)
-          setActiveFile(newFile.id)
-          addOpenFile(newFile)
-        }
+      setMessages(prev => [...prev, assistantMessage]);
+      setIsLoading(false);
+    }, 1500);
+  };
 
-        setPrompt('')
-      } else {
-        console.error('AI Generation failed:', response.error)
-        // Show error to user
-      }
-    } catch (error) {
-      console.error('AI Generation error:', error)
-    } finally {
-      setIsGenerating(false)
+  const generateAIResponse = (prompt: string): string => {
+    if (prompt.toLowerCase().includes('component')) {
+      return `Here's a React component for you:
+
+\`\`\`typescript
+import React from 'react';
+
+interface Props {
+  title: string;
+  description?: string;
+  onClick?: () => void;
+}
+
+export const CustomComponent: React.FC<Props> = ({ 
+  title, 
+  description, 
+  onClick 
+}) => {
+  return (
+    <div className="p-6 bg-white rounded-lg shadow-lg border border-gray-200">
+      <h3 className="text-xl font-semibold text-gray-800 mb-2">
+        {title}
+      </h3>
+      {description && (
+        <p className="text-gray-600 mb-4">{description}</p>
+      )}
+      <button 
+        onClick={onClick}
+        className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+      >
+        Click me
+      </button>
+    </div>
+      );
     }
   }
+};
+\`\`\`
+
+This component includes:
+- TypeScript interfaces for type safety
+- Optional props with proper defaults
+- Tailwind CSS for styling
+- Accessible button with hover effects`;
+    }
+
+    return `I understand you're asking about "${prompt}". Here's how I can help:
+
+1. **Code Generation**: I can create components, functions, and complete features
+2. **Debugging**: I'll analyze your code and suggest fixes
+3. **Optimization**: I can improve performance and code quality
+4. **Best Practices**: I'll ensure your code follows modern standards
+
+Would you like me to help with any specific implementation?`;
+  };
+
+  const useTemplate = (template: AITemplate) => {
+    setInput(template.prompt + ' ');
+    setActiveTab('chat');
+  };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+  };
+
+  const formatMessage = (content: string) => {
+    const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g;
+    const parts = [];
+    let lastIndex = 0;
+    let match;
+
+    while ((match = codeBlockRegex.exec(content)) !== null) {
+      // Add text before code block
+      if (match.index > lastIndex) {
+        parts.push({
+          type: 'text',
+          content: content.slice(lastIndex, match.index)
+        });
+      }
+
+      // Add code block
+      parts.push({
+        type: 'code',
+        language: match[1] || 'javascript',
+        content: match[2]
+      });
+
+      lastIndex = match.index + match[0].length;
+    }
+
+    // Add remaining text
+    if (lastIndex < content.length) {
+      parts.push({
+        type: 'text',
+        content: content.slice(lastIndex)
+      });
+    }
+
+    return parts.length > 0 ? parts : [{ type: 'text', content }];
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    // Bu metod artık kullanılmıyor - sidebar style panel
+  };
+
+  const handleGenerate = async () => {
+    if (!prompt.trim() || isGenerating) return;
+    
+    setIsGenerating(true);
+    
+    setTimeout(() => {
+      const response = generateAIResponse(prompt);
+      const message: Message = {
+        id: Date.now().toString(),
+        type: 'assistant',
+        content: response,
+        timestamp: new Date(),
+        isCode: true,
+        language: selectedFramework === 'react' ? 'typescript' : 'javascript'
+      };
+      
+      setMessages(prev => [...prev, message]);
+      setPrompt('');
+      setIsGenerating(false);
+    }, 2000);
+  };
 
   const handleQuickPrompt = (quickPrompt: QuickPrompt) => {
-    setPrompt(quickPrompt.prompt)
-    setSelectedTask('generate')
-    if (quickPrompt.framework) {
-      setSelectedFramework(quickPrompt.framework)
-    }
-    textareaRef.current?.focus()
-  }
+    setInput(quickPrompt.prompt);
+  };
 
   const handleSaveApiKey = () => {
     if (tempApiKey.trim()) {
-      updateAIAssistant({ 
-        apiKey: tempApiKey.trim(),
-        isEnabled: true 
-      })
-      setShowApiKeyInput(false)
-      setTempApiKey('')
+      updateAIAssistant({ apiKey: tempApiKey });
     }
-  }
-
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text)
-  }
-
-  // Handle dragging the panel
-  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!panelRef.current) return;
-    
-    const startX = e.clientX;
-    const startY = e.clientY;
-    
-    const panelRect = panelRef.current.getBoundingClientRect();
-    const offsetX = startX - panelRect.left;
-    const offsetY = startY - panelRect.top;
-    
-    const handleMouseMove = (e: MouseEvent) => {
-      const newX = e.clientX - offsetX;
-      const newY = e.clientY - offsetY;
-      
-      // Ensure panel stays within viewport
-      const maxX = window.innerWidth - panelRect.width;
-      const maxY = window.innerHeight - panelRect.height;
-      
-      setPosition({
-        x: Math.max(0, Math.min(newX, maxX)),
-        y: Math.max(0, Math.min(newY, maxY))
-      });
-    };
-    
-    const handleMouseUp = () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
-    };
-    
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp);
+    setShowApiKeyInput(false);
+    setTempApiKey('');
   };
 
-  // Floating action button when panel is closed
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      // Artık kullanılmıyor - sidebar style
+    };
+
+    const handleMouseUp = () => {
+      // Artık kullanılmıyor - sidebar style
+    };
+
+    return () => {
+      // Cleanup
+    };
+  }, []);
+
   if (!isOpen) {
-    return (
-      <div className="fixed bottom-6 right-6 z-50 status-indicator online">
-        <Button
-          onClick={() => setIsOpen(true)}
-          className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all duration-200 border-0 workspace-button animate-gentle-float"
-          title="AI Assistant (Ctrl+Shift+A)"
-        >
-          <Bot className="w-5 h-5 text-white" />
-        </Button>
-      </div>
-    )
+    return null;
   }
 
-  // Panel styles based on state
-  const panelStyles = isMinimized
-    ? "w-64 h-10"
-    : "w-96 h-[500px]";
-
-  const positionStyles = position
-    ? { top: `${position.y}px`, left: `${position.x}px` }
-    : { bottom: '6rem', right: '1.5rem' };
-
   return (
-    <div 
-      ref={panelRef}
-      className={`fixed z-50 transition-all duration-200 ${panelStyles}`}
-      style={positionStyles}
-    >
-      <div className="h-full flex flex-col bg-white/95 backdrop-blur-xl rounded-xl shadow-2xl border border-gray-200/50 overflow-hidden workspace-panel">
-        {/* Draggable Header */}
-        <div 
-          className="bg-gradient-to-r from-indigo-50 to-purple-50 border-b border-gray-200/60 px-3 py-2 flex items-center justify-between cursor-move workspace-header"
-          onMouseDown={handleMouseDown}
-        >
+    <div className="h-full w-80 bg-white border-l border-gray-200 flex flex-col">
+      {/* Header */}
+      <div className="px-4 py-3 border-b border-gray-200 bg-gradient-to-r from-indigo-50 to-purple-50">
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-md flex items-center justify-center">
-              <Bot className="w-3.5 h-3.5 text-white" />
+            <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
+              <Bot className="w-4 h-4 text-white" />
             </div>
-            <h2 className="text-xs font-semibold text-gray-800">AI Copilot</h2>
-            <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
-              <div className="w-1.5 h-1.5 bg-green-500 rounded-full mr-1 animate-pulse"></div>
-              Active
-            </Badge>
+            <div>
+              <h2 className="text-sm font-semibold text-gray-800">AI Copilot</h2>
+              <div className="flex items-center gap-1">
+                <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
+                <span className="text-xs text-gray-600">Active</span>
+              </div>
+            </div>
           </div>
           
-          <div className="flex items-center gap-1">
-            {isMinimized ? (
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => setIsMinimized(false)}
-                className="h-6 w-6 p-0 rounded-md workspace-button"
-                title="Maximize"
-              >
-                <Maximize2 className="w-3 h-3" />
-              </Button>
-            ) : (
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => setIsMinimized(true)}
-                className="h-6 w-6 p-0 rounded-md workspace-button"
-                title="Minimize"
-              >
-                <Minimize2 className="w-3 h-3" />
-              </Button>
-            )}
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => setIsOpen(false)}
-              className="h-6 w-6 p-0 rounded-md workspace-button"
-              title="Close"
-            >
-              <X className="w-3 h-3" />
-            </Button>
-          </div>
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={onClose}
+            className="h-8 w-8 p-0 rounded-md hover:bg-gray-100"
+            title="Close"
+          >
+            <X className="w-4 h-4" />
+          </Button>
         </div>
-        
-        {/* Content area - show only when not minimized */}
-        {!isMinimized && (
-          <div className="flex-1 overflow-hidden flex flex-col">
-            {/* API Key notice if needed */}
-            {!aiAssistant.apiKey && (
-              <div className="px-3 py-2 bg-amber-50/80 backdrop-blur-sm border-b border-amber-200/60">
-                <div className="flex items-center gap-1.5 mb-1">
-                  <Key className="w-3 h-3 text-amber-500" />
-                  <span className="text-xs font-medium text-amber-700">API Key Required</span>
+      </div>
+
+      {/* API Key Section */}
+      {!aiAssistant.apiKey && (
+        <div className="px-4 py-3 bg-amber-50/80 border-b border-amber-200/60">
+          <div className="flex items-center gap-2 mb-2">
+            <Key className="w-4 h-4 text-amber-600" />
+            <span className="text-sm font-medium text-amber-700">API Key Required</span>
+          </div>
+          
+          {showApiKeyInput ? (
+            <div className="space-y-2">
+              <Input
+                type="password"
+                placeholder="Enter your OpenAI API key..."
+                value={tempApiKey}
+                onChange={(e) => setTempApiKey(e.target.value)}
+                className="text-sm h-8"
+              />
+              <div className="flex gap-2">
+                <Button size="sm" onClick={handleSaveApiKey} className="text-xs h-7 px-3">
+                  Save
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => setShowApiKeyInput(false)} className="text-xs h-7 px-3">
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <Button size="sm" variant="outline" onClick={() => setShowApiKeyInput(true)} className="text-xs h-7 px-3">
+              <Plus className="w-3 h-3 mr-1" />
+              Add API Key
+            </Button>
+          )}
+        </div>
+      )}
+
+      {/* Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
+        <TabsList className="grid w-full grid-cols-3 bg-gray-50 m-0 rounded-none border-b h-10">
+          <TabsTrigger value="chat" className="flex items-center gap-1.5 text-xs">
+            <MessageSquare className="h-3 w-3" />
+            Chat
+          </TabsTrigger>
+          <TabsTrigger value="templates" className="flex items-center gap-1.5 text-xs">
+            <Wand2 className="h-3 w-3" />
+            Templates
+          </TabsTrigger>
+          <TabsTrigger value="history" className="flex items-center gap-1.5 text-xs">
+            <History className="h-3 w-3" />
+            History
+          </TabsTrigger>
+        </TabsList>
+
+        {/* Chat Tab */}
+        <TabsContent value="chat" className="flex-1 flex flex-col m-0">
+          {/* Messages Container */}
+          <div className="flex-1 overflow-y-auto" ref={scrollRef}>
+            <div className="p-4 space-y-4">
+              {messages.map((message) => (
+                <div
+                  key={message.id}
+                  className={`flex gap-3 ${
+                    message.type === 'user' ? 'justify-end' : 'justify-start'
+                  }`}
+                >
+                  {message.type === 'assistant' && (
+                    <div className="w-6 h-6 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Bot className="h-3 w-3 text-white" />
+                    </div>
+                  )}
+                  
+                  <div
+                    className={`max-w-[85%] rounded-lg p-3 text-sm ${
+                      message.type === 'user'
+                        ? 'bg-indigo-500 text-white'
+                        : 'bg-gray-50 border border-gray-200'
+                    }`}
+                  >
+                    <div className="space-y-2">
+                      {formatMessage(message.content).map((part: any, index: number) => (
+                        <div key={index}>
+                          {part.type === 'text' ? (
+                            <p className="whitespace-pre-wrap leading-relaxed">{part.content}</p>
+                          ) : (
+                            <div className="relative mt-2">
+                              <div className="flex items-center justify-between bg-gray-800 text-white px-3 py-1.5 rounded-t-md">
+                                <span className="text-xs font-medium">{part.language}</span>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  className="h-5 w-5 p-0 text-gray-300 hover:text-white"
+                                  onClick={() => copyToClipboard(part.content)}
+                                >
+                                  <Copy className="h-3 w-3" />
+                                </Button>
+                              </div>
+                              <pre className="bg-gray-900 text-gray-100 p-3 rounded-b-md overflow-x-auto text-xs">
+                                <code>{part.content}</code>
+                              </pre>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+
+                    {message.type === 'assistant' && (
+                      <div className="flex items-center gap-1 mt-2 pt-2 border-t border-gray-200">
+                        <Button size="sm" variant="ghost" className="h-5 w-5 p-0">
+                          <ThumbsUp className="h-3 w-3" />
+                        </Button>
+                        <Button size="sm" variant="ghost" className="h-5 w-5 p-0">
+                          <ThumbsDown className="h-3 w-3" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-5 w-5 p-0"
+                          onClick={() => copyToClipboard(message.content)}
+                        >
+                          <Copy className="h-3 w-3" />
+                        </Button>
+                        <span className="text-xs text-gray-400 ml-auto">
+                          {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  {message.type === 'user' && (
+                    <div className="w-6 h-6 bg-indigo-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <User className="h-3 w-3 text-white" />
+                    </div>
+                  )}
                 </div>
-                
-                {showApiKeyInput ? (
-                  <div className="mt-2 space-y-1.5">
-                    <Input
-                      type="password"
-                      placeholder="sk-..."
-                      value={tempApiKey}
-                      onChange={(e) => setTempApiKey(e.target.value)}
-                      className="text-xs h-7 bg-white/80 backdrop-blur-sm workspace-input"
-                    />
-                    <div className="flex gap-1.5">
-                      <Button size="sm" onClick={handleSaveApiKey} className="text-xs h-6 px-2 bg-indigo-500 hover:bg-indigo-600 workspace-button">
-                        Save
-                      </Button>
-                      <Button size="sm" variant="outline" onClick={() => setShowApiKeyInput(false)} className="text-xs h-6 px-2 workspace-button">
-                        Cancel
-                      </Button>
+              ))}
+
+              {isLoading && (
+                <div className="flex gap-3 justify-start">
+                  <div className="w-6 h-6 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full flex items-center justify-center">
+                    <Bot className="h-3 w-3 text-white" />
+                  </div>
+                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                    <div className="flex items-center gap-2">
+                      <RefreshCw className="h-3 w-3 animate-spin text-indigo-500" />
+                      <span className="text-gray-600 text-sm">AI is thinking...</span>
                     </div>
                   </div>
-                ) : (
-                  <Button size="sm" variant="outline" onClick={() => setShowApiKeyInput(true)} className="text-xs h-6 px-2 mt-1 workspace-button">
-                    Add API Key
-                  </Button>
-                )}
-              </div>
-            )}
-            
-            {/* Main panel content */}
-            <div className="p-3 flex-1 flex flex-col space-y-2.5 overflow-y-auto workspace-scroll">
-              {/* Task & Framework Selector */}
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <Select value={selectedTask} onValueChange={(value: any) => setSelectedTask(value)}>
-                    <SelectTrigger className="h-7 text-xs workspace-input">
-                      <SelectValue placeholder="Task" />
-                    </SelectTrigger>
-                    <SelectContent className="workspace-card">
-                      <SelectItem value="generate">Generate</SelectItem>
-                      <SelectItem value="explain">Explain</SelectItem>
-                      <SelectItem value="fix">Fix</SelectItem>
-                      <SelectItem value="optimize">Optimize</SelectItem>
-                    </SelectContent>
-                  </Select>
                 </div>
-                <div>
-                  <Select value={selectedFramework} onValueChange={setSelectedFramework}>
-                    <SelectTrigger className="h-7 text-xs workspace-input">
-                      <SelectValue placeholder="Framework" />
-                    </SelectTrigger>
-                    <SelectContent className="workspace-card">
-                      <SelectItem value="react">React</SelectItem>
-                      <SelectItem value="vue">Vue</SelectItem>
-                      <SelectItem value="vanilla">Vanilla</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              
-              {/* Quick prompts */}
-              <div className="grid grid-cols-2 gap-1.5">
-                {quickPrompts.slice(0, 2).map((prompt) => (
+              )}
+            </div>
+          </div>
+
+          {/* Fixed Input Area - Always at bottom */}
+          <div className="border-t bg-white p-4 flex-shrink-0">
+            <div className="space-y-3">
+              {/* Quick Actions */}
+              <div className="flex flex-wrap gap-1">
+                {quickPrompts.slice(0, 4).map((quickPrompt) => (
                   <Button
-                    key={prompt.id}
-                    variant="outline"
+                    key={quickPrompt.id}
                     size="sm"
-                    onClick={() => handleQuickPrompt(prompt)}
-                    className="h-auto py-1.5 px-2 flex items-center gap-1 text-left justify-start bg-gray-50/80 hover:bg-gray-100/80 border-gray-200 rounded-md workspace-button"
+                    variant="outline"
+                    onClick={() => handleQuickPrompt(quickPrompt)}
+                    className="h-6 px-2 text-xs"
                   >
-                    <div className="flex-shrink-0">{prompt.icon}</div>
-                    <span className="text-xs truncate">{prompt.title}</span>
+                    {quickPrompt.icon}
+                    <span className="ml-1">{quickPrompt.title}</span>
                   </Button>
                 ))}
               </div>
-              
-              {/* Prompt textarea */}
-              <div className="flex-1 min-h-0">
+
+              {/* Input */}
+              <div className="flex gap-2">
                 <Textarea
                   ref={textareaRef}
-                  placeholder="Ask AI to generate, explain, or fix code..."
-                  value={prompt}
-                  onChange={(e) => setPrompt(e.target.value)}
-                  className="h-full min-h-[120px] text-xs resize-none border-gray-200 rounded-md focus:border-indigo-300 focus:ring-1 focus:ring-indigo-200 workspace-input"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      handleSend();
+                    }
+                  }}
+                  placeholder="Ask me anything about coding..."
+                  className="flex-1 min-h-[40px] max-h-[120px] resize-none text-sm"
+                  disabled={isLoading}
                 />
+                <Button
+                  onClick={handleSend}
+                  disabled={!input.trim() || isLoading}
+                  className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 self-end"
+                  size="sm"
+                >
+                  <Send className="h-4 w-4" />
+                </Button>
               </div>
               
-              {/* Generate button */}
-              <Button
-                onClick={handleGenerate}
-                disabled={!prompt.trim() || isGenerating || !aiAssistant.apiKey}
-                className="w-full h-8 text-xs bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 border-0 shadow-md hover:shadow-lg transition-all duration-200 rounded-md workspace-button"
-              >
-                {isGenerating ? (
-                  <>
-                    <RefreshCw className="mr-1.5 h-3 w-3 animate-spin" />
-                    Generating...
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="mr-1.5 h-3 w-3" />
-                    Generate
-                  </>
-                )}
-              </Button>
+              <div className="flex items-center gap-1 text-xs text-gray-500">
+                <Sparkles className="h-3 w-3" />
+                <span>Press Enter to send • Shift+Enter for new line</span>
+              </div>
             </div>
-            
-            {/* History panel */}
-            {generationHistory.length > 0 && (
-              <div className="px-3 py-2 border-t border-gray-200/60 bg-gray-50/80 backdrop-blur-sm max-h-32 overflow-y-auto workspace-scroll">
-                <div className="flex items-center justify-between mb-1.5">
-                  <h3 className="text-xs font-medium text-gray-700">Recent</h3>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={clearGenerationHistory}
-                    className="h-5 text-[10px] text-gray-500 hover:text-gray-700 workspace-button"
-                  >
-                    Clear
-                  </Button>
+          </div>
+        </TabsContent>
+
+        {/* Templates Tab */}
+        <TabsContent value="templates" className="flex-1 p-4 m-0">
+          <ScrollArea className="h-full">
+            <div className="space-y-4">
+              <div className="text-center">
+                <Wand2 className="h-8 w-8 text-indigo-500 mx-auto mb-2" />
+                <h3 className="text-lg font-semibold mb-1">AI Templates</h3>
+                <p className="text-gray-600 text-sm">Quick start prompts for common tasks</p>
+              </div>
+              {['code', 'design', 'analysis', 'general'].map((category) => (
+                <div key={category}>
+                  <h4 className="text-sm font-medium text-gray-700 mb-3 capitalize flex items-center gap-2">
+                    {category === 'code' && <Code className="h-4 w-4" />}
+                    {category === 'design' && <Palette className="h-4 w-4" />}
+                    {category === 'analysis' && <Search className="h-4 w-4" />}
+                    {category === 'general' && <Lightbulb className="h-4 w-4" />}
+                    {category}
+                  </h4>
+                  <div className="space-y-2">
+                    {templates
+                      .filter((template) => template.category === category)
+                      .map((template) => (
+                        <div
+                          key={template.id}
+                          className="bg-white border border-gray-200 rounded-lg p-3 hover:shadow-sm hover:border-indigo-200 transition-all cursor-pointer"
+                          onClick={() => useTemplate(template)}
+                        >
+                          <div className="flex items-start gap-3">
+                            <div className="w-6 h-6 bg-gray-100 rounded-md flex items-center justify-center flex-shrink-0">
+                              {template.icon}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h5 className="font-medium text-gray-800 mb-1 text-sm">
+                                {template.title}
+                              </h5>
+                              <p className="text-xs text-gray-600 leading-relaxed">
+                                {template.description}
+                              </p>
+                            </div>
+                            <ChevronRight className="w-3 h-3 text-gray-400" />
+                          </div>
+                        </div>
+                      ))}
+                  </div>
                 </div>
-                
-                <div className="space-y-1.5">
-                  {generationHistory.slice(-3).reverse().map((item) => (
-                    <div key={item.id} className="flex items-center justify-between p-1.5 bg-white/80 backdrop-blur-sm rounded-md border border-gray-200/60 workspace-card">
-                      <p className="text-xs text-gray-600 truncate flex-1">{item.prompt}</p>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => copyToClipboard(item.result)}
-                        className="h-5 w-5 p-0 ml-1 workspace-button"
-                        title="Copy code"
-                      >
-                        <Copy className="w-2.5 h-2.5" />
-                      </Button>
+              ))}
+            </div>
+          </ScrollArea>
+        </TabsContent>
+
+        {/* History Tab */}
+        <TabsContent value="history" className="flex-1 p-4 m-0">
+          <div className="text-center py-12">
+            <History className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-600 mb-2">Chat History</h3>
+            <p className="text-gray-500 text-sm">Your previous conversations will appear here</p>
+            
+            {generationHistory.length > 0 && (
+              <div className="mt-6 text-left">
+                <h4 className="text-sm font-medium text-gray-700 mb-3">Recent Generations</h4>
+                <div className="space-y-2">
+                  {generationHistory.slice(-5).map((generation) => (
+                    <div key={generation.id} className="bg-gray-50 rounded-lg p-3">
+                      <div className="flex items-center gap-2 mb-1">
+                        <FileCode className="h-4 w-4 text-gray-500" />
+                        <span className="text-sm font-medium">{generation.model}</span>
+                      </div>
+                      <p className="text-xs text-gray-600 truncate">{generation.prompt}</p>
+                      <span className="text-xs text-gray-400">
+                        {generation.timestamp.toLocaleDateString()}
+                      </span>
                     </div>
                   ))}
                 </div>
               </div>
             )}
           </div>
-        )}
-      </div>
+        </TabsContent>
+      </Tabs>
     </div>
-  )
+  );
+
 }

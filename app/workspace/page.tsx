@@ -19,22 +19,14 @@ import {
   PanelLeftOpen,
   Palette,
   Package,
-  Sparkles,
   Download,
-  GitBranch,
   X,
-  RefreshCw,
   Maximize2,
   Minimize2,
-  Play,
-  Square,
-  RotateCcw,
   Save,
   FolderOpen,
   Command,
   Zap,
-  Globe,
-  Users,
   Bell,
   Moon,
   Sun,
@@ -43,17 +35,12 @@ import {
   Grid3X3,
   MoreHorizontal,
   ChevronDown,
-  Filter,
-  SortAsc,
-  Bookmark,
-  History,
-  GitCommit,
-  Database,
-  Cloud,
+  GitBranch,
   Cpu,
   HardDrive,
   Wifi,
-  WifiOff
+  Menu,
+  Bot
 } from 'lucide-react'
 import { MonacoEditor } from '@/components/code-editor/monaco-editor'
 import { LivePreview } from '@/components/code-editor/live-preview'
@@ -63,13 +50,14 @@ import { EnhancedTerminal } from '@/components/terminal/enhanced-terminal'
 import { ErrorBoundary } from '@/components/error-boundary'
 import { useWorkspaceStore } from '@/lib/stores/workspace-store'
 import { LoadingOverlay } from '@/components/ui/loading'
-import { AIPanel } from '@/components/ai-assistant/ai-panel'
+import { AITrigger } from '@/components/ai-assistant/ai-trigger'
 import { SharingPanel } from '@/components/sharing/sharing-panel'
 import { ThemeSettings } from '@/components/theme/theme-settings'
 import { UIBuilderPanel } from '@/components/ui-builder/ui-builder-panel'
 import { ComponentStorePanel } from '@/components/component-store/component-store-panel'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 
 // Constants
 const SIDEBAR_MIN_WIDTH = 280
@@ -89,7 +77,6 @@ export default function WorkspacePage() {
   const [isResizing, setIsResizing] = useState(false)
   const [resizeType, setResizeType] = useState<'sidebar' | 'terminal' | null>(null)
   const [leftPanelCollapsed, setLeftPanelCollapsed] = useState(false)
-  const [rightPanelCollapsed, setRightPanelCollapsed] = useState(false)
   const [isLoadingFile, setIsLoadingFile] = useState(false)
   const [loadingMessage, setLoadingMessage] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
@@ -97,10 +84,10 @@ export default function WorkspacePage() {
   const [showCommandPalette, setShowCommandPalette] = useState(false)
   const [notifications, setNotifications] = useState<Array<{id: string, type: 'info' | 'success' | 'warning' | 'error', message: string}>>([])
   const [connectionStatus, setConnectionStatus] = useState<'connected' | 'disconnected' | 'connecting'>('connected')
-  const [activeRightPanel, setActiveRightPanel] = useState<'outline' | 'problems' | 'extensions' | 'git'>('outline')
   const [showMinimap, setShowMinimap] = useState(true)
-  const [editorLayout, setEditorLayout] = useState<'horizontal' | 'vertical'>('horizontal')
   const [zenMode, setZenMode] = useState(false)
+  const [showToolsMenu, setShowToolsMenu] = useState(false)
+  const [showViewMenu, setShowViewMenu] = useState(false)
 
   // Refs
   const sidebarRef = useRef<HTMLDivElement>(null)
@@ -607,7 +594,7 @@ console.log('Hello from ${baseName}!');`
   return (
     <div
       ref={workspaceRef}
-      className={`h-full flex flex-col overflow-hidden bg-gradient-to-br from-gray-50 to-blue-50/30 ${zenMode ? 'zen-mode' : ''}`}
+      className={`h-full flex flex-col overflow-hidden bg-white ${zenMode ? 'zen-mode' : ''}`}
     >
       {/* Command Palette */}
       {showCommandPalette && (
@@ -626,36 +613,13 @@ console.log('Hello from ${baseName}!');`
                     if (e.key === 'Escape') {
                       setShowCommandPalette(false)
                       setSearchTerm('')
-                    } else if (e.key === 'Enter' && filteredCommands.length > 0) {
-                      filteredCommands[0].action()
-                      setShowCommandPalette(false)
-                      setSearchTerm('')
                     }
                   }}
                 />
               </div>
             </div>
-            <div className="max-h-96 overflow-auto">
-              {filteredCommands.map((command, index) => (
-                <div
-                  key={command.id}
-                  className="flex items-center justify-between p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-0"
-                  onClick={() => {
-                    command.action()
-                    setShowCommandPalette(false)
-                    setSearchTerm('')
-                  }}
-                >
-                  <span className="font-medium">{command.label}</span>
-                  <Badge variant="outline" className="text-xs">{command.shortcut}</Badge>
-                </div>
-              ))}
-              {filteredCommands.length === 0 && (
-                <div className="p-8 text-center text-gray-500">
-                  <Command className="h-12 w-12 mx-auto mb-4 opacity-30" />
-                  <p>No commands found</p>
-                </div>
-              )}
+            <div className="max-h-96 overflow-auto p-4">
+              <p className="text-center text-gray-500 text-sm">Commands will appear here</p>
             </div>
           </div>
         </div>
@@ -688,14 +652,14 @@ console.log('Hello from ${baseName}!');`
 
       {!zenMode && (
         <>
-          {/* Workspace Header */}
-          <header className="h-14 bg-white/95 backdrop-blur-xl border-b border-gray-200/80 shadow-sm flex items-center justify-between px-4 z-10 workspace-header">
+          {/* Simplified Header */}
+          <header className="h-14 bg-white border-b border-gray-200 flex items-center justify-between px-4 z-10">
             <div className="flex items-center gap-3">
               <Button
                 onClick={toggleSidebar}
                 variant="ghost"
                 size="sm"
-                className="h-9 w-9 p-0 rounded-lg workspace-button"
+                className="h-9 w-9 p-0"
               >
                 {(isMobile ? sidebarOpen : !leftPanelCollapsed) ? 
                   <PanelLeftClose className="h-4 w-4" /> : 
@@ -704,193 +668,195 @@ console.log('Hello from ${baseName}!');`
               </Button>
               
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-lg flex items-center justify-center shadow-sm">
-                  <img
-                    src="/favicon.ico"
-                    alt="MrrKit Logo"
-                    className="w-5 h-5 object-contain"
-                  />
+                <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-lg flex items-center justify-center">
+                  <img src="/favicon.ico" alt="MrrKit" className="w-5 h-5" />
                 </div>
                 <div className="hidden sm:block">
-                  <h1 className="text-base font-semibold text-gray-800">MrrKit Workspace</h1>
-                  <p className="text-xs text-gray-500">{currentProject?.name || 'Professional IDE'}</p>
+                  <h1 className="text-base font-semibold text-gray-800">MrrKit</h1>
+                  <p className="text-xs text-gray-500">{currentProject?.name || 'Workspace'}</p>
                 </div>
               </div>
             </div>
-            
-            {/* Breadcrumb & Active File */}
-            {activeFile && (
-              <div className="hidden lg:flex items-center gap-2 bg-gray-50/80 rounded-lg px-3 py-1.5 border border-gray-200/80 workspace-card">
-                <FolderOpen className="h-3.5 w-3.5 text-gray-500" />
-                <span className="text-sm text-gray-600">src</span>
-                <ChevronDown className="h-3 w-3 text-gray-400 rotate-[-90deg]" />
-                <FileText className="h-3.5 w-3.5 text-gray-500" />
-                <span className="text-sm text-gray-700 truncate max-w-[200px]">{activeFile.name}</span>
-                {activeFile.isDirty && (
-                  <div className="w-1.5 h-1.5 bg-amber-400 rounded-full animate-pulse"></div>
-                )}
+
+            {/* Quick Search */}
+            {!isMobile && (
+              <div className="flex-1 max-w-md mx-4">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Input
+                    placeholder="Search files... (Ctrl+P)"
+                    className="pl-10 h-9"
+                    onFocus={() => setShowCommandPalette(true)}
+                  />
+                </div>
               </div>
             )}
             
             {/* Header Actions */}
             <div className="flex items-center gap-2">
-              {!isMobile && (
-                <div className="relative max-w-xs">
-                  <Search className="absolute left-2.5 top-1/2 transform -translate-y-1/2 h-3.5 w-3.5 text-gray-400" />
-                  <Input
-                    placeholder="Search files... (Ctrl+P)"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    onFocus={() => setShowCommandPalette(true)}
-                    className="pl-8 h-9 w-48 text-sm border-gray-200 rounded-lg workspace-input"
-                  />
-                </div>
-              )}
-              
               {/* Connection Status */}
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs ${
-                      connectionStatus === 'connected' ? 'bg-green-50 text-green-700' :
-                      connectionStatus === 'connecting' ? 'bg-yellow-50 text-yellow-700' :
-                      'bg-red-50 text-red-700'
-                    }`}>
-                      {connectionStatus === 'connected' ? <Wifi className="h-3 w-3" /> : <WifiOff className="h-3 w-3" />}
-                      <span className="hidden sm:inline">{connectionStatus}</span>
+              <div className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs ${
+                connectionStatus === 'connected' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
+              }`}>
+                <Wifi className="h-3 w-3" />
+                <span className="hidden sm:inline">{connectionStatus}</span>
+              </div>
+
+              {/* AI Assistant */}
+              <AITrigger />
+
+              {/* Tools Menu */}
+              <Dialog open={showToolsMenu} onOpenChange={setShowToolsMenu}>
+                <DialogTrigger asChild>
+                  <Button variant="ghost" size="sm" className="h-9 w-9 p-0">
+                    <Package className="h-4 w-4" />
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>Developer Tools</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-3">
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start"
+                      onClick={() => {
+                        setViewMode('builder')
+                        setShowToolsMenu(false)
+                      }}
+                    >
+                      <Palette className="h-4 w-4 mr-2" />
+                      UI Builder
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start"
+                      onClick={() => {
+                        setViewMode('store')
+                        setShowToolsMenu(false)
+                      }}
+                    >
+                      <Package className="h-4 w-4 mr-2" />
+                      Component Store
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start"
+                      onClick={() => setShowTerminal(!showTerminal)}
+                    >
+                      <TerminalIcon className="h-4 w-4 mr-2" />
+                      Terminal
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
+
+              {/* View Menu */}
+              <Dialog open={showViewMenu} onOpenChange={setShowViewMenu}>
+                <DialogTrigger asChild>
+                  <Button variant="ghost" size="sm" className="h-9 w-9 p-0">
+                    <Eye className="h-4 w-4" />
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>View Options</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-3">
+                    <div className="grid grid-cols-2 gap-2">
+                      <Button
+                        variant={viewMode === 'code' ? 'default' : 'outline'}
+                        onClick={() => {
+                          setViewMode('code')
+                          setShowViewMenu(false)
+                        }}
+                      >
+                        <Code className="h-4 w-4 mr-1" />
+                        Code
+                      </Button>
+                      <Button
+                        variant={viewMode === 'preview' ? 'default' : 'outline'}
+                        onClick={() => {
+                          setViewMode('preview')
+                          setShowViewMenu(false)
+                        }}
+                      >
+                        <Eye className="h-4 w-4 mr-1" />
+                        Preview
+                      </Button>
                     </div>
-                  </TooltipTrigger>
-                  <TooltipContent>Connection Status: {connectionStatus}</TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+                    {!isMobile && (
+                      <Button
+                        variant={viewMode === 'split' ? 'default' : 'outline'}
+                        className="w-full"
+                        onClick={() => {
+                          setViewMode('split')
+                          setShowViewMenu(false)
+                        }}
+                      >
+                        <Grid3X3 className="h-4 w-4 mr-2" />
+                        Split View
+                      </Button>
+                    )}
+                    <Separator />
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">Minimap</span>
+                      <Button
+                        variant={showMinimap ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setShowMinimap(!showMinimap)}
+                      >
+                        {showMinimap ? 'On' : 'Off'}
+                      </Button>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">Zen Mode</span>
+                      <Button
+                        variant={zenMode ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setZenMode(!zenMode)}
+                      >
+                        {zenMode ? 'On' : 'Off'}
+                      </Button>
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
 
-              {/* Git Status */}
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="h-9 px-2 rounded-lg workspace-button"
-                    >
-                      <GitBranch className="h-4 w-4 mr-1" />
-                      <span className="text-xs">main</span>
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Git Branch: main</TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-
-              {/* Notifications */}
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="h-9 w-9 p-0 rounded-lg workspace-button relative"
-                    >
-                      <Bell className="h-4 w-4" />
-                      {notifications.length > 0 && (
-                        <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-                          {notifications.length}
-                        </div>
-                      )}
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Notifications</TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-9 w-9 p-0"
+                onClick={() => setShowSharingPanel(true)}
+              >
+                <Share className="h-4 w-4" />
+              </Button>
               
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="h-9 w-9 p-0 rounded-lg workspace-button"
-                      onClick={() => setShowSharingPanel(true)}
-                    >
-                      <Share className="h-4 w-4" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Share Code</TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-              
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="h-9 w-9 p-0 rounded-lg workspace-button"
-                      onClick={toggleFullscreen}
-                    >
-                      {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>{isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}</TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-              
-              {!isMobile && (
-                <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 text-xs">
-                  <div className="w-1.5 h-1.5 bg-green-500 rounded-full mr-1.5 animate-pulse"></div>
-                  Live
-                </Badge>
-              )}
-              
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="h-9 w-9 p-0 rounded-lg workspace-button"
-                      onClick={() => setShowThemeSettings(true)}
-                    >
-                      <Settings className="h-4 w-4" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Settings</TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-9 w-9 p-0"
+                onClick={() => setShowThemeSettings(true)}
+              >
+                <Settings className="h-4 w-4" />
+              </Button>
             </div>
           </header>
 
           {/* Status Bar */}
-          <div className="h-6 bg-blue-600 text-white text-xs flex items-center justify-between px-4 flex-shrink-0">
+          <div className="h-6 bg-blue-600 text-white text-xs flex items-center justify-between px-4">
             <div className="flex items-center gap-4">
-              <span className="flex items-center gap-1">
-                <GitCommit className="h-3 w-3" />
-                main
-              </span>
-              <span className="flex items-center gap-1">
-                <Database className="h-3 w-3" />
-                Connected
-              </span>
-              <span className="flex items-center gap-1">
-                <Cloud className="h-3 w-3" />
-                Synced
-              </span>
+              <span>Ready</span>
+              {activeFile && <span>{activeFile.language?.toUpperCase()}</span>}
             </div>
             <div className="flex items-center gap-4">
-              {activeFile && (
-                <>
-                  <span>Ln 1, Col 1</span>
-                  <span>{activeFile.language?.toUpperCase()}</span>
-                  <span>UTF-8</span>
-                  <span>LF</span>
-                </>
-              )}
               <span className="flex items-center gap-1">
                 <Cpu className="h-3 w-3" />
-                2.1 GHz
+                85%
               </span>
               <span className="flex items-center gap-1">
                 <HardDrive className="h-3 w-3" />
-                85%
+                2.1GB
               </span>
             </div>
           </div>
@@ -898,118 +864,55 @@ console.log('Hello from ${baseName}!');`
       )}
 
       {/* Main Workspace Area */}
-      <div 
-        className="flex-1 flex overflow-hidden"
-        {...(isMobile ? {
-          onTouchStart: swipeHandlers.onTouchStart,
-          onTouchMove: swipeHandlers.onTouchMove,
-          onTouchEnd: swipeHandlers.onTouchEnd
-        } : {})}
-      >
+      <div className="flex-1 flex overflow-hidden">
         {/* Left Sidebar */}
         {!zenMode && (
           <div 
-            ref={sidebarRef}
             className={`
               ${isMobile 
-                ? `fixed inset-y-0 left-0 z-30 transform transition-transform duration-300 ease-out ${
+                ? `fixed inset-y-0 left-0 z-30 transform transition-transform duration-300 ${
                     sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-                  } w-80 max-w-[85vw]`
-                : `relative transition-all duration-300 ease-out ${
-                    leftPanelCollapsed ? 'w-0 opacity-0' : ''
+                  } w-80`
+                : `relative transition-all duration-300 ${
+                    leftPanelCollapsed ? 'w-0' : `w-[${sidebarWidth}px]`
                   }`
               }
-              bg-white/95 backdrop-blur-xl border-r border-gray-200/60 flex flex-col workspace-sidebar
+              bg-white border-r border-gray-200 flex flex-col
             `}
-            style={{
-              width: isMobile ? undefined : (leftPanelCollapsed ? 0 : sidebarWidth),
-              visibility: leftPanelCollapsed ? 'hidden' : 'visible'
-            }}
           >
-            <div className="flex-1 flex flex-col overflow-hidden">
-              {/* Sidebar Tabs */}
-              <div className="h-12 border-b border-gray-200/60 flex items-center bg-gray-50/50">
-                <div className="flex w-full">
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="flex-1 h-12 rounded-none border-r border-gray-200/60 workspace-tab"
-                    title="Explorer"
-                  >
-                    <FolderOpen className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="flex-1 h-12 rounded-none border-r border-gray-200/60 workspace-tab"
-                    title="Search"
-                  >
-                    <Search className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="flex-1 h-12 rounded-none border-r border-gray-200/60 workspace-tab"
-                    title="Git"
-                  >
-                    <GitBranch className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="flex-1 h-12 rounded-none workspace-tab"
-                    title="Extensions"
-                  >
-                    <Package className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-
-              {/* File Explorer */}
-              <div className="flex-1 overflow-hidden">
-                <ErrorBoundary>
-                  <FileExplorer
-                    files={files}
-                    activeFileId={activeFile?.id}
-                    onFileSelect={handleFileSelect}
-                    onFileCreate={createFile}
-                    onFileRename={renameFile}
-                    onFileDelete={deleteFile}
-                    onFileDownload={downloadFile}
-                  />
-                </ErrorBoundary>
-              </div>
+            <div className="flex-1 overflow-hidden">
+              <ErrorBoundary>
+                <FileExplorer
+                  files={files}
+                  activeFileId={activeFile?.id}
+                  onFileSelect={handleFileSelect}
+                  onFileCreate={createFile}
+                  onFileRename={renameFile}
+                  onFileDelete={deleteFile}
+                  onFileDownload={downloadFile}
+                />
+              </ErrorBoundary>
             </div>
-            
-            {/* Resize Handle */}
-            {!isMobile && !leftPanelCollapsed && (
-              <div
-                className="absolute top-0 right-0 w-1 h-full bg-transparent hover:bg-indigo-400 cursor-col-resize z-10 group transition-colors"
-                onMouseDown={(e) => handleStartResize(e, 'sidebar')}
-              >
-                <div className="absolute right-0 top-1/2 transform -translate-y-1/2 w-0.5 h-16 bg-indigo-400 scale-x-0 group-hover:scale-x-100 transition-transform"></div>
-              </div>
-            )}
           </div>
         )}
 
         {/* Mobile Sidebar Overlay */}
         {isMobile && sidebarOpen && (
           <div
-            className="fixed inset-0 bg-black/40 backdrop-blur-sm z-20"
+            className="fixed inset-0 bg-black/40 z-20"
             onClick={() => setSidebarOpen(false)}
           />
         )}
 
-        {/* Main Editor & Preview Area */}
+        {/* Main Content */}
         <LoadingOverlay
           isLoading={isLoadingFile}
           message={loadingMessage}
           className="flex-1 flex flex-col overflow-hidden"
         >
           {/* File Tabs */}
-          {!zenMode && (
-            <div className="h-10 border-b border-gray-200/60 bg-gray-50/80 flex-shrink-0">
+          {!zenMode && openFiles.length > 0 && (
+            <div className="h-10 border-b border-gray-200 bg-gray-50">
               <ErrorBoundary>
                 <FileTabs
                   openFiles={openFiles}
@@ -1025,149 +928,37 @@ console.log('Hello from ${baseName}!');`
             </div>
           )}
 
-          {/* Editor Controls */}
-          {!zenMode && (
-            <div className="h-10 bg-white/95 backdrop-blur-xl border-b border-gray-200/60 flex items-center justify-between px-3 flex-shrink-0 workspace-header">
-              <div className="flex items-center gap-1">
-                {/* View Mode Buttons */}
-                <Button
-                  size="sm"
-                  variant={viewMode === 'code' ? 'default' : 'ghost'}
-                  onClick={() => setViewMode('code')}
-                  className="h-7 px-2.5 text-xs rounded-md workspace-button"
-                >
-                  <Code className="h-3 w-3 mr-1.5" />
-                  Code
-                </Button>
-                
-                <Button
-                  size="sm"
-                  variant={viewMode === 'preview' ? 'default' : 'ghost'}
-                  onClick={() => setViewMode('preview')}
-                  className="h-7 px-2.5 text-xs rounded-md workspace-button"
-                >
-                  <Eye className="h-3 w-3 mr-1.5" />
-                  Preview
-                </Button>
-                
-                {!isMobile && (
-                  <Button
-                    size="sm"
-                    variant={viewMode === 'split' ? 'default' : 'ghost'}
-                    onClick={() => setViewMode('split')}
-                    className="h-7 px-2.5 text-xs rounded-md workspace-button"
-                  >
-                    <Grid3X3 className="h-3 w-3 mr-1" />
-                    Split
-                  </Button>
+          {/* Editor Quick Actions (only when file is open) */}
+          {!zenMode && activeFile && (
+            <div className="h-10 bg-white border-b border-gray-200 flex items-center justify-between px-3">
+              <div className="flex items-center gap-2">
+                <Badge variant="outline" className="text-xs">
+                  {activeFile.language}
+                </Badge>
+                {activeFile.isDirty && (
+                  <Badge variant="secondary" className="text-xs">
+                    Unsaved
+                  </Badge>
                 )}
-                
-                <Button
-                  size="sm"
-                  variant={viewMode === 'builder' ? 'default' : 'ghost'}
-                  onClick={() => setViewMode('builder')}
-                  className="h-7 px-2.5 text-xs rounded-md workspace-button"
-                >
-                  <Palette className="h-3 w-3 mr-1.5" />
-                  Builder
-                </Button>
-                
-                <Button
-                  size="sm"
-                  variant={viewMode === 'store' ? 'default' : 'ghost'}
-                  onClick={() => setViewMode('store')}
-                  className="h-7 px-2.5 text-xs rounded-md workspace-button"
-                >
-                  <Package className="h-3 w-3 mr-1.5" />
-                  Store
-                </Button>
-                
-                <Separator orientation="vertical" className="h-4 mx-2" />
-                
-                {/* Editor Options */}
-                <Button
-                  size="sm"
-                  variant={showMinimap ? "default" : "ghost"}
-                  onClick={() => setShowMinimap(!showMinimap)}
-                  className="h-7 px-2.5 text-xs rounded-md workspace-button"
-                >
-                  <Layers className="h-3 w-3 mr-1" />
-                  Minimap
-                </Button>
-
-                <Select value={editorLayout} onValueChange={(value: 'horizontal' | 'vertical') => setEditorLayout(value)}>
-                  <SelectTrigger className="h-7 w-24 text-xs">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="horizontal">Horizontal</SelectItem>
-                    <SelectItem value="vertical">Vertical</SelectItem>
-                  </SelectContent>
-                </Select>
-                
-                <Separator orientation="vertical" className="h-4 mx-2" />
-                
-                {/* Terminal Toggle */}
-                <Button
-                  size="sm"
-                  variant={showTerminal ? "default" : "ghost"}
-                  onClick={() => setShowTerminal(!showTerminal)}
-                  className="h-7 px-2.5 text-xs rounded-md workspace-button"
-                >
-                  <TerminalIcon className="h-3 w-3 mr-1.5" />
-                  Terminal
-                </Button>
-
-                {/* Zen Mode */}
-                <Button
-                  size="sm"
-                  variant={zenMode ? "default" : "ghost"}
-                  onClick={() => setZenMode(!zenMode)}
-                  className="h-7 px-2.5 text-xs rounded-md workspace-button"
-                  title="Zen Mode (Ctrl+K Shift)"
-                >
-                  <Zap className="h-3 w-3 mr-1" />
-                  Zen
-                </Button>
               </div>
               
-              {/* File Actions */}
-              {activeFile && (
-                <div className="flex items-center gap-2">
-                  <Badge variant="outline" className="text-xs px-1.5 py-0 h-5 bg-gray-50 workspace-card">
-                    {activeFile.language}
-                  </Badge>
-                  
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => updateFile(activeFile.id, { isDirty: false })}
-                    disabled={!activeFile.isDirty}
-                    className="h-7 px-2 text-xs workspace-button"
-                    title="Save (Ctrl+S)"
-                  >
-                    <Save className="h-3 w-3" />
-                  </Button>
-
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="h-7 px-2 text-xs workspace-button"
-                    title="More Actions"
-                  >
-                    <MoreHorizontal className="h-3 w-3" />
-                  </Button>
-                  
-                  {isMobile && activeFile.isDirty && (
-                    <div className="w-1.5 h-1.5 bg-amber-400 rounded-full animate-pulse"></div>
-                  )}
-                </div>
-              )}
+              <div className="flex items-center gap-1">
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => updateFile(activeFile.id, { isDirty: false })}
+                  disabled={!activeFile.isDirty}
+                  className="h-7 px-2 text-xs"
+                >
+                  <Save className="h-3 w-3 mr-1" />
+                  Save
+                </Button>
+              </div>
             </div>
           )}
           
           {/* Content Area */}
-          <div className={`flex-1 flex overflow-hidden ${editorLayout === 'vertical' ? 'flex-col' : 'flex-row'}`}>
+          <div className="flex-1 flex overflow-hidden">
             {viewMode === 'builder' ? (
               <div className="w-full h-full">
                 <ErrorBoundary>
@@ -1184,7 +975,7 @@ console.log('Hello from ${baseName}!');`
               <>
                 {/* Code Editor */}
                 {(viewMode === 'code' || (viewMode === 'split' && !isMobile)) && (
-                  <div className={`${viewMode === 'split' && !isMobile ? (editorLayout === 'vertical' ? 'h-1/2' : 'w-1/2') : 'w-full'} ${editorLayout === 'vertical' ? 'border-b' : 'border-r'} border-gray-200/60 overflow-hidden bg-white workspace-panel`}>
+                  <div className={`${viewMode === 'split' && !isMobile ? 'w-1/2 border-r border-gray-200' : 'w-full'} overflow-hidden bg-white`}>
                     {activeFile ? (
                       <div className="h-full">
                         <ErrorBoundary>
@@ -1192,137 +983,34 @@ console.log('Hello from ${baseName}!');`
                             key={activeFile.id}
                             value={activeFile.content || ''}
                             onChange={(value) => updateFileContent(activeFile.id, value)}
-                            language={
-                              activeFile.name.endsWith('.tsx') || activeFile.name.endsWith('.ts')
-                                ? 'typescript'
-                                : activeFile.name.endsWith('.css')
-                                ? 'css'
-                                : activeFile.name.endsWith('.html')
-                                ? 'html'
-                                : activeFile.name.endsWith('.json')
-                                ? 'json'
-                                : activeFile.name.endsWith('.md')
-                                ? 'markdown'
-                                : activeFile.name.endsWith('.py')
-                                ? 'python'
-                                : 'javascript'
-                            }
-                            theme={theme.mode === 'dark' ? 'vs-dark' : 'vs'}
-                            onSave={() => {
-                              updateFile(activeFile.id, { isDirty: false })
-                              addNotification('success', `Saved ${activeFile.name}`)
-                            }}
+                            language={getLanguageFromExtension(activeFile.name)}
+                            theme={theme.mode === 'dark' ? 'dark' : 'light'}
                             options={{
                               minimap: { enabled: showMinimap && !isMobile },
                               fontSize: theme.fontSize,
-                              fontFamily: theme.fontFamily,
-                              lineHeight: theme.lineHeight,
                               wordWrap: isMobile ? 'on' : 'off',
-                              lineNumbers: 'on',
-                              scrollBeyondLastLine: false,
-                              automaticLayout: true,
-                              tabSize: 2,
-                              insertSpaces: true,
-                              renderWhitespace: 'selection',
-                              renderControlCharacters: true,
-                              rulers: [80, 120],
-                              bracketPairColorization: { enabled: true },
-                              guides: {
-                                bracketPairs: true,
-                                indentation: true
-                              },
-                              suggest: {
-                                showKeywords: true,
-                                showSnippets: true,
-                                showFunctions: true,
-                                showConstructors: true,
-                                showFields: true,
-                                showVariables: true,
-                                showClasses: true,
-                                showStructs: true,
-                                showInterfaces: true,
-                                showModules: true,
-                                showProperties: true,
-                                showEvents: true,
-                                showOperators: true,
-                                showUnits: true,
-                                showValues: true,
-                                showConstants: true,
-                                showEnums: true,
-                                showEnumMembers: true,
-                                showColors: true,
-                                showFiles: true,
-                                showReferences: true,
-                                showFolders: true,
-                                showTypeParameters: true,
-                                showUsers: true,
-                                showIssues: true
-                              },
-                              quickSuggestions: {
-                                other: true,
-                                comments: true,
-                                strings: true
-                              },
-                              parameterHints: { enabled: true },
-                              autoClosingBrackets: 'always',
-                              autoClosingQuotes: 'always',
-                              autoSurround: 'languageDefined',
-                              formatOnPaste: true,
-                              formatOnType: true,
-                              folding: true,
-                              foldingStrategy: 'indentation',
-                              showFoldingControls: 'always',
-                              unfoldOnClickAfterEndOfLine: true,
-                              matchBrackets: 'always',
-                              renderLineHighlight: 'all',
-                              selectionHighlight: true,
-                              occurrencesHighlight: true,
-                              codeLens: true,
-                              colorDecorators: true,
-                              lightbulb: { enabled: true },
-                              contextmenu: true,
-                              mouseWheelZoom: true,
-                              multiCursorModifier: 'ctrlCmd',
-                              accessibilitySupport: 'auto',
-                              find: {
-                                seedSearchStringFromSelection: 'always',
-                                autoFindInSelection: 'never',
-                                globalFindClipboard: false,
-                                addExtraSpaceOnTop: true
-                              }
+                              automaticLayout: true
+                            }}
+                            onSave={() => {
+                              updateFile(activeFile.id, { isDirty: false })
+                              addNotification('success', `Saved ${activeFile.name}`)
                             }}
                           />
                         </ErrorBoundary>
                       </div>
                     ) : (
-                      <div className="h-full flex items-center justify-center bg-gray-50/50">
-                        <div className="text-center p-6 max-w-sm">
-                          <div className="w-16 h-16 bg-gradient-to-br from-indigo-100 to-blue-100 rounded-xl flex items-center justify-center mx-auto mb-4 workspace-card">
-                            <Code className="h-8 w-8 text-indigo-500" />
-                          </div>
-                          <h3 className="text-lg font-medium mb-2 text-gray-800">Welcome to MrrKit</h3>
-                          <p className="text-gray-500 mb-4 text-sm">
-                            Open a file from the explorer or create a new one to start coding
-                          </p>
-                          <div className="flex gap-2">
-                            <Button
-                              onClick={() => createFile('component.jsx', 'file')}
-                              size="sm"
-                              className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white border-0 workspace-button"
-                            >
-                              <Plus className="w-3.5 h-3.5 mr-1.5" />
-                              New File
-                            </Button>
-                            <Button
-                              onClick={() => setShowCommandPalette(true)}
-                              size="sm"
-                              variant="outline"
-                              className="workspace-button"
-                            >
-                              <Command className="w-3.5 h-3.5 mr-1.5" />
-                              Commands
-                            </Button>
-                          </div>
+                      <div className="h-full flex items-center justify-center bg-gray-50">
+                        <div className="text-center p-6">
+                          <Code className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                          <h3 className="text-lg font-medium mb-2">Welcome to MrrKit</h3>
+                          <p className="text-gray-500 mb-4">Open a file to start coding</p>
+                          <Button
+                            onClick={() => createFile('index.jsx', 'file')}
+                            className="bg-gradient-to-r from-indigo-500 to-purple-500"
+                          >
+                            <Plus className="w-4 h-4 mr-2" />
+                            New File
+                          </Button>
                         </div>
                       </div>
                     )}
@@ -1331,15 +1019,13 @@ console.log('Hello from ${baseName}!');`
 
                 {/* Live Preview */}
                 {(viewMode === 'preview' || (viewMode === 'split' && !isMobile)) && (
-                  <div className={`${viewMode === 'split' && !isMobile ? (editorLayout === 'vertical' ? 'h-1/2' : 'w-1/2') : 'w-full'} bg-white overflow-hidden workspace-panel`}>
+                  <div className={`${viewMode === 'split' && !isMobile ? 'w-1/2' : 'w-full'} bg-white overflow-hidden`}>
                     {activeFile?.content ? (
                       <div className="h-full">
                         <ErrorBoundary>
                           <LivePreview
                             code={activeFile.content}
-                            language={
-                              activeFile.name.endsWith('.html') ? 'html' : 'javascript'
-                            }
+                            language={activeFile.name.endsWith('.html') ? 'html' : 'javascript'}
                             onError={(error) => {
                               if (error) {
                                 addNotification('error', `Preview Error: ${error.message}`)
@@ -1349,19 +1035,11 @@ console.log('Hello from ${baseName}!');`
                         </ErrorBoundary>
                       </div>
                     ) : (
-                      <div className="h-full flex items-center justify-center bg-gray-50/50">
-                        <div className="text-center p-6 max-w-sm">
-                          <div className="w-16 h-16 bg-gradient-to-br from-purple-100 to-indigo-100 rounded-xl flex items-center justify-center mx-auto mb-4 workspace-card">
-                            <Eye className="h-8 w-8 text-purple-500" />
-                          </div>
-                          <h3 className="text-lg font-medium mb-2 text-gray-800">Live Preview</h3>
-                          <p className="text-gray-500 mb-4 text-sm">
-                            Your code will be rendered here in real-time
-                          </p>
-                          <div className="text-xs text-gray-400 flex items-center justify-center">
-                            <div className="w-1.5 h-1.5 bg-green-500 rounded-full mr-1.5 animate-pulse"></div>
-                            Preview engine ready
-                          </div>
+                      <div className="h-full flex items-center justify-center bg-gray-50">
+                        <div className="text-center p-6">
+                          <Eye className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                          <h3 className="text-lg font-medium mb-2">Live Preview</h3>
+                          <p className="text-gray-500">Your code will be rendered here</p>
                         </div>
                       </div>
                     )}
@@ -1374,150 +1052,21 @@ console.log('Hello from ${baseName}!');`
           {/* Terminal */}
           {showTerminal && !zenMode && (
             <div 
-              ref={terminalRef}
-              className="border-t border-gray-200/60 flex-shrink-0 bg-gray-900 workspace-panel"
+              className="border-t border-gray-200 bg-gray-900"
               style={{ height: terminalHeight }}
             >
-              {/* Terminal Resize Handle */}
-              <div
-                className="h-1 bg-transparent hover:bg-indigo-400 cursor-row-resize transition-colors relative"
-                onMouseDown={(e) => handleStartResize(e, 'terminal')}
-              >
-                <div className="absolute left-1/2 top-0 transform -translate-x-1/2 w-16 h-0.5 bg-indigo-400 scale-y-0 hover:scale-y-100 transition-transform"></div>
-              </div>
-              
-              <div className="flex-1">
-                <ErrorBoundary>
-                  <EnhancedTerminal
-                    onClose={() => setShowTerminal(false)}
-                    onMinimize={() => setShowTerminal(false)}
-                  />
-                </ErrorBoundary>
-              </div>
+              <ErrorBoundary>
+                <EnhancedTerminal
+                  onClose={() => setShowTerminal(false)}
+                  onMinimize={() => setShowTerminal(false)}
+                />
+              </ErrorBoundary>
             </div>
           )}
         </LoadingOverlay>
-
-        {/* Right Panel */}
-        {!zenMode && !isMobile && (
-          <div className={`w-80 bg-white/95 backdrop-blur-xl border-l border-gray-200/60 flex flex-col workspace-sidebar transition-all duration-300 ${rightPanelCollapsed ? 'w-0 opacity-0' : ''}`}>
-            {/* Right Panel Tabs */}
-            <div className="h-12 border-b border-gray-200/60 flex items-center bg-gray-50/50">
-              <div className="flex w-full">
-                <Button
-                  size="sm"
-                  variant={activeRightPanel === 'outline' ? 'default' : 'ghost'}
-                  onClick={() => setActiveRightPanel('outline')}
-                  className="flex-1 h-12 rounded-none border-r border-gray-200/60 workspace-tab"
-                  title="Outline"
-                >
-                  <Layers className="h-4 w-4" />
-                </Button>
-                <Button
-                  size="sm"
-                  variant={activeRightPanel === 'problems' ? 'default' : 'ghost'}
-                  onClick={() => setActiveRightPanel('problems')}
-                  className="flex-1 h-12 rounded-none border-r border-gray-200/60 workspace-tab"
-                  title="Problems"
-                >
-                  <Zap className="h-4 w-4" />
-                </Button>
-                <Button
-                  size="sm"
-                  variant={activeRightPanel === 'git' ? 'default' : 'ghost'}
-                  onClick={() => setActiveRightPanel('git')}
-                  className="flex-1 h-12 rounded-none border-r border-gray-200/60 workspace-tab"
-                  title="Git"
-                >
-                  <GitBranch className="h-4 w-4" />
-                </Button>
-                <Button
-                  size="sm"
-                  variant={activeRightPanel === 'extensions' ? 'default' : 'ghost'}
-                  onClick={() => setActiveRightPanel('extensions')}
-                  className="flex-1 h-12 rounded-none workspace-tab"
-                  title="Extensions"
-                >
-                  <Package className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-
-            {/* Right Panel Content */}
-            <div className="flex-1 overflow-auto p-4 workspace-scroll">
-              {activeRightPanel === 'outline' && (
-                <div>
-                  <h3 className="text-sm font-medium mb-3 text-gray-700">Outline</h3>
-                  {activeFile ? (
-                    <div className="space-y-2">
-                      <div className="text-xs text-gray-500">
-                        Functions, classes, and exports will appear here
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="text-center text-gray-500 py-8">
-                      <Layers className="h-8 w-8 mx-auto mb-2 opacity-30" />
-                      <p className="text-sm">Open a file to see its outline</p>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {activeRightPanel === 'problems' && (
-                <div>
-                  <h3 className="text-sm font-medium mb-3 text-gray-700">Problems</h3>
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2 text-xs text-green-600">
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                      No problems detected
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {activeRightPanel === 'git' && (
-                <div>
-                  <h3 className="text-sm font-medium mb-3 text-gray-700">Source Control</h3>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-gray-600">Changes</span>
-                      <Badge variant="outline" className="text-xs">0</Badge>
-                    </div>
-                    <div className="text-center text-gray-500 py-8">
-                      <GitBranch className="h-8 w-8 mx-auto mb-2 opacity-30" />
-                      <p className="text-sm">No changes</p>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {activeRightPanel === 'extensions' && (
-                <div>
-                  <h3 className="text-sm font-medium mb-3 text-gray-700">Extensions</h3>
-                  <div className="space-y-2">
-                    <div className="p-3 border border-gray-200 rounded-lg workspace-card">
-                      <div className="flex items-center gap-2 mb-2">
-                        <div className="w-6 h-6 bg-blue-100 rounded flex items-center justify-center">
-                          <Sparkles className="h-3 w-3 text-blue-600" />
-                        </div>
-                        <span className="text-sm font-medium">AI Assistant</span>
-                      </div>
-                      <p className="text-xs text-gray-600">Intelligent code completion and generation</p>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
       </div>
 
-      {/* Floating AI Panel */}
-      <ErrorBoundary>
-        <AIPanel />
-      </ErrorBoundary>
-      
-      {/* Modals/Panels */}
+      {/* Modals */}
       <SharingPanel
         isOpen={showSharingPanel}
         onClose={() => setShowSharingPanel(false)}

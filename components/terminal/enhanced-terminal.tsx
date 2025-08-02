@@ -19,7 +19,9 @@ import {
   RefreshCw,
   Search,
   Trash2,
-  Settings
+  Settings,
+  Grid3x3,
+  RotateCcw
 } from 'lucide-react'
 
 interface ConsoleMessage {
@@ -390,7 +392,7 @@ export function EnhancedTerminal({ onClose, onMinimize, className = '' }: Enhanc
             className="h-7 w-7 p-0 text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg workspace-button"
             title="Split Terminal"
           >
-            <Grid3X3 className="h-3 w-3" />
+            <Grid3x3 className="h-3 w-3" />
           </Button>
           <Button 
             size="sm" 

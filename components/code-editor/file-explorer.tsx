@@ -9,7 +9,8 @@ import {
   MoreHorizontal,
   Trash2,
   Edit,
-  Download
+  Download,
+  Search
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -32,6 +33,7 @@ export interface FileNode {
   content?: string
   children?: FileNode[]
   parent?: string
+  isDirty?: boolean
 }
 
 interface FileExplorerProps {

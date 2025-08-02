@@ -55,9 +55,11 @@ export const MonacoEditor = forwardRef<MonacoEditorRef, MonacoEditorProps>(
       getEditor: () => editor,
       focus: () => editor?.focus(),
       getSelection: () => {
-        const selection = editor?.getSelection()
-        if (selection) {
-          return editor.getModel()?.getValueInRange(selection) || ''
+        if (editor) {
+          const selection = editor.getSelection()
+          if (selection) {
+            return editor.getModel()?.getValueInRange(selection) || ''
+          }
         }
         return ''
       },
@@ -173,7 +175,6 @@ export const MonacoEditor = forwardRef<MonacoEditorRef, MonacoEditorProps>(
           find: {
             seedSearchStringFromSelection: 'always',
             autoFindInSelection: 'never',
-            globalFindClipboard: false,
             addExtraSpaceOnTop: true
           },
           gotoLocation: {
