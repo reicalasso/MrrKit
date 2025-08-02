@@ -78,10 +78,10 @@ export function FileExplorer({
   const getFileIcon = (file: FileNode) => {
     if (file.type === 'folder') {
       return expandedFolders.has(file.id) ?
-        <div className="flex items-center justify-center w-5 h-5 bg-blue-100 rounded-md">
+        <div className="flex items-center justify-center w-5 h-5 bg-blue-100 rounded-md file-icon">
           <FolderOpen className="h-3 w-3 text-blue-600" />
         </div> :
-        <div className="flex items-center justify-center w-5 h-5 bg-blue-100 rounded-md">
+        <div className="flex items-center justify-center w-5 h-5 bg-blue-100 rounded-md file-icon">
           <Folder className="h-3 w-3 text-blue-600" />
         </div>
     }
@@ -90,24 +90,66 @@ export function FileExplorer({
     switch (ext) {
       case 'js':
       case 'jsx':
-        return <div className="flex items-center justify-center w-5 h-5 bg-yellow-100 rounded-md">
+        return <div className="flex items-center justify-center w-5 h-5 bg-yellow-100 rounded-md file-icon js">
           <FileText className="h-3 w-3 text-yellow-600" />
         </div>
       case 'ts':
       case 'tsx':
-        return <div className="flex items-center justify-center w-5 h-5 bg-blue-100 rounded-md">
+        return <div className="flex items-center justify-center w-5 h-5 bg-blue-100 rounded-md file-icon ts">
           <FileText className="h-3 w-3 text-blue-600" />
         </div>
       case 'css':
-        return <div className="flex items-center justify-center w-5 h-5 bg-indigo-100 rounded-md">
+        return <div className="flex items-center justify-center w-5 h-5 bg-indigo-100 rounded-md file-icon css">
           <FileText className="h-3 w-3 text-indigo-600" />
         </div>
       case 'html':
-        return <div className="flex items-center justify-center w-5 h-5 bg-orange-100 rounded-md">
+        return <div className="flex items-center justify-center w-5 h-5 bg-orange-100 rounded-md file-icon html">
           <FileText className="h-3 w-3 text-orange-600" />
         </div>
+      case 'json':
+        return <div className="flex items-center justify-center w-5 h-5 bg-gray-100 rounded-md file-icon json">
+          <FileText className="h-3 w-3 text-gray-600" />
+        </div>
+      case 'md':
+        return <div className="flex items-center justify-center w-5 h-5 bg-gray-100 rounded-md file-icon md">
+          <FileText className="h-3 w-3 text-gray-600" />
+        </div>
+      case 'py':
+        return <div className="flex items-center justify-center w-5 h-5 bg-blue-100 rounded-md file-icon py">
+          <FileText className="h-3 w-3 text-blue-600" />
+        </div>
+      case 'java':
+        return <div className="flex items-center justify-center w-5 h-5 bg-orange-100 rounded-md file-icon java">
+          <FileText className="h-3 w-3 text-orange-600" />
+        </div>
+      case 'cpp':
+      case 'c':
+        return <div className="flex items-center justify-center w-5 h-5 bg-blue-100 rounded-md file-icon cpp">
+          <FileText className="h-3 w-3 text-blue-600" />
+        </div>
+      case 'rs':
+        return <div className="flex items-center justify-center w-5 h-5 bg-gray-100 rounded-md file-icon rs">
+          <FileText className="h-3 w-3 text-gray-600" />
+        </div>
+      case 'go':
+        return <div className="flex items-center justify-center w-5 h-5 bg-cyan-100 rounded-md file-icon go">
+          <FileText className="h-3 w-3 text-cyan-600" />
+        </div>
+      case 'php':
+        return <div className="flex items-center justify-center w-5 h-5 bg-purple-100 rounded-md file-icon php">
+          <FileText className="h-3 w-3 text-purple-600" />
+        </div>
+      case 'sql':
+        return <div className="flex items-center justify-center w-5 h-5 bg-blue-100 rounded-md file-icon sql">
+          <FileText className="h-3 w-3 text-blue-600" />
+        </div>
+      case 'yml':
+      case 'yaml':
+        return <div className="flex items-center justify-center w-5 h-5 bg-red-100 rounded-md file-icon yml">
+          <FileText className="h-3 w-3 text-red-600" />
+        </div>
       default:
-        return <div className="flex items-center justify-center w-5 h-5 bg-gray-100 rounded-md">
+        return <div className="flex items-center justify-center w-5 h-5 bg-gray-100 rounded-md file-icon">
           <FileText className="h-3 w-3 text-gray-600" />
         </div>
     }
@@ -117,8 +159,8 @@ export function FileExplorer({
     <div key={file.id} className="select-none">
       <div
         className={cn(
-          "flex items-center justify-between group hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 rounded-xl mx-1 px-3 py-2.5 cursor-pointer transition-all duration-200",
-          activeFileId === file.id && "bg-gradient-to-r from-blue-100 to-indigo-100 border-l-4 border-blue-500 shadow-sm workspace-card",
+          "flex items-center justify-between group hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 rounded-xl mx-1 px-3 py-2.5 cursor-pointer transition-all duration-200 file-tree-item workspace-hover",
+          activeFileId === file.id && "bg-gradient-to-r from-blue-100 to-indigo-100 border-l-4 border-blue-500 shadow-sm workspace-card active",
           `ml-${depth * 4}`
         )}
         onClick={() => {
@@ -144,11 +186,14 @@ export function FileExplorer({
                   setNewFileName('')
                 }
               }}
-              className="h-6 text-xs px-1"
+              className="h-6 text-xs px-1 workspace-input"
               autoFocus
             />
           ) : (
-            <span className="text-sm font-medium truncate text-gray-800">{file.name}</span>
+            <span className="text-sm font-medium truncate text-gray-800 select-none">{file.name}</span>
+          )}
+          {file.isDirty && (
+            <div className="w-1.5 h-1.5 bg-amber-400 rounded-full animate-pulse" />
           )}
         </div>
 
@@ -163,12 +208,12 @@ export function FileExplorer({
               <MoreHorizontal className="h-4 w-4 text-gray-500" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="workspace-card">
+          <DropdownMenuContent align="end" className="workspace-card context-menu">
             <DropdownMenuItem onClick={(e) => {
               e.stopPropagation()
               setEditingFile(file.id)
               setNewFileName(file.name)
-            }}>
+            }} className="context-menu-item">
               <Edit className="h-4 w-4 mr-2" />
               Rename
             </DropdownMenuItem>
@@ -177,14 +222,14 @@ export function FileExplorer({
                 <DropdownMenuItem onClick={(e) => {
                   e.stopPropagation()
                   onFileCreate('new-file.js', 'file', file.id)
-                }}>
+                }} className="context-menu-item">
                   <Plus className="h-4 w-4 mr-2" />
                   New File
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={(e) => {
                   e.stopPropagation()
                   onFileCreate('new-folder', 'folder', file.id)
-                }}>
+                }} className="context-menu-item">
                   <Plus className="h-4 w-4 mr-2" />
                   New Folder
                 </DropdownMenuItem>
@@ -193,16 +238,17 @@ export function FileExplorer({
             <DropdownMenuItem onClick={(e) => {
               e.stopPropagation()
               onFileDownload(file)
-            }}>
+            }} className="context-menu-item">
               <Download className="h-4 w-4 mr-2" />
               Download
             </DropdownMenuItem>
+            <div className="context-menu-separator" />
             <DropdownMenuItem 
               onClick={(e) => {
                 e.stopPropagation()
                 onFileDelete(file.id)
               }}
-              className="text-red-600"
+              className="text-red-600 context-menu-item"
             >
               <Trash2 className="h-4 w-4 mr-2" />
               Delete
@@ -221,13 +267,13 @@ export function FileExplorer({
 
   return (
     <div className="h-full flex flex-col">
-      <div className="p-4 border-b border-gray-200/50 bg-gradient-to-r from-white to-blue-50/30">
+      <div className="p-4 border-b border-gray-200/50 bg-gradient-to-r from-white to-blue-50/30 workspace-header">
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-base font-semibold text-gray-900 flex items-center gap-2">
             <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-xl flex items-center justify-center shadow-md">
               <Folder className="h-3 w-3 text-white" />
             </div>
-            Project Files
+            Explorer
           </h3>
           <div className="flex gap-1">
             <Button
@@ -250,10 +296,29 @@ export function FileExplorer({
             </Button>
           </div>
         </div>
+        
+        {/* Search in files */}
+        <div className="relative">
+          <Search className="absolute left-2.5 top-1/2 transform -translate-y-1/2 h-3.5 w-3.5 text-gray-400" />
+          <Input
+            placeholder="Search files..."
+            className="pl-8 h-8 text-xs workspace-input"
+          />
+        </div>
       </div>
       
       <div className="flex-1 p-3 overflow-auto workspace-scroll">
-        {files.map(file => renderFileNode(file))}
+        {files.length === 0 ? (
+          <div className="text-center py-8 text-gray-500">
+            <FolderOpen className="h-12 w-12 mx-auto mb-4 opacity-30" />
+            <p className="text-sm font-medium mb-2">No files yet</p>
+            <p className="text-xs">Create your first file to get started</p>
+          </div>
+        ) : (
+          <div className="space-y-1">
+            {files.map(file => renderFileNode(file))}
+          </div>
+        )}
       </div>
     </div>
   )

@@ -367,24 +367,45 @@ export function EnhancedTerminal({ onClose, onMinimize, className = '' }: Enhanc
   }
 
   return (
-    <div className={`bg-gradient-to-br from-gray-900 to-gray-800 text-gray-100 font-mono text-sm flex flex-col h-full ${className}`}>
+    <div className={`bg-gradient-to-br from-gray-900 to-gray-800 text-gray-100 font-mono text-sm flex flex-col h-full enhanced-terminal ${className}`}>
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 bg-gray-800/90 backdrop-blur-sm border-b border-gray-700/60 flex-shrink-0">
+      <div className="flex items-center justify-between px-4 py-3 bg-gray-800/90 backdrop-blur-sm border-b border-gray-700/60 flex-shrink-0 workspace-header">
         <div className="flex items-center gap-2">
           <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center">
             <TerminalIcon className="h-3 w-3 text-white" />
           </div>
           <span className="text-sm font-medium text-gray-200">MrrKit Terminal</span>
-          <Badge variant="outline" className="text-xs border-gray-600 text-gray-400">
-            Enhanced
+          <Badge variant="outline" className="text-xs border-gray-600 text-gray-400 bg-gray-800/50">
+            Professional
           </Badge>
+          <div className="flex items-center gap-1 ml-2">
+            <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
+            <span className="text-xs text-gray-400">Ready</span>
+          </div>
         </div>
         <div className="flex items-center gap-1">
           <Button 
             size="sm" 
             variant="ghost" 
             className="h-7 w-7 p-0 text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg workspace-button"
+            title="Split Terminal"
+          >
+            <Grid3X3 className="h-3 w-3" />
+          </Button>
+          <Button 
+            size="sm" 
+            variant="ghost" 
+            className="h-7 w-7 p-0 text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg workspace-button"
+            title="Clear Terminal"
+          >
+            <RotateCcw className="h-3 w-3" />
+          </Button>
+          <Button 
+            size="sm" 
+            variant="ghost" 
+            className="h-7 w-7 p-0 text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg workspace-button"
             onClick={onMinimize}
+            title="Minimize"
           >
             <Minimize className="h-3 w-3" />
           </Button>
@@ -393,6 +414,7 @@ export function EnhancedTerminal({ onClose, onMinimize, className = '' }: Enhanc
             variant="ghost" 
             className="h-7 w-7 p-0 text-gray-400 hover:text-white hover:bg-red-600 rounded-lg workspace-button"
             onClick={onClose}
+            title="Close Terminal"
           >
             <X className="h-3 w-3" />
           </Button>
@@ -401,16 +423,16 @@ export function EnhancedTerminal({ onClose, onMinimize, className = '' }: Enhanc
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
-        <TabsList className="grid w-full grid-cols-3 bg-gray-800/80 backdrop-blur-sm border-b border-gray-700/60">
-          <TabsTrigger value="terminal" className="data-[state=active]:bg-gray-700 data-[state=active]:text-white workspace-tab">
+        <TabsList className="grid w-full grid-cols-3 bg-gray-800/80 backdrop-blur-sm border-b border-gray-700/60 rounded-none">
+          <TabsTrigger value="terminal" className="data-[state=active]:bg-gray-700 data-[state=active]:text-white workspace-tab terminal-tab rounded-none">
             <TerminalIcon className="w-4 h-4 mr-2" />
             Terminal
           </TabsTrigger>
-          <TabsTrigger value="packages" className="data-[state=active]:bg-gray-700 data-[state=active]:text-white workspace-tab">
+          <TabsTrigger value="packages" className="data-[state=active]:bg-gray-700 data-[state=active]:text-white workspace-tab terminal-tab rounded-none">
             <Package className="w-4 h-4 mr-2" />
             Packages
           </TabsTrigger>
-          <TabsTrigger value="console" className="data-[state=active]:bg-gray-700 data-[state=active]:text-white workspace-tab">
+          <TabsTrigger value="console" className="data-[state=active]:bg-gray-700 data-[state=active]:text-white workspace-tab terminal-tab rounded-none">
             <Play className="w-4 h-4 mr-2" />
             Console
           </TabsTrigger>

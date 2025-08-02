@@ -283,10 +283,11 @@ export function AIPanel() {
   // Floating action button when panel is closed
   if (!isOpen) {
     return (
-      <div className="fixed bottom-6 right-6 z-50">
+      <div className="fixed bottom-6 right-6 z-50 status-indicator online">
         <Button
           onClick={() => setIsOpen(true)}
-          className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all duration-200 border-0"
+          className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all duration-200 border-0 workspace-button animate-gentle-float"
+          title="AI Assistant (Ctrl+Shift+A)"
         >
           <Bot className="w-5 h-5 text-white" />
         </Button>
@@ -297,7 +298,7 @@ export function AIPanel() {
   // Panel styles based on state
   const panelStyles = isMinimized
     ? "w-64 h-10"
-    : "w-80 h-[450px]";
+    : "w-96 h-[500px]";
 
   const positionStyles = position
     ? { top: `${position.y}px`, left: `${position.x}px` }
@@ -309,17 +310,21 @@ export function AIPanel() {
       className={`fixed z-50 transition-all duration-200 ${panelStyles}`}
       style={positionStyles}
     >
-      <div className="h-full flex flex-col bg-white rounded-lg shadow-xl border border-gray-200/50 overflow-hidden">
+      <div className="h-full flex flex-col bg-white/95 backdrop-blur-xl rounded-xl shadow-2xl border border-gray-200/50 overflow-hidden workspace-panel">
         {/* Draggable Header */}
         <div 
-          className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200 px-3 py-2 flex items-center justify-between cursor-move"
+          className="bg-gradient-to-r from-indigo-50 to-purple-50 border-b border-gray-200/60 px-3 py-2 flex items-center justify-between cursor-move workspace-header"
           onMouseDown={handleMouseDown}
         >
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-md flex items-center justify-center">
               <Bot className="w-3.5 h-3.5 text-white" />
             </div>
-            <h2 className="text-xs font-medium text-gray-700">AI Copilot</h2>
+            <h2 className="text-xs font-semibold text-gray-800">AI Copilot</h2>
+            <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
+              <div className="w-1.5 h-1.5 bg-green-500 rounded-full mr-1 animate-pulse"></div>
+              Active
+            </Badge>
           </div>
           
           <div className="flex items-center gap-1">
@@ -328,7 +333,8 @@ export function AIPanel() {
                 size="sm"
                 variant="ghost"
                 onClick={() => setIsMinimized(false)}
-                className="h-6 w-6 p-0 rounded-md"
+                className="h-6 w-6 p-0 rounded-md workspace-button"
+                title="Maximize"
               >
                 <Maximize2 className="w-3 h-3" />
               </Button>
@@ -337,7 +343,8 @@ export function AIPanel() {
                 size="sm"
                 variant="ghost"
                 onClick={() => setIsMinimized(true)}
-                className="h-6 w-6 p-0 rounded-md"
+                className="h-6 w-6 p-0 rounded-md workspace-button"
+                title="Minimize"
               >
                 <Minimize2 className="w-3 h-3" />
               </Button>
@@ -346,7 +353,8 @@ export function AIPanel() {
               size="sm"
               variant="ghost"
               onClick={() => setIsOpen(false)}
-              className="h-6 w-6 p-0 rounded-md"
+              className="h-6 w-6 p-0 rounded-md workspace-button"
+              title="Close"
             >
               <X className="w-3 h-3" />
             </Button>
@@ -358,7 +366,7 @@ export function AIPanel() {
           <div className="flex-1 overflow-hidden flex flex-col">
             {/* API Key notice if needed */}
             {!aiAssistant.apiKey && (
-              <div className="px-3 py-2 bg-amber-50 border-b border-amber-100">
+              <div className="px-3 py-2 bg-amber-50/80 backdrop-blur-sm border-b border-amber-200/60">
                 <div className="flex items-center gap-1.5 mb-1">
                   <Key className="w-3 h-3 text-amber-500" />
                   <span className="text-xs font-medium text-amber-700">API Key Required</span>
@@ -371,19 +379,19 @@ export function AIPanel() {
                       placeholder="sk-..."
                       value={tempApiKey}
                       onChange={(e) => setTempApiKey(e.target.value)}
-                      className="text-xs h-7 bg-white"
+                      className="text-xs h-7 bg-white/80 backdrop-blur-sm workspace-input"
                     />
                     <div className="flex gap-1.5">
-                      <Button size="sm" onClick={handleSaveApiKey} className="text-xs h-6 px-2 bg-indigo-500 hover:bg-indigo-600">
+                      <Button size="sm" onClick={handleSaveApiKey} className="text-xs h-6 px-2 bg-indigo-500 hover:bg-indigo-600 workspace-button">
                         Save
                       </Button>
-                      <Button size="sm" variant="outline" onClick={() => setShowApiKeyInput(false)} className="text-xs h-6 px-2">
+                      <Button size="sm" variant="outline" onClick={() => setShowApiKeyInput(false)} className="text-xs h-6 px-2 workspace-button">
                         Cancel
                       </Button>
                     </div>
                   </div>
                 ) : (
-                  <Button size="sm" variant="outline" onClick={() => setShowApiKeyInput(true)} className="text-xs h-6 px-2 mt-1">
+                  <Button size="sm" variant="outline" onClick={() => setShowApiKeyInput(true)} className="text-xs h-6 px-2 mt-1 workspace-button">
                     Add API Key
                   </Button>
                 )}
@@ -391,15 +399,15 @@ export function AIPanel() {
             )}
             
             {/* Main panel content */}
-            <div className="p-3 flex-1 flex flex-col space-y-2.5 overflow-y-auto">
+            <div className="p-3 flex-1 flex flex-col space-y-2.5 overflow-y-auto workspace-scroll">
               {/* Task & Framework Selector */}
               <div className="grid grid-cols-2 gap-2">
                 <div>
                   <Select value={selectedTask} onValueChange={(value: any) => setSelectedTask(value)}>
-                    <SelectTrigger className="h-7 text-xs">
+                    <SelectTrigger className="h-7 text-xs workspace-input">
                       <SelectValue placeholder="Task" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="workspace-card">
                       <SelectItem value="generate">Generate</SelectItem>
                       <SelectItem value="explain">Explain</SelectItem>
                       <SelectItem value="fix">Fix</SelectItem>
@@ -409,10 +417,10 @@ export function AIPanel() {
                 </div>
                 <div>
                   <Select value={selectedFramework} onValueChange={setSelectedFramework}>
-                    <SelectTrigger className="h-7 text-xs">
+                    <SelectTrigger className="h-7 text-xs workspace-input">
                       <SelectValue placeholder="Framework" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="workspace-card">
                       <SelectItem value="react">React</SelectItem>
                       <SelectItem value="vue">Vue</SelectItem>
                       <SelectItem value="vanilla">Vanilla</SelectItem>
@@ -429,7 +437,7 @@ export function AIPanel() {
                     variant="outline"
                     size="sm"
                     onClick={() => handleQuickPrompt(prompt)}
-                    className="h-auto py-1.5 px-2 flex items-center gap-1 text-left justify-start bg-gray-50 hover:bg-gray-100 border-gray-200 rounded-md"
+                    className="h-auto py-1.5 px-2 flex items-center gap-1 text-left justify-start bg-gray-50/80 hover:bg-gray-100/80 border-gray-200 rounded-md workspace-button"
                   >
                     <div className="flex-shrink-0">{prompt.icon}</div>
                     <span className="text-xs truncate">{prompt.title}</span>
@@ -444,7 +452,7 @@ export function AIPanel() {
                   placeholder="Ask AI to generate, explain, or fix code..."
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
-                  className="h-full min-h-[120px] text-xs resize-none border-gray-200 rounded-md focus:border-indigo-300 focus:ring-1 focus:ring-indigo-200"
+                  className="h-full min-h-[120px] text-xs resize-none border-gray-200 rounded-md focus:border-indigo-300 focus:ring-1 focus:ring-indigo-200 workspace-input"
                 />
               </div>
               
@@ -452,7 +460,7 @@ export function AIPanel() {
               <Button
                 onClick={handleGenerate}
                 disabled={!prompt.trim() || isGenerating || !aiAssistant.apiKey}
-                className="w-full h-8 text-xs bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 border-0 shadow-md hover:shadow-lg transition-all duration-200 rounded-md"
+                className="w-full h-8 text-xs bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 border-0 shadow-md hover:shadow-lg transition-all duration-200 rounded-md workspace-button"
               >
                 {isGenerating ? (
                   <>
@@ -470,14 +478,14 @@ export function AIPanel() {
             
             {/* History panel */}
             {generationHistory.length > 0 && (
-              <div className="px-3 py-2 border-t border-gray-200 bg-gray-50 max-h-32 overflow-y-auto">
+              <div className="px-3 py-2 border-t border-gray-200/60 bg-gray-50/80 backdrop-blur-sm max-h-32 overflow-y-auto workspace-scroll">
                 <div className="flex items-center justify-between mb-1.5">
                   <h3 className="text-xs font-medium text-gray-700">Recent</h3>
                   <Button
                     size="sm"
                     variant="ghost"
                     onClick={clearGenerationHistory}
-                    className="h-5 text-[10px] text-gray-500 hover:text-gray-700"
+                    className="h-5 text-[10px] text-gray-500 hover:text-gray-700 workspace-button"
                   >
                     Clear
                   </Button>
@@ -485,13 +493,13 @@ export function AIPanel() {
                 
                 <div className="space-y-1.5">
                   {generationHistory.slice(-3).reverse().map((item) => (
-                    <div key={item.id} className="flex items-center justify-between p-1.5 bg-white rounded-md border border-gray-200">
+                    <div key={item.id} className="flex items-center justify-between p-1.5 bg-white/80 backdrop-blur-sm rounded-md border border-gray-200/60 workspace-card">
                       <p className="text-xs text-gray-600 truncate flex-1">{item.prompt}</p>
                       <Button
                         size="sm"
                         variant="ghost"
                         onClick={() => copyToClipboard(item.result)}
-                        className="h-5 w-5 p-0 ml-1"
+                        className="h-5 w-5 p-0 ml-1 workspace-button"
                         title="Copy code"
                       >
                         <Copy className="w-2.5 h-2.5" />
